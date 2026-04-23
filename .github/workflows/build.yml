@@ -6,29 +6,31 @@ on:
     tags: ['v*.*.*']
 
 env:
-  REGISTRY: docker.io
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: pulsy-global
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
     strategy:
       matrix:
         service:
-          - name: atria-api
+          - name: atria-core-api
             dockerfile: src/Atria.Core.Api/Dockerfile
             context: .
-          - name: atria-spa
+          - name: atria-core-spa
             dockerfile: src/Atria.Core.Spa/Dockerfile
             context: .
-          - name: atria-ingestor
+          - name: atria-feed-ingestor
             dockerfile: src/Atria.Feed.Ingestor/Dockerfile
             context: .
-          - name: atria-runtime
+          - name: atria-feed-runtime
             dockerfile: src/Atria.Feed.Runtime/Dockerfile
             context: .
-          - name: atria-delivery
+          - name: atria-feed-delivery
             dockerfile: src/Atria.Feed.Delivery/Dockerfile
             context: .
 
@@ -41,17 +43,18 @@ jobs:
         with:
           platforms: linux/amd64
 
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ matrix.service.name }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service.name }}
           tags: |
             type=ref,event=branch
             type=sha,prefix=sha-
