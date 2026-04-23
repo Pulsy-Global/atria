@@ -1,0 +1,166 @@
+<div class="p-3 sm:p-6">
+
+    <div *ngIf="showHeader" class="text-center mb-6 sm:mb-8">
+        <h3 class="text-base sm:text-lg font-medium mb-2">Output Configuration</h3>
+        <p class="text-secondary text-sm">
+            Select multiple outputs for your feed output.
+        </p>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+
+        <ng-container *ngTemplateOutlet="addOutputWithBadgesTemplate"></ng-container>
+
+        <div *ngIf="currentOutput && showConfiguration" class="w-full">
+            <ng-container *ngTemplateOutlet="configurationPanelTemplate"></ng-container>
+        </div>
+
+        <div *ngIf="selectedOutputs.length === 0 && showConfiguration" class="w-full">
+            <ng-container  *ngTemplateOutlet="emptyOutputsTemplate"></ng-container>
+        </div>
+
+
+    </div>
+
+</div>
+
+<ng-template #emptyOutputsTemplate>
+    <div class="border rounded-lg p-6 sm:p-8 text-center">
+        <mat-icon class="text-3xl sm:text-4xl w-6 sm:w-8 h-6 sm:h-8 text-secondary mb-2">
+            settings_ethernet
+        </mat-icon>
+        <p class="text-secondary text-sm">
+            Select outputs to configure your feed outputs
+        </p>
+    </div>
+</ng-template>
+
+<ng-template #addOutputWithBadgesTemplate>
+    <div class="border rounded-lg p-3 sm:p-4">
+        <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Add Output</mat-label>
+            <mat-select
+                #outputSelect
+                [value]="selectValue"
+                (selectionChange)="onOutputAdd($event.value)">
+                <mat-option
+                    *ngFor="let output of getAvailableOptions()"
+                    [value]="output.id">
+                    <div class="flex items-center">
+                        <mat-icon class="mr-2 !text-base icon-size-5" [svgIcon]="getTypeIcon(output.type)"></mat-icon>
+                        <span>{{ output.name }}</span>
+                    </div>
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <div *ngIf="selectedOutputs.length > 0" class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-dashed">
+            <div
+                *ngFor="let output of selectedOutputs; let i = index"
+                class="flex items-center rounded-full px-3 py-1 font-medium text-xs cursor-pointer transition-colors"
+                [ngClass]="{
+                    'text-secondary bg-primary/10 hover:bg-primary/20': selectedConfigIndex !== i,
+                    'text-primary bg-primary/30': selectedConfigIndex === i
+                }"
+                (click)="selectConfig(i)">
+
+                <mat-icon class="mr-2 !text-sm icon-size-4" [svgIcon]="getTypeIcon(output.type)"></mat-icon>
+
+                <span class="break-all truncate max-w-[180px]">
+                    {{ output.name }}
+                </span>
+
+                <mat-icon
+                    class="ml-2 !text-sm !w-4 !h-4 cursor-pointer flex-shrink-0 hover:text-red-600"
+                    (click)="removeOutput(i); $event.stopPropagation()">
+                    close
+                </mat-icon>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #configurationPanelTemplate>
+    <div class="border rounded-lg w-full">
+        <div class="border-b p-3">
+            <div class="flex items-center justify-between">
+                <h4 class="text-md font-medium py-1">
+                    {{ currentOutput.name }}
+                </h4>
+                <span *ngIf="isOutputSaved(currentOutput.id)"
+                    class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 md:px-3">
+                    <span class="w-1.5 h-1.5 rounded-full mr-1 bg-green-400 md:w-2 md:h-2 md:mr-2"></span>
+                    Active
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-y-auto p-3 sm:p-4">
+
+            <div class="space-y-3 sm:space-y-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 !mb-8">
+                    <div>
+                        <h5 class="text-sm text-secondary uppercase tracking-wide !mb-2">Type</h5>
+                        <div class="w-full p-2 sm:p-3 border min-h-11 text-secondary rounded text-sm">
+                            {{ getTypeLabel(currentOutput.type) }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h5 class="text-sm text-secondary uppercase tracking-wide !mb-2">Description</h5>
+                        <div class="w-full p-2 sm:p-3 border min-h-11 text-secondary rounded text-sm">
+                            {{ currentOutput.description }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Configuration Component -->
+                <div class="border-t pt-3 sm:pt-4">
+                    @switch (currentOutput.type) {
+                        @case (OutputType.Webhook) {
+                            <webhook-config
+                                [config]="currentOutput.config"
+                                [mode]="OutputConfigMode.ReadOnly">
+                            </webhook-config>
+                        }
+                        @case (OutputType.Telegram) {
+                            <telegram-config
+                                [config]="currentOutput.config"
+                                [mode]="OutputConfigMode.ReadOnly">
+                            </telegram-config>
+                        }
+                        @case (OutputType.Discord) {
+                            <discord-config
+                                [config]="currentOutput.config"
+                                [mode]="OutputConfigMode.ReadOnly">
+                            </discord-config>
+                        }
+                        @case (OutputType.Email) {
+                            <email-config
+                                [config]="currentOutput.config"
+                                [mode]="OutputConfigMode.ReadOnly">
+                            </email-config>
+                        }
+                        @case (OutputType.Postgres) {
+                            <postgres-config
+                                [config]="currentOutput.config"
+                                [mode]="OutputConfigMode.ReadOnly">
+                            </postgres-config>
+                        }
+                        @default {
+                            <div class="text-center py-6 sm:py-8 text-secondary">
+                                <mat-icon class="text-3xl sm:text-4xl w-6 sm:w-8 h-6 sm:h-8 mb-2">
+                                    settings
+                                </mat-icon>
+                                <p class="text-sm">
+                                    Configuration component for {{ getTypeLabel(currentOutput.type) }} is not implemented yet
+                                </p>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

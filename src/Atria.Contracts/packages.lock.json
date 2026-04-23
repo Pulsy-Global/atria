@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Mapster": {
+        "type": "Direct",
+        "requested": "[7.4.0, )",
+        "resolved": "7.4.0",
+        "contentHash": "RYGoDqvS4WTKIq0HDyPBBVIj6N0mluOCXQ1Vk95JKseMHEsbCXSEGKSlP95oL+s42IXAXbqvHj7p0YaRBUcfqg==",
+        "dependencies": {
+          "Mapster.Core": "1.2.1"
+        }
+      },
+      "Nethereum.RPC": {
+        "type": "Direct",
+        "requested": "[6.0.1, )",
+        "resolved": "6.0.1",
+        "contentHash": "2KMQhhNIwczMY1UCPwSyYykBLuuhi4MQHx6hdKd4urPhsmHfk2VjklaWwB8JmePKav7pvHovVSh1BWblwDaTwA==",
+        "dependencies": {
+          "Nethereum.Hex": "6.0.1",
+          "Nethereum.JsonRpc.Client": "6.0.1",
+          "Nethereum.Merkle.Patricia": "6.0.1",
+          "Nethereum.Model": "6.0.1",
+          "Nethereum.Util": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "StyleCop.Analyzers": {
+        "type": "Direct",
+        "requested": "[1.1.118, )",
+        "resolved": "1.1.118",
+        "contentHash": "Onx6ovGSqXSK07n/0eM3ZusiNdB6cIlJdabQhWGgJp3Vooy9AaLS/tigeybOJAobqbtggTamoWndz72JscZBvw=="
+      },
+      "Mapster.Core": {
+        "type": "Transitive",
+        "resolved": "1.2.1",
+        "contentHash": "11lokmfliBEMMmjeqxFGNpqGXq6tN96zFqpBmfYeahr4Ybk63oDmeJmOflsATjobYkX248g5Y62oQ2NNnZaeww=="
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Transitive",
+        "resolved": "6.0.0",
+        "contentHash": "/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA=="
+      },
+      "Nethereum.Hex": {
+        "type": "Transitive",
+        "resolved": "6.0.1",
+        "contentHash": "jVN+85vgcZP2sFCF+E/ZcbkAkfmRt8Ey2n7jGcZMnX6YoDGNWZ0d2aSJGxLS45D/6inzazEWJLHtu+rQlN7OaQ==",
+        "dependencies": {
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Nethereum.Merkle.Patricia": {
+        "type": "Transitive",
+        "resolved": "6.0.1",
+        "contentHash": "5xyb7/WZh4WFjNhYJwEjzoxISciectd7z1r6RzRdZ+04fkkcoaZfKrFhn/ZV4IHaJ3/UieV8k6GM2VWmLGJWXg==",
+        "dependencies": {
+          "Nethereum.Model": "6.0.1",
+          "Nethereum.RLP": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Nethereum.Model": {
+        "type": "Transitive",
+        "resolved": "6.0.1",
+        "contentHash": "x74VxWBPCc53bx11H7F1RXEXn2sH1zbG0RRYQQGlH+slN9GF3li8Hquu6lnFlgIaWpvEorVLgcDmXXYghpTIfg==",
+        "dependencies": {
+          "Nethereum.RLP": "6.0.1",
+          "Nethereum.Util": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Nethereum.RLP": {
+        "type": "Transitive",
+        "resolved": "6.0.1",
+        "contentHash": "dLnX1WHvl/ijwqtz2XkCtCnOpP7FNtMWGDbuq5LhTYphX+mE6cB1VPijYSBqFobQM3WWaCbJda0f1ojSMw7Pig==",
+        "dependencies": {
+          "Nethereum.Hex": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Nethereum.Util": {
+        "type": "Transitive",
+        "resolved": "6.0.1",
+        "contentHash": "wcGwyNCeb0FAqcvTr1a7MRVIjQyJUkQKKw54D7T6hgbJz4hQJOAequ797arCLEpI6lSsiwIyuZdoRdpT4RJYNQ==",
+        "dependencies": {
+          "Nethereum.Hex": "6.0.1",
+          "Nethereum.RLP": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Nethereum.JsonRpc.Client": {
+        "type": "CentralTransitive",
+        "requested": "[6.0.1, )",
+        "resolved": "6.0.1",
+        "contentHash": "8og4OLFpPOihIMPGY/ZyiScj6vb3c+OeIdT7FO5J7TOfb/uGOmMAjuq6O+76RhLLhxDPnU59wIiByXgq35zclg==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Nethereum.Hex": "6.0.1",
+          "Newtonsoft.Json": "[11.0.2, 14.0.0)"
+        }
+      },
+      "Newtonsoft.Json": {
+        "type": "CentralTransitive",
+        "requested": "[13.0.4, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      }
+    }
+  }
+}

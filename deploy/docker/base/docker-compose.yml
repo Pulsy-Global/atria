@@ -1,0 +1,8 @@
+name: atria-base
+include:
+  - path: ./docker-compose.infra.yml
+    required: true
+  - path: ./docker-compose.dashboard.yml
+    required: true
+  - path: ./docker-compose.functions.yml
+    required: false

@@ -1,0 +1,42 @@
+<div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+    <div class="flex items-center">
+        <mat-icon class="mr-3 text-default">
+            filter_list
+        </mat-icon>
+        <span class="text-default">
+            {{ data.columnConfig.label }}
+        </span>
+    </div>
+    <button mat-icon-button
+        class="small-icon-button"
+        (click)="onCancel()">
+        <mat-icon class="text-default">close</mat-icon>
+    </button>
+</div>
+
+<div class="flex flex-col w-full py-6 mt-4">
+    <mat-form-field class="w-full">
+        <input matInput
+               class="ml-6"
+               [(ngModel)]="filterValue"
+               placeholder="Enter value">
+        <mat-select matPrefix [(ngModel)]="operator" class="w-22">
+            <mat-option *ngFor="let op of operators" [value]="op.value">
+                {{ op.label }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+
+<div class="flex flex-row justify-end items-center gap-2">
+    <button mat-button (click)="onClear()">
+        <mat-icon class="pr-3">clear</mat-icon>
+        Clear
+    </button>
+    <button mat-raised-button
+            color="primary"
+            [disabled]="!canConfirm"
+            (click)="onFilter()">
+        Apply Filter
+    </button>
+</div>

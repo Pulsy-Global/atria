@@ -1,0 +1,85 @@
+services:
+  atria-api:
+    build:
+      context: ../../..
+      dockerfile: src/Atria.Core.Api/Dockerfile
+    container_name: atria-api
+    restart: on-failure
+    environment:
+      - ASPNETCORE_URLS=http://+:4300
+    env_file:
+      - ./development.env
+    privileged: true
+    ports:
+      - target: 4300
+        published: 4300
+    depends_on:
+      - postgresql
+    networks:
+      - atria-network
+
+  atria-spa:
+    build:
+      context: ../../..
+      dockerfile: src/Atria.Core.Spa/Dockerfile
+    container_name: atria-spa
+    restart: on-failure
+    environment:
+      - ASPNETCORE_URLS=http://+:7150
+    env_file:
+      - ./development.env
+    privileged: true
+    ports:
+      - target: 7150
+        published: 7150
+    depends_on:
+      - atria-api
+    networks:
+      - atria-network
+
+  atria-feed-ingestor:
+    build:
+      context: ../../..
+      dockerfile: src/Atria.Feed.Ingestor/Dockerfile
+    container_name: atria-feed-ingestor
+    restart: on-failure
+    env_file:
+      - ./development.env
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+    networks:
+      - atria-network
+
+  atria-feed-runtime:
+    build:
+      context: ../../..
+      dockerfile: src/Atria.Feed.Runtime/Dockerfile
+    container_name: atria-feed-runtime
+    restart: on-failure
+    env_file:
+      - ./development.env
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+      - atria-feed-ingestor
+    networks:
+      - atria-network
+
+  atria-feed-delivery:
+    build:
+      context: ../../..
+      dockerfile: src/Atria.Feed.Delivery/Dockerfile
+    container_name: atria-feed-delivery
+    restart: on-failure
+    env_file:
+      - ./development.env
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+      - atria-feed-runtime
+    networks:
+      - atria-network

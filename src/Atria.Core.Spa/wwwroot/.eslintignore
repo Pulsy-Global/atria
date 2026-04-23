@@ -1,0 +1,31 @@
+# Dependencies & Build outputs
+misc/
+node_modules/
+.angular/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Public folder
+public/
+
+# Temporary files
+*.tmp
+*.temp

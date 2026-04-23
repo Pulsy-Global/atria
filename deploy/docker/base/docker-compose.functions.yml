@@ -1,0 +1,93 @@
+services:
+  k3s:
+    profiles: ["functions"]
+    image: rancher/k3s:v1.28.5-k3s1
+    container_name: atria-k3s
+    restart: on-failure
+    privileged: true
+    tmpfs:
+      - /run
+      - /var/run
+    environment:
+      - K3S_TOKEN=atria-k3s-token
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    command: server --disable=traefik --disable=servicelb --write-kubeconfig-mode=644
+    ports:
+      - target: 6443
+        published: 6443
+      - target: 31314
+        published: 31314
+    networks:
+      - atria-network
+    volumes:
+      - k3s-server:/var/lib/rancher/k3s
+      - ${ATRIA_ROOT:-../../..}/data/k3s:/output
+
+  fission-installer:
+    profiles: ["functions"]
+    image: alpine/k8s:1.28.5
+    container_name: atria-fission-installer
+    restart: "no"
+    depends_on:
+      - k3s
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/data/k3s:/root/.kube
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        echo "Waiting for k3s kubeconfig..."
+        until [ -f /root/.kube/kubeconfig.yaml ]; do sleep 2; done
+
+        # Create container version (k3s:6443) for internal use
+        cp /root/.kube/kubeconfig.yaml /root/.kube/kubeconfig-internal.yaml
+        sed -i 's|https://127.0.0.1:6443|https://k3s:6443|g' /root/.kube/kubeconfig-internal.yaml
+
+        # Create host version (127.0.0.1:6443) for external access
+        cp /root/.kube/kubeconfig.yaml /root/.kube/kubeconfig-host.yaml
+
+        export KUBECONFIG=/root/.kube/kubeconfig-internal.yaml
+
+        until kubectl get nodes 2>/dev/null; do sleep 2; done
+
+        echo "Installing Fission CRDs..."
+        kubectl create -k "github.com/fission/fission/crds/v1?ref=v1.22.0" 2>&1 | grep -v "Too long" || true
+
+        echo "Creating namespaces..."
+        kubectl create namespace fission 2>/dev/null || true
+        kubectl create namespace atria-fission-functions 2>/dev/null || true
+
+        echo "Installing Fission..."
+        helm repo add fission-charts https://fission.github.io/fission-charts/
+        helm repo update
+
+        helm upgrade --install \
+          --version 1.22.1 \
+          --namespace fission \
+          --set serviceType=NodePort \
+          --set routerServiceType=NodePort \
+          --set router.service.nodePort=31314 \
+          --set "additionalFissionNamespaces={atria-fission-functions}" \
+          fission \
+          fission-charts/fission-all
+
+        echo "Waiting for Fission router..."
+        kubectl wait --for=condition=available --timeout=180s deployment/router -n fission || true
+
+        echo "Installing fission CLI..."
+        curl -Lo /tmp/fission https://github.com/fission/fission/releases/download/v1.22.0/fission-v1.22.0-linux-amd64
+        chmod +x /tmp/fission
+
+        echo "Creating nodejs environment..."
+        /tmp/fission env create --name nodejs --image fission/node-env:latest --namespace atria-fission-functions 2>/dev/null || true
+
+        echo "Fission ready at http://localhost:31314"
+        echo ""
+        echo "To access from host, set environment variable:"
+        echo "export KUBECONFIG=\$(pwd)/data/k3s/kubeconfig-host.yaml"
+
+volumes:
+  k3s-server:

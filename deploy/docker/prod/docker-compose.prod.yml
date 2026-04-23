@@ -1,0 +1,67 @@
+services:
+  atria-api:
+    image: ghcr.io/pulsy-global/atria-core-api:${ATRIA_IMAGE_TAG:-latest}
+    container_name: atria-api
+    restart: on-failure
+    environment:
+      - ASPNETCORE_URLS=http://+:4300
+    privileged: true
+    ports:
+      - target: 4300
+        published: 4300
+    depends_on:
+      - postgresql
+    networks:
+      - atria-network
+
+  atria-spa:
+    image: ghcr.io/pulsy-global/atria-core-spa:${ATRIA_IMAGE_TAG:-latest}
+    container_name: atria-spa
+    restart: on-failure
+    environment:
+      - ASPNETCORE_URLS=http://+:7150
+    privileged: true
+    ports:
+      - target: 7150
+        published: 7150
+    depends_on:
+      - atria-api
+    networks:
+      - atria-network
+
+  atria-feed-ingestor:
+    image: ghcr.io/pulsy-global/atria-feed-ingestor:${ATRIA_IMAGE_TAG:-latest}
+    container_name: atria-feed-ingestor
+    restart: on-failure
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+    networks:
+      - atria-network
+
+  atria-feed-runtime:
+    image: ghcr.io/pulsy-global/atria-feed-runtime:${ATRIA_IMAGE_TAG:-latest}
+    container_name: atria-feed-runtime
+    restart: on-failure
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+      - atria-feed-ingestor
+    environment:
+      - Runtime__Functions__Fission__Client__InClusterConfig=true
+    networks:
+      - atria-network
+
+  atria-feed-delivery:
+    image: ghcr.io/pulsy-global/atria-feed-delivery:${ATRIA_IMAGE_TAG:-latest}
+    container_name: atria-feed-delivery
+    restart: on-failure
+    privileged: true
+    depends_on:
+      - postgresql
+      - nats
+      - atria-feed-runtime
+    networks:
+      - atria-network

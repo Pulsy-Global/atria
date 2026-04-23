@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Atria Recommended Rules" ToolsVersion="17.0">
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
+    <Rule Id="CS0612" Action="Info" />
+    <Rule Id="CS0618" Action="Info" />
+    <Rule Id="CS0659" Action="Info" />
+    <Rule Id="CS1591" Action="None" />
+    <Rule Id="CS1998" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="ASP0014" Action="None" />
+    <Rule Id="CA2255" Action="None" />
+    <Rule Id="IDE0005" Action="Error" />
+    <Rule Id="IDE0022" Action="None" />
+    <Rule Id="SA0001" Action="None" />
+    <Rule Id="SA1008" Action="None" />
+    <Rule Id="SA1000" Action="None" />
+    <Rule Id="SA1010" Action="None" />
+    <Rule Id="SA1011" Action="None" />
+    <Rule Id="SA1101" Action="None" />
+    <Rule Id="SA1118" Action="None" />
+    <Rule Id="SA1122" Action="None" />
+    <Rule Id="SA1124" Action="None" />
+    <Rule Id="SA1129" Action="None" />
+    <Rule Id="SA1133" Action="None" />
+    <Rule Id="SA1201" Action="None" />
+    <Rule Id="SA1309" Action="None" />
+    <Rule Id="SA1313" Action="None" />
+    <Rule Id="SA1314" Action="None" />
+    <Rule Id="SA1401" Action="None" />
+    <Rule Id="SA1402" Action="None" />
+    <Rule Id="SA1516" Action="None" />
+    <Rule Id="SA1518" Action="None" />
+    <Rule Id="SA1633" Action="None" />
+    <Rule Id="SX1101" Action="Warning" />
+    <Rule Id="SX1309" Action="Warning" />
+    <Rule Id="VSTHRD002" Action="Info" />
+  </Rules>
+</RuleSet>

@@ -1,0 +1,91 @@
+layout {
+    display: flex;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    /* Base styles for individual layouts */
+    > * {
+        position: relative;
+        display: flex;
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    /* Base styles for components that load as a route */
+    router-outlet {
+        + * {
+            position: relative;
+            display: flex;
+            flex: 1 1 auto;
+            width: 100%;
+        }
+    }
+
+    .logo-border {
+        border: 1px solid var(--fuse-border);
+        border-radius: 25%;
+    }
+
+    .layout-root {
+        &.panel-active {
+            background-color: rgba(var(--fuse-bg-card-rgb), 1);
+        }
+    }
+
+    .layout-content-card {
+        transition: margin 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+                    border-radius 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+        &.panel-open {
+            margin: 0.5rem;
+            margin-right: 0;
+            border-radius: 0.75rem;
+            overflow: clip;
+        }
+    }
+
+    .layout-side-panel {
+        flex-shrink: 0;
+        flex-grow: 0;
+        overflow: hidden;
+        width: 0;
+        min-width: 0;
+        max-width: 0;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        transition: width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+                    min-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+                    max-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .layout-side-panel--open:not(.layout-side-panel--mobile) {
+        width: var(--side-panel-width);
+        min-width: var(--side-panel-width);
+        max-width: var(--side-panel-width);
+    }
+
+    .layout-side-panel--open.layout-side-panel--mobile {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible;
+        background-color: rgba(var(--fuse-bg-default-rgb), 1);
+    }
+
+    .layout-side-panel__inner {
+        height: 100%;
+        width: var(--side-panel-width);
+        padding: 0.5rem 0.5rem 0.5rem 0;
+    }
+
+    .layout-side-panel--mobile .layout-side-panel__inner {
+        width: 100%;
+        padding: 0;
+    }
+}

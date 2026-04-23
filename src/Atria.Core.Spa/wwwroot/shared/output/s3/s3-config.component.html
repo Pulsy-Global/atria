@@ -1,0 +1,86 @@
+<div class="flex items-center mb-6 border-b pb-4">
+    <div class="w-10 h-10 bg-hover rounded-lg flex items-center justify-center mr-3">
+        <mat-icon class="text-secondary">cloud_upload</mat-icon>
+    </div>
+    <div>
+        <h2 class="text-lg text-default mb-1">S3 Configuration</h2>
+        <p class="text-sm text-secondary">Configure AWS S3 bucket settings</p>
+    </div>
+</div>
+
+<form [formGroup]="form" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Bucket Name</mat-label>
+            <input matInput formControlName="bucketName" placeholder="my-bucket">
+            <mat-error *ngIf="form.get('bucketName')?.hasError('required')">
+                Bucket name is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Region</mat-label>
+            <input matInput formControlName="region" placeholder="us-east-1">
+            <mat-error *ngIf="form.get('region')?.hasError('required')">
+                Region is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Access Key ID</mat-label>
+            <input matInput formControlName="accessKeyId" placeholder="AKIAIOSFODNN7EXAMPLE">
+            <mat-error *ngIf="form.get('accessKeyId')?.hasError('required')">
+                Access Key ID is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Secret Access Key</mat-label>
+            <input matInput type="password" formControlName="secretAccessKey" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">
+            <mat-error *ngIf="form.get('secretAccessKey')?.hasError('required')">
+                Secret Access Key is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Prefix (Optional)</mat-label>
+            <input matInput formControlName="prefix" placeholder="data/feeds/">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>File Format</mat-label>
+            <mat-select formControlName="fileFormat">
+                <mat-option value="json">JSON</mat-option>
+                <mat-option value="csv">CSV</mat-option>
+                <mat-option value="parquet">Parquet</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('fileFormat')?.hasError('required')">
+                File format is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <mat-checkbox formControlName="compressionEnabled" class="text-sm">
+            Enable Compression
+        </mat-checkbox>
+
+        <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Timeout (seconds)</mat-label>
+            <input matInput type="number" formControlName="timeoutSeconds" placeholder="30">
+            <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('required')">
+                Timeout is required
+            </mat-error>
+            <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('min')">
+                Timeout must be at least 1 second
+            </mat-error>
+            <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('max')">
+                Timeout cannot exceed 300 seconds
+            </mat-error>
+        </mat-form-field>
+    </div>
+</form>

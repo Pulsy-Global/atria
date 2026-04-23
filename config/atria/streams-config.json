@@ -1,0 +1,29 @@
+{
+  "Messaging": {
+    "DefaultFeedStream": "Feed",
+    "Streams": {
+      "Atria": {
+        "Name": "Atria",
+        "Subjects": ["js.blockchain.>"],
+        "MaxAgeMinutes": 60,
+        "MaxMessages": -1,
+        "Replicas": 1
+      },
+      "Feed": {
+        "Name": "Feed",
+        "Subjects": ["js.feed.>"],
+        "MaxAgeMinutes": 60,
+        "MaxMessages": -1,
+        "MaxMessagesPerSubject": 10000,
+        "DiscardPolicy": "New",
+        "DiscardNewPerSubject": true,
+        "Replicas": 1
+      }
+    },
+    "DefaultStream": {
+      "MaxSizeMb": 1024,
+      "MaxAgeMinutes": 60,
+      "Replicas": 1
+    }
+  }
+}

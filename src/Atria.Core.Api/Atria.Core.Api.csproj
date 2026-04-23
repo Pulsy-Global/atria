@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>Atria.Core.Api.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+        <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.AspNetCore.OData.NewtonsoftJson" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Serilog" />
+        <PackageReference Include="Serilog.Extensions.Hosting" />
+        <PackageReference Include="Serilog.Settings.Configuration" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Business\Atria.Business.csproj" />
+      <ProjectReference Include="..\Atria.Common.KV\Atria.Common.KV.csproj" />
+      <ProjectReference Include="..\Atria.Common.Web\Atria.Common.Web.csproj" />
+      <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+      <ProjectReference Include="..\Atria.Core.Business\Atria.Core.Business.csproj" />
+      <ProjectReference Include="..\Atria.Core.Data\Atria.Core.Data.csproj" />
+      <ProjectReference Include="..\Atria.Orchestrator\Atria.Orchestrator.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Settings\appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Settings\**\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="CopyCommonSettings" BeforeTargets="PrepareForPublish" AfterTargets="Build">
+        <ItemGroup>
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\networks-config.json" />
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\streams-config.json" />
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\kv-config.json" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(ProjectDir)$(OutDir)Settings" SkipUnchangedFiles="false" />
+        <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(PublishDir)\Settings" SkipUnchangedFiles="false" />
+    </Target>
+
+</Project>

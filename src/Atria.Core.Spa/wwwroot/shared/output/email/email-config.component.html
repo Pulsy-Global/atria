@@ -1,0 +1,307 @@
+<div class="space-y-6">
+    <div *ngIf="!isReadOnly()" class="flex items-center border-b pb-4">
+        <div class="w-10 h-10 bg-hover rounded-lg flex items-center justify-center mr-3">
+            <mat-icon class="text-secondary">settings</mat-icon>
+        </div>
+        <div>
+            <h4 class="text-lg text-default">Email Configuration</h4>
+            <p class="mt-1 text-sm text-secondary">Configure SMTP email delivery settings</p>
+        </div>
+    </div>
+
+    <form [formGroup]="form" class="space-y-4">
+        <div class="space-y-8">
+            <div>
+                <h5 class="text-sm text-secondary uppercase tracking-wide">SMTP Server</h5>
+                <p class="text-xs text-secondary mt-1">Configure SMTP server connection and authentication</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <mat-form-field appearance="outline" class="col-span-2">
+                        <mat-label>SMTP Server</mat-label>
+                        <input matInput
+                               formControlName="smtpServer"
+                               placeholder="smtp.example.com">
+                        <mat-error *ngIf="form.get('smtpServer')?.hasError('required')">
+                            SMTP Server is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Port</mat-label>
+                        <input matInput
+                               type="number"
+                               formControlName="smtpPort"
+                               min="1"
+                               max="65535">
+                        <mat-error *ngIf="form.get('smtpPort')?.hasError('required')">
+                            Port is required
+                        </mat-error>
+                        <mat-error *ngIf="form.get('smtpPort')?.hasError('min') || form.get('smtpPort')?.hasError('max')">
+                            Port must be between 1-65535
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Username</mat-label>
+                        <input matInput
+                               formControlName="username"
+                               placeholder="email@example.com">
+                        <mat-error *ngIf="form.get('username')?.hasError('required')">
+                            Username is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Password</mat-label>
+                        <input matInput
+                               type="password"
+                               formControlName="password">
+                        <mat-error *ngIf="form.get('password')?.hasError('required')">
+                            Password is required
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="bg-default p-4 rounded-lg">
+                    <mat-checkbox formControlName="enableSsl">
+                        <div class="flex flex-col">
+                            <span class="text-default">Enable SSL/TLS</span>
+                            <span class="text-sm text-secondary">Use secure connection (recommended)</span>
+                        </div>
+                    </mat-checkbox>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-8 pt-4">
+            <div>
+                <h5 class="text-sm text-secondary uppercase tracking-wide">Email Settings</h5>
+                <p class="text-xs text-secondary mt-1">Configure email content and formatting options</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label>From Email</mat-label>
+                        <input matInput
+                               formControlName="fromEmail"
+                               placeholder="noreply@example.com"
+                               type="email">
+                        <mat-error *ngIf="form.get('fromEmail')?.hasError('required')">
+                            From Email is required
+                        </mat-error>
+                        <mat-error *ngIf="form.get('fromEmail')?.hasError('email')">
+                            Please enter a valid email address
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>From Name</mat-label>
+                        <input matInput
+                               formControlName="fromName"
+                               placeholder="Notification System">
+                    </mat-form-field>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <mat-form-field appearance="outline" class="col-span-2">
+                        <mat-label>Subject</mat-label>
+                        <input matInput
+                               formControlName="subject">
+                        <mat-error *ngIf="form.get('subject')?.hasError('required')">
+                            Subject is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Timeout</mat-label>
+                        <input matInput
+                               type="number"
+                               formControlName="timeoutSeconds"
+                               min="1"
+                               max="300">
+                        <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('required')">
+                            Timeout is required
+                        </mat-error>
+                        <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('min')">
+                            Minimum timeout is 1 second
+                        </mat-error>
+                        <mat-error *ngIf="form.get('timeoutSeconds')?.hasError('max')">
+                            Maximum timeout is 300 seconds
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline">
+                    <textarea matInput
+                              formControlName="bodyTemplate"
+                              placeholder="Message Template"
+                              rows="6">
+                    </textarea>
+                    <mat-error *ngIf="form.get('bodyTemplate')?.hasError('required')">
+                        Message Template is required
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="bg-default p-4 rounded-lg">
+                    <mat-checkbox formControlName="isHtml">
+                        <div class="flex flex-col">
+                            <span class="text-default">
+                                HTML Format
+                            </span>
+                            <span class="text-sm text-secondary">
+                                Enable HTML formatting in emails
+                            </span>
+                        </div>
+                    </mat-checkbox>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-8 pt-4">
+            <div>
+                <h5 class="text-sm text-secondary uppercase tracking-wide">Recipients</h5>
+                <p class="text-xs text-secondary mt-1">Manage email recipients for To, CC, and BCC fields</p>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex items-start justify-between">
+                    <label class="text-sm text-secondary">To Recipients</label>
+                    <span class="text-xs text-secondary">{{ toEmailsArray.length }} recipients</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 min-h-[2rem] p-3 border rounded-lg bg-default"
+                     *ngIf="toEmailsArray.length > 0; else emptyToEmails">
+                    <span *ngFor="let email of toEmailsArray.value; let i = index"
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-100 text-primary-800">
+                        {{ email }}
+                        <button *ngIf="!isReadOnly()"
+                                type="button"
+                                (click)="removeEmail('to', i)"
+                                class="ml-2 text-primary hover:text-primary-800">
+                            <mat-icon class="!text-xs">close</mat-icon>
+                        </button>
+                    </span>
+                </div>
+
+                <ng-template #emptyToEmails>
+                    <div class="p-3 border border-dashed rounded-lg text-center text-secondary text-sm">
+                        No recipients added
+                    </div>
+                </ng-template>
+
+                <div *ngIf="!isReadOnly()" class="flex gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Add recipient</mat-label>
+                        <input matInput
+                               #toEmailInput
+                               placeholder="recipient@example.com"
+                               type="email"
+                               (keyup.enter)="addEmail('to', toEmailInput.value); toEmailInput.value = ''">
+                    </mat-form-field>
+                    <button type="button"
+                            mat-icon-button
+                            color="primary"
+                            (click)="addEmail('to', toEmailInput.value); toEmailInput.value = ''"
+                            class="-mt-0.5">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex items-start justify-between">
+                    <label class="text-sm text-secondary">CC Recipients</label>
+                    <span class="text-xs text-secondary">{{ ccEmailsArray.length }} recipients</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 min-h-[2rem] p-3 border rounded-lg bg-default"
+                     *ngIf="ccEmailsArray.length > 0; else emptyCcEmails">
+                    <span *ngFor="let email of ccEmailsArray.value; let i = index"
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                        {{ email }}
+                        <button *ngIf="!isReadOnly()"
+                                type="button"
+                                (click)="removeEmail('cc', i)"
+                                class="ml-2 text-green-600 hover:text-green-800">
+                            <mat-icon class="!text-xs">close</mat-icon>
+                        </button>
+                    </span>
+                </div>
+
+                <ng-template #emptyCcEmails>
+                    <div class="p-3 border border-dashed rounded-lg text-center text-secondary text-sm">
+                        No CC recipients
+                    </div>
+                </ng-template>
+
+                <div *ngIf="!isReadOnly()" class="flex gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Add CC recipient</mat-label>
+                        <input matInput
+                               #ccEmailInput
+                               placeholder="cc@example.com"
+                               type="email"
+                               (keyup.enter)="addEmail('cc', ccEmailInput.value); ccEmailInput.value = ''">
+                    </mat-form-field>
+                    <button type="button"
+                            mat-icon-button
+                            color="primary"
+                            (click)="addEmail('cc', ccEmailInput.value); ccEmailInput.value = ''"
+                            class="-mt-0.5">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="flex items-start justify-between">
+                    <label class="text-sm text-secondary">BCC Recipients</label>
+                    <span class="text-xs text-secondary">{{ bccEmailsArray.length }} recipients</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 min-h-[2rem] p-3 border rounded-lg bg-default"
+                     *ngIf="bccEmailsArray.length > 0; else emptyBccEmails">
+                    <span *ngFor="let email of bccEmailsArray.value; let i = index"
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-hover text-default">
+                        {{ email }}
+                        <button *ngIf="!isReadOnly()"
+                                type="button"
+                                (click)="removeEmail('bcc', i)"
+                                class="ml-2 text-secondary hover:text-default">
+                            <mat-icon class="!text-xs">close</mat-icon>
+                        </button>
+                    </span>
+                </div>
+
+                <ng-template #emptyBccEmails>
+                    <div class="p-3 border border-dashed rounded-lg text-center text-secondary text-sm">
+                        No BCC recipients
+                    </div>
+                </ng-template>
+
+                <div *ngIf="!isReadOnly()" class="flex gap-2">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Add BCC recipient</mat-label>
+                        <input matInput
+                               #bccEmailInput
+                               placeholder="bcc@example.com"
+                               type="email"
+                               (keyup.enter)="addEmail('bcc', bccEmailInput.value); bccEmailInput.value = ''">
+                    </mat-form-field>
+                    <button type="button"
+                            mat-icon-button
+                            color="primary"
+                            (click)="addEmail('bcc', bccEmailInput.value); bccEmailInput.value = ''"
+                            class="-mt-0.5">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

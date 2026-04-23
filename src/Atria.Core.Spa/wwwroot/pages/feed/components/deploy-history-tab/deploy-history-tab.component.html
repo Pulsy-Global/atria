@@ -1,0 +1,165 @@
+<div class="p-3 sm:p-6 h-full flex flex-col">
+    
+    <div *ngIf="deployHistory.length > 0" 
+         class="mb-6 sm:mb-8">
+        
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div class="text-center md:text-left">
+                <h3 class="text-base sm:text-lg font-medium mb-1">Deploy History</h3>
+                <p class="text-secondary text-sm">
+                    View deployment history and track versions
+                </p>
+            </div>
+            
+            <div class="flex justify-center md:justify-end flex-shrink-0">
+                <ng-container *ngTemplateOutlet="compactStatisticsTemplate"></ng-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col min-h-0">
+
+        <div *ngIf="deployHistory.length === 0" class="flex-1 flex items-center justify-center">
+            <ng-container *ngTemplateOutlet="emptyStateTemplate"></ng-container>
+        </div>
+
+        <div *ngIf="deployHistory.length > 0" class="flex-1 flex flex-col min-h-0">
+
+            <div class="hidden md:block flex-1 min-h-0">
+                <ng-container *ngTemplateOutlet="desktopHistoryListTemplate"></ng-container>
+            </div>
+
+            <div class="block md:hidden flex-1 min-h-0">
+                <ng-container *ngTemplateOutlet="mobileHistoryListTemplate"></ng-container>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<ng-template #emptyStateTemplate>
+    <div class="text-center py-8">
+        <mat-icon class="text-4xl sm:text-5xl w-8 sm:w-10 h-8 sm:h-10 text-secondary mb-3">inbox</mat-icon>
+        <h4 class="text-base font-medium mb-1">No Deployments Yet</h4>
+        <p class="text-secondary text-sm">
+            Deploy your first feed configuration to see the history here.
+        </p>
+    </div>
+</ng-template>
+
+<ng-template #desktopHistoryListTemplate>
+    <div class="flex-1 overflow-y-auto border rounded-lg">
+        <div class="bg-hover border-b px-4 py-3">
+            <div class="grid grid-cols-12 gap-4 text-sm font-medium text-default text-center">
+                <div class="col-span-2">Status</div>
+                <div class="col-span-2">Version</div>
+                <div class="col-span-4">Created At</div>
+                <div class="col-span-4">Updated At</div>
+            </div>
+        </div>
+        
+        <div class="divide-y">
+            <div 
+                *ngFor="let item of deployHistory; let i = index" 
+                class="px-4 py-3 hover:bg-hover transition-colors">
+                
+                <div class="grid grid-cols-12 gap-4 items-center text-center">
+                    <div class="col-span-2 justify-items-center">
+                        <div 
+                            class="w-8 h-8 rounded-full border-2 flex items-center justify-center"
+                            [class]="getStatusBorderColor(item.status)">
+                            <mat-icon 
+                                class="text-sm"
+                                [class]="getStatusColor(item.status)">
+                                {{ getStatusIcon(item.status) }}
+                            </mat-icon>
+                        </div>
+                    </div>
+                    
+                    <div class="col-span-2">
+                        <div class="font-medium text-default">{{ item.version }}</div>
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="text-sm text-secondary">
+                            {{ item.createdAt | cultureAgnosticDate:'medium' }}
+                        </div> 
+                    </div>
+                    
+                    <div class="col-span-4">
+                        <div class="text-sm text-secondary">
+                            {{ item.updatedAt | cultureAgnosticDate:'medium' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #mobileHistoryListTemplate>
+    <div class="flex-1 overflow-y-auto space-y-3">
+        <div 
+            *ngFor="let item of deployHistory; let i = index" 
+            class="border rounded-lg p-4 bg-card shadow-sm">
+
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center">
+                    <div 
+                        class="w-8 h-8 rounded-full border-2 flex items-center justify-center mr-3"
+                        [class]="getStatusBorderColor(item.status)">
+                        <mat-icon 
+                            class="text-sm"
+                            [class]="getStatusColor(item.status)">
+                            {{ getStatusIcon(item.status) }}
+                        </mat-icon>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-default">{{ item.version }}</h4>
+                        <div class="text-sm text-secondary">
+                            {{ item.createdAt | cultureAgnosticDate:'short' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <mat-chip 
+                    class="text-xs"
+                    [class]="getStatusColor(item.status)">
+                    {{ item.status | titlecase }}
+                </mat-chip>
+            </div>
+
+            <div class="text-xs text-secondary">
+                Updated: {{ item.updatedAt | cultureAgnosticDate:'medium' }}
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #compactStatisticsTemplate>
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
+        <div class="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-md border border-green-200">
+            <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+            <span class="font-medium text-green-700 whitespace-nowrap">
+                {{ (deployHistory | filter:'status':DeployStatus.Deployed).length }}
+            </span>
+            <span class="text-green-600 text-xs whitespace-nowrap mt-0.5">Success</span>
+        </div>
+        <div class="flex items-center gap-1 px-2 py-1 bg-red-50 rounded-md border border-red-200">
+            <div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
+            <span class="font-medium text-red-700 whitespace-nowrap">
+                {{ (deployHistory | filter:'status':DeployStatus.Failed).length }}
+            </span>
+            <span class="text-red-600 text-xs whitespace-nowrap mt-0.5">Failed</span>
+        </div>
+        <div class="flex items-center gap-1 px-2 py-1 bg-yellow-50 rounded-md border border-yellow-200">
+            <div class="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0"></div>
+            <span class="font-medium text-yellow-700 whitespace-nowrap">
+                {{ (deployHistory | filter:'status':DeployStatus.Pending).length }}
+            </span>
+            <span class="text-yellow-600 text-xs whitespace-nowrap mt-0.5">Pending</span>
+        </div>
+    </div>
+</ng-template>

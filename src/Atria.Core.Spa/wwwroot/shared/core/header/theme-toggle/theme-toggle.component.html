@@ -1,0 +1,40 @@
+<div
+    class="relative z-30 w-10 h-10"
+    (mouseenter)="onThemeHover(true)"
+    (mouseleave)="onThemeHover(false)">
+
+    <div
+        class="absolute top-0 left-0 bg-card
+               backdrop-blur-xl border
+               rounded-3xl shadow-xl overflow-hidden w-10
+               transition-all duration-300 ease-out origin-top"
+        [style.height]="showThemeMenu ? (11 + availableThemeOptions.length * 10) * 4 + 'px' : '40px'">
+
+        <button
+            mat-icon-button
+            class="w-10 h-10 flex -mt-0.5 !items-center !justify-center text-default
+                   transition-all duration-200 ease-out rounded-2xl
+                   hover:bg-hover">
+            <mat-icon
+                [svgIcon]="schemeIcon"
+                class="text-lg flex">
+            </mat-icon>
+        </button>
+
+        <div class="transition-all duration-300 ease-out overflow-hidden">
+            @for (option of availableThemeOptions; track option.scheme) {
+                <button
+                    class="flex items-center justify-center w-full h-10
+                           text-secondary
+                           transition-all duration-150 ease-out hover:scale-110"
+                    (click)="selectScheme(option.scheme)"
+                    [title]="option.label">
+                    <mat-icon
+                        [svgIcon]="option.icon"
+                        class="text-lg">
+                    </mat-icon>
+                </button>
+            }
+        </div>
+    </div>
+</div>

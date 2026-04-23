@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="AWSSDK.S3" />
+        <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+        <PackageReference Include="Mapster" />
+        <PackageReference Include="NATS.Client.JetStream" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+      <ProjectReference Include="..\Atria.Common.KV\Atria.Common.KV.csproj" />
+      <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+      <ProjectReference Include="..\Atria.Core.Data\Atria.Core.Data.csproj" />
+      <ProjectReference Include="..\Atria.Pipeline\Atria.Pipeline.csproj" />
+    </ItemGroup>
+</Project>

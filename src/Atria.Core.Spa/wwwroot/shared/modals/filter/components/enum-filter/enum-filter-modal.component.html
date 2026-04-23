@@ -1,0 +1,61 @@
+<div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+    <div class="flex items-center">
+        <mat-icon class="mr-3 text-default">
+            filter_list
+        </mat-icon>
+        <span class="text-default">
+            {{ data.columnConfig.label }}
+        </span>
+    </div>
+    <button mat-icon-button
+        class="small-icon-button"
+        (click)="onCancel()">
+        <mat-icon class="text-default">close</mat-icon>
+    </button>
+</div>
+
+<div class="flex flex-col w-full py-6">
+    <div class="mt-1.5 rounded-md border overflow-hidden h-2/5">
+        <div class="flex items-center border-b-2 -my-px py-2 px-3 bg-hover">
+            <div class="flex items-center flex-auto min-w-0">
+                <mat-icon
+                    class="icon-size-5 text-default"
+                    [svgIcon]="'feather:search'"></mat-icon>
+                <input
+                    class="min-w-0 ml-2 py-1 border-0 bg-transparent text-default placeholder-secondary"
+                    type="text"
+                    placeholder="Type to search..."
+                    (input)="filterOptions($event)"
+                    (keydown)="filterOptions($event)"
+                    [maxLength]="50">
+            </div>
+        </div>
+
+        <div class="max-h-96 min-h-60 overflow-y-auto pt-2 bg-card">
+            <ng-container *ngFor="let option of filteredOptions">
+                <mat-checkbox
+                    class="flex items-center h-11 min-h-11 px-4 hover:bg-hover"
+                    [color]="'primary'"
+                    [checked]="isSelected(option.value)"
+                    (change)="onSelectionChange(option.value, $event.checked)">
+                    <div class="text-md font-semibold text-default">
+                        {{option.label}}
+                    </div>
+                </mat-checkbox>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-row justify-end items-center mt-4 gap-2">
+    <button mat-button (click)="onClear()">
+        <mat-icon class="pr-3">clear</mat-icon>
+        Clear
+    </button>
+    <button mat-raised-button
+            color="primary"
+            [disabled]="!canConfirm"
+            (click)="onFilter()">
+        Apply Filter ({{ selectedValues.length }})
+    </button>
+</div>

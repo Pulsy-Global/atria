@@ -1,0 +1,8 @@
+name: atria-dev
+include:
+  - path: ../base/docker-compose.yml
+    required: false
+  - path: ../base/docker-compose.functions.yml
+    required: false
+  - path: ./docker-compose.dev.yml
+    required: false

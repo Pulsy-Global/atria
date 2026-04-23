@@ -1,0 +1,182 @@
+<div class="flex flex-col gap-12">
+    <section class="grid items-start gap-x-8 gap-y-4 lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
+        <div class="flex flex-col gap-2">
+            <div class="text-[0.7rem] uppercase tracking-[0.18em] text-secondary">Basics</div>
+            <p class="text-sm text-secondary">Identity, version, and tags.</p>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div class="rounded-xl border bg-hover p-3">
+                <div class="text-base font-semibold text-default mb-6">Primary Info</div>
+                <div class="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_160px]">
+                    <mat-form-field class="min-w-0 w-full min-h-14" appearance="outline">
+                        <mat-label>Feed Name</mat-label>
+                        <input matInput [formControl]="feedForm.get('name')" placeholder="Untitled Feed">
+                        <button mat-icon-button matSuffix
+                                (click)="onRegenerateName()"
+                                matTooltip="Generate new name"
+                                class="!w-6 !h-6 !min-w-6 !min-h-6 !mr-1">
+                            <mat-icon class="!text-base !w-4 !h-4">refresh</mat-icon>
+                        </button>
+                        <mat-error *ngIf="feedForm.get('name')?.hasError('required')">
+                            Feed name is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="min-w-0 w-full min-h-14" appearance="outline">
+                        <mat-label>Version</mat-label>
+                        <input matInput [formControl]="feedForm.get('version')" placeholder="0.1.0">
+                        <mat-error *ngIf="feedForm.get('version')?.hasError('required')">
+                            Version is required
+                        </mat-error>
+                        <mat-error *ngIf="feedForm.get('version')?.hasError('invalidVersion')">
+                            Version must follow semantic versioning
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="min-w-0 w-full min-h-14 md:col-span-2" appearance="outline">
+                        <mat-label>Description</mat-label>
+                        <input matInput [formControl]="feedForm.get('description')" placeholder="Description">
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="relative rounded-xl border bg-hover p-3">
+                <div class="flex flex-col gap-1">
+                <div class="text-base font-semibold text-default">Tags</div>
+                </div>
+                <button mat-icon-button
+                        color="primary"
+                        class="absolute right-2 top-2 !h-8 !w-8 !min-h-8 !min-w-8"
+                        [attr.aria-label]="showTagsEditor ? 'Apply tags' : 'Edit tags'"
+                        [matTooltip]="showTagsEditor ? 'Apply tags' : 'Edit tags'"
+                        (click)="toggleTagsEditor()">
+                    <mat-icon
+                        [svgIcon]="showTagsEditor ? 'heroicons_solid:check' : 'heroicons_solid:pencil'"
+                        class="icon-size-4 text-sm">
+                    </mat-icon>
+                </button>
+                <div class="flex flex-col gap-4 mt-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex min-w-0 flex-1 flex-col gap-2" *ngIf="!showTagsEditor">
+                        <div class="flex flex-wrap gap-2" *ngIf="hasTagsSelection(); else noTagsSelected">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-gray-800 transition-all hover:brightness-95 max-w-[180px] min-w-0"
+                                 *ngFor="let tag of getSelectedTags()"
+                                 [style.background-color]="getTagColor(tag.id!)"
+                                 [matTooltip]="tag.name">
+                                <span class="leading-5 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+                        </div>
+                        <ng-template #noTagsSelected>
+                            <span class="text-sm text-secondary font-medium">Add tags</span>
+                        </ng-template>
+                    </div>
+
+                    <div class="flex flex-1 min-w-0 rounded-xl bg-hover p-3" *ngIf="showTagsEditor">
+                    <tag-selector
+                        class="block w-full"
+                        [availableTags]="tags"
+                        [selectedTagIds]="selectedTagIds"
+                        [showLabel]="false"
+                        (tagsChanged)="onTagsChanged($event)"
+                        (createTag)="onCreateTag($event)">
+                    </tag-selector>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid items-start gap-x-8 gap-y-4 lg:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
+        <div class="flex flex-col gap-2">
+            <div class="text-[0.7rem] uppercase tracking-[0.18em] text-secondary">Configuration</div>
+            <p class="text-sm text-secondary">Source, stream, and error handling.</p>
+        </div>
+        <div class="grid items-stretch gap-4 lg:grid-cols-2">
+            <div class="relative flex flex-col gap-3 rounded-xl border bg-hover p-3">
+                <div class="text-base font-semibold text-default">Source</div>
+                <button mat-icon-button
+                        color="primary"
+                        class="absolute right-2 top-2 !h-8 !w-8 !min-h-8 !min-w-8"
+                        aria-label="Change source"
+                        matTooltip="Change source"
+                        (click)="openSourcePicker()">
+                    <mat-icon [svgIcon]="'heroicons_solid:pencil'" class="icon-size-4 text-sm"></mat-icon>
+                </button>
+                <div class="flex flex-col gap-4">
+                    <div class="flex min-w-0 flex-col gap-2 text-sm">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">Network</span>
+                            <span [ngClass]="hasNetworkSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                                {{ getSelectedNetworkTitle() }}
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">Environment</span>
+                            <span [ngClass]="hasEnvironmentSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                                {{ getSelectedEnvironmentTitle() }}
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">Dataset</span>
+                            <span [ngClass]="hasDatasetSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                                {{ getSelectedDatasetLabel() }}
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="relative flex flex-col gap-3 rounded-xl border bg-hover p-3">
+                <div class="text-base font-semibold text-default">Stream</div>
+                <button mat-icon-button
+                        color="primary"
+                        class="absolute right-2 top-2 !h-8 !w-8 !min-h-8 !min-w-8"
+                        aria-label="Change stream"
+                        matTooltip="Change stream"
+                        (click)="openStreamPicker()">
+                    <mat-icon [svgIcon]="'heroicons_solid:pencil'" class="icon-size-4 text-sm"></mat-icon>
+                </button>
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2 text-sm">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">Start</span>
+                            <span class="font-semibold text-default">{{ getStreamStartSummary() }}</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">End</span>
+                            <span class="font-semibold text-default">{{ getStreamEndSummary() }}</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span class="text-sm text-secondary">Block Delay</span>
+                            <span class="font-semibold text-default">{{ getBlockDelaySummary() }}</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 rounded-xl border bg-hover p-3 lg:col-span-2">
+                <div class="text-base font-semibold text-default">Error Handling</div>
+                <div class="flex flex-1 min-w-0">
+                    <mat-form-field class="flex-1 min-w-0" appearance="fill">
+                        <mat-select [formControl]="feedForm.get('errorHandlingStrategy')">
+                            <mat-option
+                                *ngFor="let option of errorHandlingOptions"
+                                [value]="option.value"
+                                [disabled]="option.disabled"
+                                class="!pointer-events-auto"
+                                [matTooltip]="option.disabled ? 'Coming soon' : ''"
+                                [matTooltipDisabled]="!option.disabled"
+                                matTooltipPosition="before">
+                                <span class="font-semibold text-default">{{ option.label }}</span>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>

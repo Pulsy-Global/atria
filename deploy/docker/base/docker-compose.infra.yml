@@ -1,0 +1,45 @@
+services:
+  nats:
+    image: nats:2.12.3
+    container_name: atria-nats
+    restart: unless-stopped
+    command:
+      - "-c"
+      - "/etc/nats/nats-server.cfg"
+      - "--user"
+      - "${NATS_USER:-natsadmin}"
+      - "--pass"
+      - "${NATS_PASS:-natsadmin}"
+      - "--http_port"
+      - "8222"
+    ports:
+      - target: 4222
+        published: 4222
+      - target: 8222
+        published: 8222
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/nats/:/etc/nats/
+      - ${ATRIA_ROOT:-../../..}/data/nats:/data
+
+  postgresql:
+    image: postgres:15.15
+    container_name: atria-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-Atria}
+      POSTGRES_USER: ${POSTGRES_USER:-Atria}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Atria}
+      PGDATA: ${PGDATA:-/data/postgres}
+    ports:
+      - target: 5432
+        published: 5432
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/data/postgres:/data/postgres
+
+networks:
+  atria-network:
+    driver: bridge

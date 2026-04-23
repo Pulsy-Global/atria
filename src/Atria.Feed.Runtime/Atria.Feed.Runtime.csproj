@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FuzzySharp" />
+      <PackageReference Include="KubernetesClient" />
+      <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+      <PackageReference Include="Microsoft.ClearScript.Complete" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+      <ProjectReference Include="..\Atria.Common.Web\Atria.Common.Web.csproj" />
+      <ProjectReference Include="..\Atria.Common.Worker\Atria.Common.Worker.csproj" />
+      <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+      <ProjectReference Include="..\Atria.Common.KV\Atria.Common.KV.csproj" />
+      <ProjectReference Include="..\Atria.Pipeline\Atria.Pipeline.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Scripts\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="Settings\**\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="CopyCommonSettings" BeforeTargets="PrepareForPublish" AfterTargets="Build">
+        <ItemGroup>
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\streams-config.json" />
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\kv-config.json" />
+            <DataModelFiles Include="$(ProjectDir)..\..\config\atria\features-config.json" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(ProjectDir)$(OutDir)Settings" SkipUnchangedFiles="false" />
+        <Copy SourceFiles="@(DataModelFiles)" DestinationFolder="$(PublishDir)\Settings" SkipUnchangedFiles="false" />
+    </Target>
+</Project>

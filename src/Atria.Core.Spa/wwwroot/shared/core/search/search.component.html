@@ -1,0 +1,31 @@
+<div class="flex items-center">
+    <div class="flex-auto">
+        <mat-form-field
+            [formGroup]="form"
+            class="fuse-mat-dense fuse-mat-rounded w-full min-w-50"
+            subscriptSizing="dynamic"
+        >
+            <mat-icon class="icon-size-5 text-default" matPrefix [svgIcon]="'feather:search'"></mat-icon>
+
+            <input
+                #inputField
+                matInput
+                maxlength="150"
+                (keydown.enter)="onEnter()"
+                [formControl]="searchBarText"
+                [autocomplete]="'off'"
+                [placeholder]="'Search'" />
+
+            <button
+                class="size-1/4"
+                *ngIf="searchBarText.value?.length > 0"
+                matSuffix
+                mat-icon-button
+                aria-label="Clear"
+                (click)="clearSearchBarText()"
+            >
+                <mat-icon class="size-1/2 text-default">close</mat-icon>
+            </button>
+        </mat-form-field>
+    </div>
+</div>

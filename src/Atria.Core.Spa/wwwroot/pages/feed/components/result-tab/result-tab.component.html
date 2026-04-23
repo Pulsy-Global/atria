@@ -1,0 +1,145 @@
+<div class="p-3 sm:p-6 flex-1 min-h-0 flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-medium mb-1">Live Preview</h3>
+                <p class="text-secondary text-sm">
+                    {{ isStreamConnected ? 'Connected' : (isPaused ? 'Paused' : 'Connecting...') }}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <mat-spinner
+                    *ngIf="isLoading"
+                    diameter="16"
+                    strokeWidth="2">
+                </mat-spinner>
+
+                <span
+                    *ngIf="!isLoading"
+                    class="w-2 h-2 rounded-full"
+                    [class.bg-green-500]="isStreamConnected"
+                    [class.bg-gray-400]="isPaused"
+                    [class.bg-yellow-500]="!isStreamConnected && !isPaused">
+                </span>
+
+                <button
+                    mat-icon-button
+                    (click)="toggleAutoRefresh()"
+                    [matTooltip]="isStreamConnected ? 'Pause live stream' : 'Resume live stream'"
+                    [class.opacity-50]="!isStreamConnected">
+                    <mat-icon>
+                        {{ isStreamConnected ? 'pause_circle' : 'play_circle' }}
+                    </mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+        *ngIf="!resultHistory.length && !isLoading"
+        class="flex-1 flex items-center justify-center">
+        <div class="text-center py-8">
+            <mat-icon class="text-4xl text-secondary mb-3">inbox</mat-icon>
+            <h4 class="text-base font-medium mb-1">No results to display</h4>
+            <p class="text-secondary text-sm">
+                Results appear here in real time and expire after the retention period.
+            </p>
+        </div>
+    </div>
+
+    <!-- Split Layout -->
+    <div
+        *ngIf="resultHistory.length"
+        class="flex-1 flex min-h-0 max-h-[60vh] gap-0 overflow-hidden border border-default rounded-lg">
+
+        <div class="w-full lg:w-56 shrink-0 relative lg:border-r border-default flex flex-col"
+             [class.hidden]="showDetailView"
+             [class.lg:flex]="showDetailView">
+            <div
+                #resultsContainer
+                (scroll)="onScroll()"
+                (keydown)="onListKeydown($event)"
+                tabindex="0"
+                class="flex-1 overflow-y-auto outline-none">
+
+                    <div
+                        *ngFor="let item of resultHistory; trackBy: trackBySeq"
+                        data-result-item
+                        (click)="selectResult(item)"
+                        class="px-3 py-3 lg:py-2.5 cursor-pointer border-b border-default transition-colors hover:bg-hover"
+                        [class.bg-hover]="selectedResult === item">
+
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-medium text-default font-mono">{{ item.blockNumber ?? '#' + item.seqNumber }}</span>
+                            <span
+                                *ngIf="item.isTestExecution"
+                                class="text-[10px] font-medium leading-none px-1 py-0.5 rounded bg-amber-100 text-amber-700">
+                                TEST
+                            </span>
+                            <mat-icon class="lg:!hidden !text-base text-secondary ml-auto">chevron_right</mat-icon>
+                        </div>
+                        <div class="text-xs text-secondary mt-0.5">
+                            {{ item.createdAt | cultureAgnosticDate:'short' }}
+                        </div>
+                    </div>
+            </div>
+
+            <button
+                *ngIf="showScrollTop"
+                (click)="scrollToTop()"
+                mat-icon-button
+                matTooltip="Scroll to top"
+                class="!absolute top-2 left-1/2 -translate-x-1/2 !w-7 !h-7 !bg-white shadow-md border border-default !rounded-full z-10">
+                <mat-icon class="!text-base">arrow_upward</mat-icon>
+            </button>
+        </div>
+
+        <div class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden"
+             [class.hidden]="!showDetailView"
+             [class.lg:block]="!showDetailView">
+
+            <div
+                *ngIf="selectedResult; else noSelection"
+                class="p-4">
+
+                <button
+                    (click)="backToList()"
+                    class="lg:hidden flex items-center gap-1 text-sm text-secondary -ml-1 mb-3">
+                    <mat-icon class="!text-lg">arrow_back</mat-icon>
+                    <span>Results</span>
+                </button>
+
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm flex-1 min-w-0">
+                        <span class="text-secondary">Block</span>
+                        <span class="font-mono text-default">{{ selectedResult.blockNumber ?? '—' }}</span>
+                        <span class="text-secondary">Timestamp</span>
+                        <span class="font-mono text-default">{{ selectedResult.createdAt | cultureAgnosticDate:'medium' }}</span>
+                        <span class="text-secondary">Size</span>
+                        <span class="font-mono text-default">{{ formatBytes(selectedResult.sizeBytes) }}</span>
+                    </div>
+                    <button
+                        mat-icon-button
+                        matTooltip="Copy to clipboard"
+                        (click)="copyData()"
+                        class="shrink-0 -mt-1.5">
+                        <mat-icon>content_copy</mat-icon>
+                    </button>
+                </div>
+                <pre
+                    class="font-mono text-sm text-default bg-default rounded-lg p-4 whitespace-pre-wrap break-all">{{ formatJson(selectedResult.data) }}</pre>
+            </div>
+
+            <ng-template #noSelection>
+                <div class="flex items-center justify-center h-full text-secondary text-sm p-4">
+                    Select a result to view details
+                </div>
+            </ng-template>
+
+        </div>
+    </div>
+</div>

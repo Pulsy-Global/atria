@@ -1,0 +1,96 @@
+<div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+    <div class="flex items-center">
+        <mat-icon class="mr-3 text-default">
+            local_offer
+        </mat-icon>
+        <span class="text-default">
+            {{ data.columnConfig.label }}
+        </span>
+    </div>
+    <button mat-icon-button
+        class="small-icon-button"
+        (click)="onCancel()">
+        <mat-icon class="text-default">close</mat-icon>
+    </button>
+</div>
+
+<div class="flex flex-col w-full py-6">
+    <div *ngIf="selectedTags.length > 0" class="mb-4">
+        <div class="text-sm font-medium mb-2 text-default">
+            Selected Tags:
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <div *ngFor="let tagId of selectedTags"
+                 class="inline-flex items-center gap-2 px-2.5 py-0.5 
+                        rounded-full text-sm font-medium text-black max-w-[350px]"
+                 [style.background-color]="getTagColor(tagId)"
+                 [matTooltip]="getTagLabel(tagId)">
+                <span class="truncate">
+                    {{ getTagLabel(tagId) }}
+                </span>
+                <button
+                    type="button"
+                    class="tag-remove-button flex-shrink-0 transition-colors"
+                    (click)="removeTag(tagId)">
+                    <mat-icon class="!text-base !w-4 !h-4">close</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-1.5 rounded-md border overflow-hidden">
+        <div class="flex items-center border-b-2 -my-px py-2 px-3 bg-hover">
+            <div class="flex items-center flex-auto min-w-0">
+                <mat-icon
+                    class="icon-size-5 text-default"
+                    [svgIcon]="'feather:search'"></mat-icon>
+                <input
+                    class="min-w-0 ml-2 py-1 border-0 bg-transparent 
+                           text-default placeholder-secondary"
+                    type="text"
+                    placeholder="Search tags..."
+                    [(ngModel)]="searchTerm"
+                    (input)="filterTags()"
+                    [maxLength]="50">
+            </div>
+        </div>
+
+        <div class="max-h-80 min-h-60 overflow-y-auto pt-2 bg-card">
+            <ng-container *ngFor="let tag of filteredTags">
+                <div class="flex items-center h-11 min-h-11 px-4 hover:bg-hover cursor-pointer"
+                     (click)="toggleTag(tag.id!)">
+                    <div class="flex items-center flex-1 min-w-0">
+                        <div class="w-4 h-4 rounded-full mr-3 flex-shrink-0"
+                             [style.background-color]="getTagColor(tag.id!)">
+                        </div>
+                        <span class="text-md font-semibold text-default">
+                            {{ tag.name }}
+                        </span>
+                    </div>
+                    <mat-icon *ngIf="isSelected(tag.id!)"
+                              class="icon-size-5 text-primary flex-shrink-0 ml-2">
+                        check_circle
+                    </mat-icon>
+                </div>
+            </ng-container>
+
+            <div *ngIf="filteredTags.length === 0"
+                 class="flex items-center justify-center h-40 text-secondary">
+                No tags found
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-row justify-end items-center mt-4 gap-2">
+    <button mat-button (click)="onClear()">
+        <mat-icon class="pr-3">clear</mat-icon>
+        Clear
+    </button>
+    <button mat-raised-button
+            color="primary"
+            [disabled]="!canConfirm"
+            (click)="onFilter()">
+        Apply Filter ({{ selectedTags.length }})
+    </button>
+</div>

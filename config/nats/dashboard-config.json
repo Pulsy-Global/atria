@@ -1,0 +1,7 @@
+{
+  "server": {
+    "name": "Pulsy Atria NATS Server",
+    "url": "http://localhost:8223/proxy/"
+  },
+  "hideServerInput": true
+}

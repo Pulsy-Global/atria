@@ -1,0 +1,116 @@
+{
+  "Networks": {
+    "arbitrum-one": {
+      "Title": "Arbitrum One",
+      "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Arbitrum.svg",
+      "Environments": [
+        {
+          "Id": "arbitrum-one-mainnet",
+          "NodeRpcUrl": "https://arb-one.api.pocket.network",
+          "NodeWsUrl": "wss://arbitrum-one-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        },
+        {
+          "Id": "arbitrum-one-sepolia",
+          "NodeRpcUrl": "https://arbitrum-sepolia-rpc.publicnode.com",
+          "NodeWsUrl": "wss://arbitrum-sepolia-rpc.publicnode.com",
+          "Title": "Sepolia",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "avalanche-c-chain": {
+      "Title": "Avalanche C-Chain",
+      "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Avalanche.svg",
+      "Environments": [
+        {
+          "Id": "avalanche-c-chain-mainnet",
+          "NodeRpcUrl": "https://avalanche-c-chain-rpc.publicnode.com",
+          "NodeWsUrl": "wss://avalanche-c-chain-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "base": {
+      "Title": "Base",
+      "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Base.svg",
+      "Environments": [
+        {
+          "Id": "base-mainnet",
+          "NodeRpcUrl": "https://base-rpc.publicnode.com",
+          "NodeWsUrl": "wss://base-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "binance-smart-chain": {
+      "Title": "Binance Smart Chain",
+      "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/BSC.svg",
+      "Environments": [
+        {
+          "Id": "bsc-mainnet",
+          "NodeRpcUrl": "https://bsc-rpc.publicnode.com",
+          "NodeWsUrl": "wss://bsc-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "ethereum": {
+      "Title": "Ethereum",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Ethereum.svg",
+      "NetworkFamily": "EVM",
+      "Environments": [
+        {
+          "Id": "ethereum-mainnet",
+          "NodeRpcUrl": "https://eth.api.pocket.network",
+          "NodeWsUrl": "wss://ethereum-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        },
+        {
+          "Id": "ethereum-sepolia",
+          "NodeRpcUrl": "https://eth-sepolia-testnet.api.pocket.network",
+          "NodeWsUrl": "wss://ethereum-sepolia-rpc.publicnode.com",
+          "Title": "Sepolia",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "optimism": {
+      "Title": "Optimism",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Optimism.svg",
+      "NetworkFamily": "EVM",
+      "Environments": [
+        {
+          "Id": "optimism-mainnet",
+          "NodeRpcUrl": "https://optimism-rpc.publicnode.com",
+          "NodeWsUrl": "wss://optimism-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    },
+    "polygon": {
+      "Title": "Polygon",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Polygon.svg",
+      "NetworkFamily": "EVM",
+      "Environments": [
+        {
+          "Id": "polygon-mainnet",
+          "NodeRpcUrl": "https://polygon-bor-rpc.publicnode.com",
+          "NodeWsUrl": "wss://polygon-bor-rpc.publicnode.com",
+          "Title": "Mainnet",
+          "DebugRequestsEnabled": false
+        }
+      ]
+    }
+  }
+}

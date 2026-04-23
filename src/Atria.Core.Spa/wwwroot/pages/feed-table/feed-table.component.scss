@@ -1,0 +1,19 @@
+feed-table {
+    .mat-mdc-table {
+        --col-name: 18%;
+        --col-version: 8%;
+        --col-status: 16%;
+        --col-network: 10%;
+        --col-datatype: 14%;
+        --col-tags: 20%;
+        --col-controls: 14%;
+
+        .mat-column-name { width: var(--col-name); }
+        .mat-column-version { width: var(--col-version); }
+        .mat-column-status { width: var(--col-status); }
+        .mat-column-networkId { width: var(--col-network); }
+        .mat-column-dataType { width: var(--col-datatype); }
+        .mat-column-tags { width: var(--col-tags); }
+        .mat-column-controls { width: var(--col-controls); }
+    }
+}

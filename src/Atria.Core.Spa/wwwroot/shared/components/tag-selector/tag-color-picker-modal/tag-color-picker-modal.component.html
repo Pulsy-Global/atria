@@ -1,0 +1,66 @@
+<div class="flex flex-col w-full">
+    <div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+        <div class="flex items-center">
+            <span class="text-default">
+                Create Tag
+            </span>
+        </div>
+        <button mat-icon-button 
+                class="small-icon-button"
+                (click)="onCancel()">
+            <mat-icon class="text-default">close</mat-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col w-full py-6">
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-default mb-3">
+                Choose a color
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+                <button 
+                    *ngFor="let color of PRESET_COLORS"
+                    type="button"
+                    class="color-button relative w-full aspect-square rounded-lg cursor-pointer 
+                           transition-all hover:scale-105 flex items-center justify-center"
+                    [style.background-color]="color.value"
+                    (click)="selectColor(color.value)"
+                    [attr.aria-label]="color.name">
+                    <mat-icon 
+                        *ngIf="selectedColor === color.value" 
+                        class="!text-3xl !w-8 !h-8 font-bold">
+                        check
+                    </mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-default mb-3">
+                Preview
+            </label>
+            <div class="flex items-center justify-center p-4 bg-card rounded-lg border border-divider">
+                <div 
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                           text-sm font-medium text-gray-800 max-w-[280px]"
+                    [style.background-color]="selectedColor"
+                    [title]="data.tagName">
+                    <span class="leading-5 truncate">{{ data.tagName }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-end items-center mt-4">
+        <button mat-button 
+                (click)="onCancel()">
+            Cancel
+        </button>
+        <button mat-raised-button 
+                color="primary" 
+                class="ml-2" 
+                (click)="onCreate()">
+            Create Tag
+        </button>
+    </div>
+</div>

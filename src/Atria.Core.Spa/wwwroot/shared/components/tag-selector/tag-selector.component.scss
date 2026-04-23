@@ -1,0 +1,14 @@
+tag-selector {
+    .tag-remove-button {
+        mat-icon {
+            color: #000000 !important;
+        }
+
+        &.dark,
+        .dark & {
+            mat-icon {
+                color: #000000 !important;
+            }
+        }
+    }
+}

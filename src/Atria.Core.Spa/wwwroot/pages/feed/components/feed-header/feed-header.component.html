@@ -1,0 +1,30 @@
+<div class="bg-card p-6 mx-6 mt-3 rounded-xl">
+    <div class="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div class="flex min-w-0 items-center gap-3">
+            <button mat-icon-button
+                    (click)="back.emit()"
+                    class="shrink-0">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h1 class="text-2xl font-semibold text-default">
+                        {{ title || 'Untitled Feed' }}
+                    </h1>
+                    <span
+                        class="inline-flex items-center rounded-full border px-3 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.05em]"
+                        [ngClass]="{
+                            'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-400/50 dark:text-emerald-300': statusClass === 'is-good',
+                            'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/20 dark:border-rose-400/50 dark:text-rose-300': statusClass === 'is-error',
+                            'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/20 dark:border-amber-400/50 dark:text-amber-300': statusClass !== 'is-good' && statusClass !== 'is-error'
+                        }">
+                        {{ statusLabel }}
+                    </span>
+                </div>
+                <p *ngIf="description" class="text-sm text-secondary mt-1">
+                    {{ description }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

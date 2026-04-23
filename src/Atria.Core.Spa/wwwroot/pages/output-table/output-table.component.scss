@@ -1,0 +1,19 @@
+output-table {
+    .mat-mdc-table {
+        --col-name: 12%;
+        --col-description: 16%;
+        --col-type: 14%;
+        --col-errorhandling: 16%;
+        --col-tags: 16%;
+        --col-created: 12%;
+        --col-controls: 10%;
+        
+        .mat-column-name { width: var(--col-name); }
+        .mat-column-description { width: var(--col-description); }
+        .mat-column-type { width: var(--col-type); }
+        .mat-column-errorHandlingStrategy { width: var(--col-errorhandling); }
+         .mat-column-tags { width: var(--col-tags); }
+        .mat-column-createdAt { width: var(--col-created); }
+        .mat-column-controls { width: var(--col-controls); }
+    }
+}

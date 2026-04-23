@@ -1,0 +1,18 @@
+{
+    "items": [
+        {
+            "id": "feeds",
+            "title": "Feeds",
+            "type": "basic",
+            "icon": "heroicons_outline:bolt",
+            "link": "/feeds"
+        },
+        {
+            "id": "outputs",
+            "title": "Outputs",
+            "type": "basic",
+            "icon": "heroicons_outline:arrow-top-right-on-square",
+            "link": "/outputs"
+        }
+    ]
+}

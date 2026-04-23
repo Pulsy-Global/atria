@@ -1,0 +1,178 @@
+<div class="flex flex-col h-full w-full">
+
+    <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+
+    <div class="flex-1 overflow-y-auto p-6 w-full">
+
+        <div class="max-w-4xl mx-auto space-y-6">
+
+            <ng-container *ngTemplateOutlet="basicInfoTemplate"></ng-container>
+
+            <ng-container *ngTemplateOutlet="configurationTemplate"></ng-container>
+
+            <ng-container *ngTemplateOutlet="saveActionsTemplate"></ng-container>
+
+        </div>
+
+    </div>
+</div>
+
+<ng-template #headerTemplate>
+    <div class="flex flex-row items-center justify-between p-6 bg-card mx-4 sm:mx-6 mt-3 rounded-xl">
+        <div class="flex items-center gap-3">
+            <button mat-icon-button
+                    (click)="onNavigateBack()"
+                    class="shrink-0">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="ml-2">
+                <h1 class="text-2xl font-semibold text-default">
+                    {{isEditMode() ? 'Edit Output' : 'Create Output'}}
+                </h1>
+                <p class="text-sm text-secondary mt-1">
+                    {{isEditMode() ? 'Modify output configuration' : 'Configure a new output destination'}}
+                </p>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #basicInfoTemplate>
+    <fuse-card class="flex flex-col p-12 shadow-sm border bg-card">
+        <div class="flex items-center mb-6 border-b pb-4">
+            <div class="w-10 h-10 bg-hover rounded-lg flex items-center justify-center mr-3">
+                <mat-icon class="text-secondary">info</mat-icon>
+            </div>
+            <div>
+                <h2 class="text-lg text-default mb-1">Basic Information</h2>
+                <p class="text-sm text-secondary">Configure basic output settings</p>
+            </div>
+        </div>
+
+        <form [formGroup]="outputForm" class="space-y-1">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <mat-form-field appearance="outline" class="w-full min-h-14">
+                    <mat-label>Output Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Enter output name">
+                    <mat-error *ngIf="outputForm.get('name')?.hasError('required')">
+                        Output name is required
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-full min-h-14">
+                    <mat-label>Output Type</mat-label>
+                    <mat-select formControlName="type" (selectionChange)="onTypeChange($event.value)">
+                        <mat-option
+                            *ngFor="let option of outputTypeOptions"
+                            [value]="option.value"
+                            [disabled]="option.disabled"
+                            [matTooltip]="option.disabled ? 'Coming Soon' : ''"
+                            matTooltipPosition="after"
+                            class="pointer-events-auto">
+                            <div class="flex items-center gap-2">
+                                <mat-icon class="!text-base icon-size-5" [svgIcon]="option.heroIcon"></mat-icon>
+                                <span>{{option.label}}</span>
+                            </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="fill" class="w-full min-h-14">
+                <mat-label class="text-xs">Description</mat-label>
+                <textarea matInput
+                          formControlName="description"
+                          rows="3">
+                </textarea>
+            </mat-form-field>
+
+            <tag-selector
+                [availableTags]="tags"
+                [selectedTagIds]="selectedTagIds"
+                (tagsChanged)="onTagsChanged($event)"
+                (createTag)="onCreateTag($event)">
+            </tag-selector>
+        </form>
+    </fuse-card>
+</ng-template>
+
+<ng-template #configurationTemplate>
+    <fuse-card class="flex flex-col p-12 shadow-sm border bg-card"
+               *ngIf="outputForm.get('type')?.value">
+
+        <div class="space-y-4">
+            @switch (outputForm.get('type')?.value) {
+                @case (OutputType.Webhook) {
+                    <webhook-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </webhook-config>
+                }
+                @case (OutputType.Telegram) {
+                    <telegram-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </telegram-config>
+                }
+                @case (OutputType.Postgres) {
+                    <postgres-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </postgres-config>
+                }
+                @case (OutputType.Email) {
+                    <email-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </email-config>
+                }
+                @case (OutputType.Discord) {
+                    <discord-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </discord-config>
+                }
+                @case (OutputType.S3) {
+                    <s3-config
+                        [config]="currentConfig"
+                        [mode]="isEditMode() ? OutputConfigMode.Edit : OutputConfigMode.Create"
+                        (configChange)="onConfigChange($event)">
+                    </s3-config>
+                }
+            }
+        </div>
+    </fuse-card>
+</ng-template>
+
+<ng-template #saveActionsTemplate>
+    <div class="sticky bottom-0 py-3 my-3">
+        <div class="flex flex-col sm:flex-row justify-end gap-3">
+            <button
+                mat-stroked-button
+                class="w-full sm:w-auto"
+                (click)="onNavigateBack()">
+                Cancel
+            </button>
+            <button
+                mat-raised-button
+                class="min-w-[168px] w-full sm:w-auto"
+                color="primary"
+                [disabled]="isSaveDisabled() || isLoading || isSaving"
+                (click)="saveOutput()">
+                <div class="flex flex-row items-center justify-center">
+                    <mat-spinner *ngIf="isSaving" diameter="20" class="mr-2"></mat-spinner>
+                    <mat-icon *ngIf="!isSaving" class="mr-2">save</mat-icon>
+                    {{ isSaving
+                        ? (isEditMode() ? 'Updating...' : 'Creating...')
+                        : (isEditMode() ? 'Update Output' : 'Create Output') }}
+                </div>
+            </button>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+      <PackageReference Include="Mapster" />
+      <PackageReference Include="Mapster.DependencyInjection" />
+      <PackageReference Include="Microsoft.AspNetCore.OData" />
+      <PackageReference Include="NATS.Client.Core" />
+      <PackageReference Include="NATS.Client.JetStream" />
+      <PackageReference Include="NATS.Client.KeyValueStore" />
+      <PackageReference Include="NATS.Net" />
+      <PackageReference Include="Newtonsoft.Json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+</Project>

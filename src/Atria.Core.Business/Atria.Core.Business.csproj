@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" />
+    <PackageReference Include="Microsoft.OData.Core" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atria.Common.Web\Atria.Common.Web.csproj" />
+    <ProjectReference Include="..\Atria.Business\Atria.Business.csproj" />
+    <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+    <ProjectReference Include="..\Atria.Common.KV\Atria.Common.KV.csproj" />
+    <ProjectReference Include="..\Atria.Core.Data\Atria.Core.Data.csproj" />
+    <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

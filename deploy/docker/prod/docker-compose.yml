@@ -1,0 +1,8 @@
+name: atria-prod
+include:
+  - path: ../base/docker-compose.infra.yml
+    required: true
+  - path: ../base/docker-compose.functions.yml
+    required: false
+  - path: ./docker-compose.prod.yml
+    required: true

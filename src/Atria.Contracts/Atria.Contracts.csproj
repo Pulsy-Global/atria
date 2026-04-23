@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+      <PackageReference Include="Mapster" />
+      <PackageReference Include="Nethereum.RPC" />
+    </ItemGroup>
+
+</Project>

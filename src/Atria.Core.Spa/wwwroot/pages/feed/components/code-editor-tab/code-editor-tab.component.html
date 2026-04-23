@@ -1,0 +1,36 @@
+<div class="flex h-full flex-col">
+    <div class="mb-4 flex items-center justify-between">
+        <div class="flex-1">
+            <h3 class="text-default mb-2 text-lg font-semibold">{{ title }}</h3>
+            <p class="text-secondary text-sm" [innerHTML]="description"></p>
+        </div>
+        <button
+            mat-icon-button
+            type="button"
+            (click)="fileInput.click()"
+            class="ml-6 flex-shrink-0"
+            matTooltip="Upload File"
+        >
+            <mat-icon
+                [svgIcon]="'heroicons_outline:document-arrow-up'"
+            ></mat-icon>
+        </button>
+        <input
+            #fileInput
+            type="file"
+            accept=".js,.ts"
+            (change)="onFileUpload($event)"
+            class="hidden"
+        />
+    </div>
+
+    <div class="flex-1 overflow-hidden rounded">
+        <ngx-monaco-editor
+            class="h-full"
+            [options]="editorOptions"
+            [(ngModel)]="code"
+            (ngModelChange)="onCodeChange($event)"
+        >
+        </ngx-monaco-editor>
+    </div>
+</div>

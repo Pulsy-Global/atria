@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="AspNetCore.HealthChecks.Nats" />
+        <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+    </ItemGroup>
+
+</Project>

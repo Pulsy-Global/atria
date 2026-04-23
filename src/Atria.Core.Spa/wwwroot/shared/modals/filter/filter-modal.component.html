@@ -1,0 +1,25 @@
+<div [ngSwitch]="data.columnConfig.filterType">
+    <string-filter-modal 
+        *ngSwitchCase="FilterType.String"
+        [data]="data"
+        (result)="onResult($event)">
+    </string-filter-modal>
+    
+    <number-filter-modal 
+        *ngSwitchCase="FilterType.Number"
+        [data]="data"
+        (result)="onResult($event)">
+    </number-filter-modal>
+    
+    <enum-filter-modal 
+        *ngSwitchCase="FilterType.Enum"
+        [data]="data"
+        (result)="onResult($event)">
+    </enum-filter-modal>
+
+    <tag-filter-modal 
+        *ngSwitchCase="FilterType.Tag"
+        [data]="data"
+        (result)="onResult($event)">
+    </tag-filter-modal>
+</div>

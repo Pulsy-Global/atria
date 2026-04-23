@@ -1,0 +1,13 @@
+services:
+  dashboard:
+    image: mdawar/nats-dashboard
+    restart: on-failure
+    environment:
+      REVERSE_PROXY_UPSTREAM: "nats:8222"
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/nats/dashboard-config.json:/srv/config.json
+    ports:
+      - target: 80
+        published: 8223
+    networks:
+      - atria-network

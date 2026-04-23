@@ -1,0 +1,63 @@
+<div class="flex flex-col w-full">
+    <div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+        <div class="flex items-center">
+            <mat-icon class="mr-3 text-default">tune</mat-icon>
+            <span class="text-default">Source</span>
+        </div>
+        <button mat-icon-button
+                class="small-icon-button"
+                (click)="onClose()">
+            <mat-icon class="text-default">close</mat-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col w-full pt-3 pb-6">
+        <p class="text-sm text-secondary mb-5">
+            Choose the network, environment, and dataset for this feed.
+        </p>
+
+        <div class="flex flex-col gap-4 mt-4">
+            <mat-form-field class="min-w-0" appearance="outline">
+                <mat-label>Network</mat-label>
+                <mat-select
+                    [formControl]="data.feedForm.get('network')"
+                    (selectionChange)="onNetworkChange($event.value)">
+                    <mat-option
+                        *ngFor="let network of data.networks"
+                        [value]="network.title">
+                        {{ network.title }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="min-w-0" appearance="outline">
+                <mat-label>Environment</mat-label>
+                <mat-select
+                    [formControl]="data.feedForm.get('environment')"
+                    (selectionChange)="onEnvironmentChange($event.value)">
+                    <mat-option
+                        *ngFor="let environment of data.environments"
+                        [value]="environment.id">
+                        {{ environment.title }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="min-w-0" appearance="outline">
+                <mat-label>Dataset</mat-label>
+                <mat-select [formControl]="data.feedForm.get('dataset')">
+                    <mat-option
+                        *ngFor="let option of data.dataTypeOptions"
+                        [value]="option.value">
+                        {{ option.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-end items-center mt-4">
+        <button mat-button (click)="onClose()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onClose()">Done</button>
+    </div>
+</div>

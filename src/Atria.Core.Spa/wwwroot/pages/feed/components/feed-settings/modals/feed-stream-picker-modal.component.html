@@ -1,0 +1,103 @@
+<div class="flex flex-col w-full">
+    <div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+        <div class="flex items-center">
+            <mat-icon class="mr-3 text-default">timeline</mat-icon>
+            <span class="text-default">Stream</span>
+        </div>
+        <button mat-icon-button
+                class="small-icon-button"
+                (click)="onClose()">
+            <mat-icon class="text-default">close</mat-icon>
+        </button>
+    </div>
+
+    <div class="flex flex-col w-full pt-3 pb-6">
+        <p class="text-sm text-secondary mb-5">
+            Define where the stream starts and when it ends.
+        </p>
+
+        <div class="flex flex-col gap-4 mt-4">
+            <div class="rounded-lg border border-dashed bg-card p-4 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-default font-medium">Stream Start</span>
+                </div>
+                <mat-radio-group
+                    [formControl]="data.feedForm.get('streamStart')"
+                    class="flex gap-4">
+                    <mat-radio-button value="startAtLatestBlock" class="text-sm">
+                        <span class="text-default">Latest block</span>
+                    </mat-radio-button>
+                    <mat-radio-button value="startAtSpecificBlock" disabled
+                                      class="text-sm pointer-events-auto"
+                                      matTooltip="Coming Soon" matTooltipPosition="right">
+                        <span class="text-hint">Specific block</span>
+                    </mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field
+                    *ngIf="data.feedForm.get('streamStart')?.value === 'startAtSpecificBlock'"
+                    class="w-full mt-3"
+                    appearance="outline">
+                    <input matInput [formControl]="data.feedForm.get('specificBlockNumber')" placeholder="Block number">
+                </mat-form-field>
+            </div>
+
+            <div class="rounded-lg border border-dashed bg-card p-4 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm text-default font-medium">Stream End</span>
+                </div>
+                <mat-radio-group
+                    [formControl]="data.feedForm.get('streamEnd')"
+                    class="flex gap-4">
+                    <mat-radio-button value="endContinuouslyUntilStopped" class="text-sm">
+                        <span class="text-default">Run continuously</span>
+                    </mat-radio-button>
+                    <mat-radio-button value="endAtSpecificBlock" disabled
+                                      class="text-sm pointer-events-auto"
+                                      matTooltip="Coming Soon" matTooltipPosition="right">
+                        <span class="text-hint">Specific block</span>
+                    </mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field
+                    *ngIf="data.feedForm.get('streamEnd')?.value === 'endAtSpecificBlock'"
+                    class="w-full mt-3"
+                    appearance="outline">
+                    <input matInput [formControl]="data.feedForm.get('endBlockNumber')" placeholder="Block number">
+                </mat-form-field>
+            </div>
+
+            <div class="rounded-lg border border-dashed bg-card p-4 transition">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm text-default font-medium">Block Delay</span>
+                </div>
+                <p class="text-xs text-hint mb-3">
+                    Wait for block confirmations to avoid reorg handling.
+                </p>
+                <mat-radio-group
+                    [formControl]="data.feedForm.get('blockDelayMode')"
+                    class="flex gap-4">
+                    <mat-radio-button value="realtime" class="text-sm">
+                        <span class="text-default">Realtime</span>
+                    </mat-radio-button>
+                    <mat-radio-button value="custom" class="text-sm">
+                        <span class="text-default">Custom</span>
+                    </mat-radio-button>
+                </mat-radio-group>
+                <mat-form-field
+                    *ngIf="data.feedForm.get('blockDelayMode')?.value === 'custom'"
+                    class="w-full mt-3"
+                    appearance="outline">
+                    <mat-label>Number of blocks</mat-label>
+                    <input matInput type="number" min="0" max="100"
+                           [formControl]="data.feedForm.get('blockDelay')">
+                    <span matSuffix class="text-hint pr-2">blocks</span>
+                    <mat-error>Enter a value between 0 and 100</mat-error>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-row justify-end items-center mt-4">
+        <button mat-button (click)="onClose()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onClose()">Done</button>
+    </div>
+</div>

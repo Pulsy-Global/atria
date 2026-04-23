@@ -1,0 +1,32 @@
+{
+  "Messaging": {
+    "KVs": {
+      "chain-state": {
+        "MaxAgeMinutes": 4320,
+        "History": 1,
+        "Replicas": 1,
+        "Compression": false
+      },
+      "feed-cursors": {
+        "MaxAgeMinutes": 0,
+        "History": 1,
+        "Replicas": 1,
+        "Compression": false
+      },
+      "service-leases": {
+        "MaxAgeSeconds": 30,
+        "History": 1,
+        "Replicas": 1
+      }
+    },
+  },
+  "BlockProvider": {
+    "BlocksBucketPrefix": "blocks",
+    "ChainStateBucket": "chain-state",
+    "CursorsBucket": "feed-cursors",
+    "DefaultBlocksMaxAgeMinutes": 720,
+    "DefaultBlocksMaxSizeMb": 8192,
+    "DefaultBlocksCompression": true,
+    "MaxBlocksCount": 1024
+  }
+}

@@ -1,0 +1,23 @@
+<div class="flex items-center gap-1 rounded-t-3xl bg-card pl-4 pr-2 pt-1 overflow-x-auto">
+    <div
+        *ngFor="let tab of tabs; let i = index"
+        class="inline-flex items-center gap-2 border-b-2 px-3 py-2 text-sm text-secondary cursor-pointer"
+        [ngClass]="selectedIndex === i
+            ? 'text-default border-primary'
+            : 'border-transparent hover:text-default hover:border-slate-200/60 dark:hover:border-slate-700/60'"
+        (click)="selectTab.emit(i)">
+        <mat-icon class="mr-2 text-base">{{ tab.icon }}</mat-icon>
+        <span>{{ tab.label }}</span>
+        <button
+            *ngIf="tab.closable"
+            class="ml-2 inline-flex items-center text-secondary hover:text-default"
+            (click)="closeTab.emit(i);">
+            <mat-icon class="text-sm">close</mat-icon>
+        </button>
+        <span
+            *ngIf="!tab.closable"
+            class="ml-2 inline-flex h-4 w-4"
+            aria-hidden="true">
+        </span>
+    </div>
+</div>

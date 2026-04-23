@@ -1,0 +1,20 @@
+tag-filter-modal {
+    .tag-remove-button {
+        mat-icon,
+        mat-icon.mat-icon {
+            color: #000000 !important;
+        }
+
+        &:hover mat-icon,
+        &:hover mat-icon.mat-icon {
+            color: #000000 !important;
+        }
+
+        &.dark mat-icon,
+        .dark & mat-icon,
+        &.dark mat-icon.mat-icon,
+        .dark & mat-icon.mat-icon {
+            color: #000000 !important;
+        }
+    }
+}

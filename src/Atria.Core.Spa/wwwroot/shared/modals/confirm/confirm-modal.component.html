@@ -1,0 +1,39 @@
+<div class="!flex !justify-between !items-center !text-left text-lg p-0 font-semibold">
+    <div class="flex items-center">
+        <mat-icon
+            class="mr-3"
+            [ngClass]="{
+                'text-yellow-500': data.type === 'warning',
+                'text-red-500': data.type === 'danger',
+                'text-blue-500': data.type === 'info' || !data.type
+            }">
+            {{ getIcon() }}
+        </mat-icon>
+        <span class="text-default">
+            {{ data.title || 'Confirm' }}
+        </span>
+    </div>
+    <button mat-icon-button
+        class="small-icon-button"
+        (click)="onCancel()">
+        <mat-icon class="text-default">close</mat-icon>
+    </button>
+</div>
+
+<div class="flex flex-col w-full py-6">
+    <p class="text-default">{{ data.message }}</p>
+</div>
+
+<div class="flex flex-row justify-end items-center mt-4">
+    <button
+        mat-button
+        (click)="onCancel()">
+        {{ data.cancelText || 'Cancel' }}
+    </button>
+    <button
+        mat-raised-button
+        [color]="getButtonColor()"
+        (click)="onConfirm()">
+        {{ data.confirmText || 'Confirm' }}
+    </button>
+</div>

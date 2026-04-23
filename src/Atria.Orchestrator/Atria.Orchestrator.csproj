@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+      <PackageReference Include="System.IO.Hashing" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Core.Data\Atria.Core.Data.csproj" />
+      <ProjectReference Include="..\Atria.Core.Business\Atria.Core.Business.csproj" />
+      <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+      <ProjectReference Include="..\Atria.Common.Worker\Atria.Common.Worker.csproj" />
+      <ProjectReference Include="..\Atria.Pipeline\Atria.Pipeline.csproj" />
+    </ItemGroup>
+
+</Project>

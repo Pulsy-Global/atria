@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+      <PackageReference Include="NATS.Client.Core" />
+      <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+      <PackageReference Include="Microsoft.Extensions.Options" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+      <PackageReference Include="NATS.Client.KeyValueStore" />
+      <PackageReference Include="NATS.Client.JetStream" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Atria.Common\Atria.Common.csproj" />
+      <ProjectReference Include="..\Atria.Contracts\Atria.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>
