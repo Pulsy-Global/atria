@@ -28,8 +28,8 @@ const themes = {
             DEFAULT: colors.indigo[600],
         },
         accent: {
-            ...colors.slate,
-            DEFAULT: colors.slate[800],
+            ...colors.neutral,
+            DEFAULT: colors.neutral[800],
         },
         warn: {
             ...colors.red,
@@ -88,7 +88,7 @@ const config = {
                 'spin-slow': 'spin 3s linear infinite',
             },
             colors: {
-                gray: colors.slate,
+                gray: colors.neutral,
             },
             flex: {
                 0: '0 0 auto',
