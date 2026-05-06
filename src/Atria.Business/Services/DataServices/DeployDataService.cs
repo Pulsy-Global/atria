@@ -1,9 +1,9 @@
 using Atria.Business.Models;
 using Atria.Business.Services.DataServices.Interfaces;
 using Atria.Business.Services.Deployment.Interfaces;
+using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Business.Services.Storage.Interfaces;
 using Atria.Common.Exceptions;
-using Atria.Common.KV.Interfaces;
 using Atria.Contracts.Events.Feed;
 using Atria.Contracts.Events.Feed.Enums;
 using Atria.Core.Data.Entities.Deploys;
@@ -26,7 +26,7 @@ public class DeployDataService : IDeployDataService
     private readonly IFeedCursorStore _feedCursorStore;
     private readonly ChainStateStore _chainStateStore;
     private readonly IFileSystemService _fileStorageService;
-    private readonly IKvNamespaceResolver _kvNamespaceResolver;
+    private readonly IResourceNamespaceResolver _resourceNamespaceResolver;
 
     public DeployDataService(
         IFeedEventPublisher feedEventPublisher,
@@ -34,7 +34,7 @@ public class DeployDataService : IDeployDataService
         ChainStateStore chainStateStore,
         IUnitOfWorkFactory unitOfWorkFactory,
         IFileSystemService fileStorageService,
-        IKvNamespaceResolver kvNamespaceResolver,
+        IResourceNamespaceResolver resourceNamespaceResolver,
         ILogger<DeployDataService> logger)
     {
         _feedEventPublisher = feedEventPublisher;
@@ -42,7 +42,7 @@ public class DeployDataService : IDeployDataService
         _chainStateStore = chainStateStore;
         _unitOfWorkFactory = unitOfWorkFactory;
         _fileStorageService = fileStorageService;
-        _kvNamespaceResolver = kvNamespaceResolver;
+        _resourceNamespaceResolver = resourceNamespaceResolver;
         _logger = logger;
     }
 
@@ -358,7 +358,7 @@ public class DeployDataService : IDeployDataService
             Type: string.IsNullOrEmpty(filterCode) ? FeedType.Passthrough : FeedType.Filtered,
             BlockDelay: feed.BlockDelay,
             ErrorHandling: (Contracts.Events.Feed.Enums.ErrorHandlingStrategy)(int)feed.ErrorHandling,
-            EkvNamespace: _kvNamespaceResolver.Resolve());
+            EkvNamespace: await _resourceNamespaceResolver.ResolveForFeedAsync(feed.Id, ct));
 
         await _feedEventPublisher.PublishFeedDeployAsync(req, ct);
     }

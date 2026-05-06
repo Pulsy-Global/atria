@@ -31,16 +31,20 @@ public class FeedManager(
     public async Task<FeedDto> CreateFeedAsync(CreateFeedDto dto, CancellationToken ct)
     {
         var entity = Mapper.Map<Feed>(dto);
+        if (entity.Id == Guid.Empty)
+        {
+            entity.Id = Guid.CreateVersion7();
+        }
 
         if (!string.IsNullOrEmpty(dto.FilterCode))
         {
-            var path = await feedDataService.UploadFeedFileAsync(entity.Id, FeedFileType.Filter, dto.FilterCode, ct);
+            var path = await feedDataService.UploadFeedFileAsync(entity, FeedFileType.Filter, dto.FilterCode, ct);
             entity.FilterPath = path;
         }
 
         if (!string.IsNullOrEmpty(dto.FunctionCode))
         {
-            var path = await feedDataService.UploadFeedFileAsync(entity.Id, FeedFileType.Function, dto.FunctionCode, ct);
+            var path = await feedDataService.UploadFeedFileAsync(entity, FeedFileType.Function, dto.FunctionCode, ct);
             entity.FunctionPath = path;
         }
 
@@ -59,23 +63,23 @@ public class FeedManager(
 
         if (!string.IsNullOrEmpty(dto.FilterCode))
         {
-            var path = await feedDataService.UploadFeedFileAsync(entity.Id, FeedFileType.Filter, dto.FilterCode, ct);
+            var path = await feedDataService.UploadFeedFileAsync(entity, FeedFileType.Filter, dto.FilterCode, ct);
             entity.FilterPath = path;
         }
         else if (!string.IsNullOrEmpty(entity.FilterPath))
         {
-            await feedDataService.DeleteFeedFileAsync(id, FeedFileType.Filter, ct);
+            await feedDataService.DeleteFeedFileAsync(entity, FeedFileType.Filter, ct);
             entity.FilterPath = null;
         }
 
         if (!string.IsNullOrEmpty(dto.FunctionCode))
         {
-            var path = await feedDataService.UploadFeedFileAsync(entity.Id, FeedFileType.Function, dto.FunctionCode, ct);
+            var path = await feedDataService.UploadFeedFileAsync(entity, FeedFileType.Function, dto.FunctionCode, ct);
             entity.FunctionPath = path;
         }
         else if (!string.IsNullOrEmpty(entity.FunctionPath))
         {
-            await feedDataService.DeleteFeedFileAsync(id, FeedFileType.Function, ct);
+            await feedDataService.DeleteFeedFileAsync(entity, FeedFileType.Function, ct);
             entity.FunctionPath = null;
         }
 

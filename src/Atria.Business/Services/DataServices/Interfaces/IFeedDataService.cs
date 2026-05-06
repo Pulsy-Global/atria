@@ -30,7 +30,7 @@ public interface IFeedDataService
 
     Task<string?> GetFeedFileAsync(Guid id, FeedFileType type, CancellationToken ct);
 
-    Task DeleteFeedFileAsync(Guid id, FeedFileType type, CancellationToken ct);
+    Task DeleteFeedFileAsync(Feed feed, FeedFileType type, CancellationToken ct);
 
-    Task<string?> UploadFeedFileAsync(Guid id, FeedFileType type, string content, CancellationToken ct);
+    Task<string?> UploadFeedFileAsync(Feed feed, FeedFileType type, string content, CancellationToken ct);
 }
