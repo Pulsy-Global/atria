@@ -35,6 +35,8 @@ import { HeaderWidgetService } from 'shared/core/header/header-widget.service';
 import { SidePanelService } from 'shared/core/side-panel/side-panel.service';
 import { Subject, combineLatest, takeUntil, distinctUntilChanged, map } from 'rxjs';
 
+const SIDE_PANEL_SCROLL_LOCK_CLASS = 'layout-side-panel-scroll-locked';
+
 @Component({
     selector: 'layout',
     templateUrl: './layout.component.html',
@@ -92,6 +94,8 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             if (config && ready && this.sidePanelContainer && !this._sidePanelRef) {
                 this._sidePanelRef = this.sidePanelContainer.createComponent(config.component);
             }
+
+            this._syncSidePanelScrollLock();
         });
 
 
@@ -110,6 +114,7 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.isScreenSmall = !matchingAliases.includes('lg');
                 this.isScreenMobile = !matchingAliases.includes('md');
                 this._updateCurrentBreakpoints(matchingAliases);
+                this._syncSidePanelScrollLock();
             });
 
         this._fuseConfigService.config$
@@ -151,6 +156,7 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnDestroy(): void {
+        this._setDocumentScrollLock(false);
         this._destroyWidgetInstances();
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
@@ -261,5 +267,29 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.mobileWidgetsContainer) {
             this.mobileWidgetsContainer.clear();
         }
+    }
+
+    private _syncSidePanelScrollLock(): void {
+        this._setDocumentScrollLock(
+            this.sidePanelService.isOpen() && this.isScreenSmall
+        );
+    }
+
+    private _setDocumentScrollLock(locked: boolean): void {
+        const root = this._document.documentElement;
+        const body = this._document.body;
+
+        if (!root || !body) {
+            return;
+        }
+
+        if (locked) {
+            this._renderer2.addClass(root, SIDE_PANEL_SCROLL_LOCK_CLASS);
+            this._renderer2.addClass(body, SIDE_PANEL_SCROLL_LOCK_CLASS);
+            return;
+        }
+
+        this._renderer2.removeClass(root, SIDE_PANEL_SCROLL_LOCK_CLASS);
+        this._renderer2.removeClass(body, SIDE_PANEL_SCROLL_LOCK_CLASS);
     }
 }
