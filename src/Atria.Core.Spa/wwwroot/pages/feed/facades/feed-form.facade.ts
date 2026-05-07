@@ -20,6 +20,7 @@ import type {
     Deploy,
     Environment,
     Feed,
+    FeedErrorInfo,
     Network,
     Output,
     Tag
@@ -46,6 +47,7 @@ export class FeedFormFacade {
     currentDeployFeed!: CreateFeed | UpdateFeed;
     isDraft = false;
     feedStatus: FeedStatus | null = null;
+    feedErrorInfo: FeedErrorInfo | null = null;
     hasFormChanges = false;
     initialFormValue: any = null;
     isLoading = false;
@@ -200,6 +202,7 @@ export class FeedFormFacade {
         const updateData = () => {
             this.isDraft = feedData.status === FeedStatus.Draft;
             this.feedStatus = feedData.status ?? null;
+            this.feedErrorInfo = feedData.errorInfo ?? null;
 
             if (feedData.filterCode) {
                 this.filterCode = feedData.filterCode;
@@ -219,6 +222,7 @@ export class FeedFormFacade {
         const resetData = () => {
             this.isDraft = true;
             this.feedStatus = null;
+            this.feedErrorInfo = null;
             this.filterCode = STRING_EMPTY;
             this.functionCode = STRING_EMPTY;
             this.deployHistory = [];

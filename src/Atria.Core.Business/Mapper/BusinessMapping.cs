@@ -102,7 +102,14 @@ public class BusinessMapping : IRegister
                 ? src.EndBlock.Value.ToString()
                 : null)
             .Map(dest => dest.TagIds, src => src.FeedTags.Select(ft => ft.TagId).ToList())
-            .Map(dest => dest.OutputIds, src => src.FeedOutputs.Select(fo => fo.OutputId).ToList());
+            .Map(dest => dest.OutputIds, src => src.FeedOutputs.Select(fo => fo.OutputId).ToList())
+            .Map(dest => dest.ErrorInfo, src => src.CurrentDeploy != null && src.CurrentDeploy.ErrorCode.HasValue
+                ? new FeedErrorInfoDto
+                {
+                    Code = src.CurrentDeploy.ErrorCode.Value.ToString(),
+                    OccurredAt = src.CurrentDeploy.ErrorOccurredAt,
+                }
+                : null);
 
         config.NewConfig<FeedDto, Feed>()
             .Map(dest => dest.StartBlock, src => src.StartBlockNumeric)
@@ -118,7 +125,14 @@ public class BusinessMapping : IRegister
 
     private static void RegisterDeployMappings(TypeAdapterConfig config)
     {
-        config.NewConfig<Deploy, DeployDto>();
+        config.NewConfig<Deploy, DeployDto>()
+            .Map(dest => dest.ErrorInfo, src => src.ErrorCode.HasValue
+                ? new FeedErrorInfoDto
+                {
+                    Code = src.ErrorCode.Value.ToString(),
+                    OccurredAt = src.ErrorOccurredAt,
+                }
+                : null);
     }
 
     private static void RegisterNetworkMappings(TypeAdapterConfig config)

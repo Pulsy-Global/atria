@@ -96,8 +96,15 @@ public sealed class FeedBlockProcessor
                         "Feed {FeedId}: Max consecutive block errors reached ({MaxErrors}), pausing",
                         feedId,
                         MaxBlockErrors);
+
                     await _cursorStore.SetAsync(feedId, block.BlockNumber + 1, ct);
-                    await PublishPauseEventAsync(feedId, FeedPauseSource.BlockErrors, ct);
+
+                    await PublishPauseEventAsync(
+                        feedId,
+                        feed.FeedRuntime.DeployId,
+                        FeedPauseSource.BlockErrors,
+                        $"Block {block.BlockNumber}: data was unavailable for {MaxBlockErrors} consecutive blocks.",
+                        ct);
                     return;
                 }
 
@@ -126,7 +133,12 @@ public sealed class FeedBlockProcessor
                             feedId,
                             MaxProcessingErrors);
                         await _cursorStore.SetAsync(feedId, block.BlockNumber + 1, ct);
-                        await PublishPauseEventAsync(feedId, FeedPauseSource.ProcessingErrors, ct);
+                        await PublishPauseEventAsync(
+                            feedId,
+                            feed.FeedRuntime.DeployId,
+                            FeedPauseSource.ProcessingErrors,
+                            $"Block {block.BlockNumber}: processing failed for {MaxProcessingErrors} consecutive blocks.",
+                            ct);
                         return;
                     }
                 }
@@ -227,18 +239,24 @@ public sealed class FeedBlockProcessor
                 feed.FeedRuntime.OutputIds,
                 dataToSend,
                 IsTestExecution: false,
-                BlockNumber: blockNumber.ToString());
+                BlockNumber: blockNumber.ToString(),
+                DeployId: feed.FeedRuntime.DeployId);
 
             await _feedPublisher.PublishResultAsync(feedId, output, ct);
             _logger.LogTrace("Output published for feed {FeedId}", feedId);
         }
     }
 
-    private async Task PublishPauseEventAsync(string feedId, FeedPauseSource source, CancellationToken ct)
+    private async Task PublishPauseEventAsync(
+        string feedId,
+        string deployId,
+        FeedPauseSource source,
+        string? reason,
+        CancellationToken ct)
     {
         try
         {
-            var pauseEvent = new FeedPausedEvent(feedId, source);
+            var pauseEvent = new FeedPausedEvent(feedId, source, reason, deployId);
             await _serviceBus.PublishAsync(FeedSubjects.System.FeedPaused, pauseEvent, ct);
             _logger.LogInformation("Published pause event for feed {FeedId} (source: {Source})", feedId, source);
         }

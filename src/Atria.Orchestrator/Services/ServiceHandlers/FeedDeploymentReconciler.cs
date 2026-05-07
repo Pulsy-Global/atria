@@ -95,7 +95,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
         if (lease is not null)
         {
             _logger.LogInformation("Feed {FeedId} has active lease, confirming as running", feedId);
-            await deployService.ConfirmDeployedAsync(feed.Id, ct);
+            await deployService.ConfirmDeployedAsync(feed.Id, deploy.Id, ct);
             return;
         }
 
@@ -107,7 +107,11 @@ public sealed class FeedDeploymentReconciler : BackgroundService
         {
             _logger.LogWarning("Deploy {DeployId} stuck in pending, marking as failed", deploy.Id);
 
-            deploy.Status = DeployStatus.Failed;
+            deploy.MarkFailed(
+                DeployErrorCode.RuntimeUnavailable,
+                nameof(DeployErrorCode.RuntimeUnavailable),
+                "No runtime became available before the deployment timeout.");
+
             feed.Status = FeedStatus.Error;
 
             await deployService.UpdateDeployAsync(deploy, ct);

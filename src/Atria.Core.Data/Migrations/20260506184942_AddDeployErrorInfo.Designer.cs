@@ -3,6 +3,7 @@ using System;
 using Atria.Core.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Atria.Core.Data.Migrations
 {
     [DbContext(typeof(AtriaDbContext))]
-    partial class AtriaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260506184942_AddDeployErrorInfo")]
+    partial class AddDeployErrorInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

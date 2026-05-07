@@ -20,6 +20,7 @@ public class FeedRepository : Repository<Guid, Feed>, IFeedRepository
         CancellationToken ct)
     {
         var query = GetSet()
+            .Include(x => x.CurrentDeploy)
             .Include(x => x.FeedTags)
             .ThenInclude(x => x.Tag)
             .AsQueryable();

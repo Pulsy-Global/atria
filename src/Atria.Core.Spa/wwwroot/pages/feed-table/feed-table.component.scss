@@ -17,3 +17,83 @@ feed-table {
         .mat-column-controls { width: var(--col-controls); }
     }
 }
+
+.feed-error-tooltip .mdc-tooltip__surface,
+.feed-status-tooltip .mdc-tooltip__surface {
+    max-width: 280px;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    white-space: pre-line;
+}
+
+.feed-error-tooltip .mdc-tooltip__surface {
+    border: 1px solid rgb(254 205 211);
+    background-color: rgb(255 241 242) !important;
+    color: rgb(136 19 55) !important;
+}
+
+.dark .feed-error-tooltip .mdc-tooltip__surface {
+    border-color: rgb(251 113 133 / 0.35);
+    background-color: rgb(76 5 25) !important;
+    color: rgb(253 164 175) !important;
+}
+
+.feed-status-tooltip-running .mdc-tooltip__surface {
+    border: 1px solid rgb(167 243 208);
+    background-color: rgb(236 253 245) !important;
+    color: rgb(6 95 70) !important;
+}
+
+.dark .feed-status-tooltip-running .mdc-tooltip__surface {
+    border-color: rgb(52 211 153 / 0.35);
+    background-color: rgb(6 78 59) !important;
+    color: rgb(110 231 183) !important;
+}
+
+.feed-status-tooltip-paused .mdc-tooltip__surface {
+    border: 1px solid rgb(253 230 138);
+    background-color: rgb(255 251 235) !important;
+    color: rgb(146 64 14) !important;
+}
+
+.dark .feed-status-tooltip-paused .mdc-tooltip__surface {
+    border-color: rgb(251 191 36 / 0.35);
+    background-color: rgb(69 26 3) !important;
+    color: rgb(252 211 77) !important;
+}
+
+.feed-status-tooltip-pending .mdc-tooltip__surface {
+    border: 1px solid rgb(254 240 138);
+    background-color: rgb(254 252 232) !important;
+    color: rgb(133 77 14) !important;
+}
+
+.dark .feed-status-tooltip-pending .mdc-tooltip__surface {
+    border-color: rgb(250 204 21 / 0.35);
+    background-color: rgb(66 32 6) !important;
+    color: rgb(253 224 71) !important;
+}
+
+.feed-status-tooltip-completed .mdc-tooltip__surface {
+    border: 1px solid rgb(186 230 253);
+    background-color: rgb(240 249 255) !important;
+    color: rgb(3 105 161) !important;
+}
+
+.dark .feed-status-tooltip-completed .mdc-tooltip__surface {
+    border-color: rgb(56 189 248 / 0.35);
+    background-color: rgb(8 47 73) !important;
+    color: rgb(125 211 252) !important;
+}
+
+.feed-status-tooltip-neutral .mdc-tooltip__surface {
+    border: 1px solid rgb(229 229 229);
+    background-color: rgb(250 250 250) !important;
+    color: rgb(64 64 64) !important;
+}
+
+.dark .feed-status-tooltip-neutral .mdc-tooltip__surface {
+    border-color: rgb(163 163 163 / 0.25);
+    background-color: rgb(38 38 38) !important;
+    color: rgb(229 229 229) !important;
+}

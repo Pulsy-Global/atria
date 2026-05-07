@@ -33,5 +33,10 @@ public class FeedConfiguration : IEntityTypeConfiguration<Feed>
             .WithOne(e => e.Feed)
             .HasForeignKey(e => e.FeedId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.CurrentDeploy)
+            .WithMany()
+            .HasForeignKey(e => e.CurrentDeployId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -17,6 +17,16 @@ public class DeployConfiguration : IEntityTypeConfiguration<Deploy>
         builder.Property(e => e.Status)
             .HasConversion<string>();
 
+        builder.Property(e => e.ErrorCode)
+            .HasConversion<string>()
+            .HasMaxLength(64);
+
+        builder.Property(e => e.ErrorSource)
+            .HasMaxLength(64);
+
+        builder.Property(e => e.ErrorMessage)
+            .HasMaxLength(1000);
+
         builder.HasOne(e => e.Feed)
             .WithMany(f => f.Deploys)
             .HasForeignKey(e => e.FeedId)

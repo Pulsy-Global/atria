@@ -30,8 +30,15 @@ public sealed class FeedPausedHandler : ServiceBusHandler<FeedPausedEvent>
     {
         using var scope = _serviceProvider.CreateScope();
         var feedDataService = scope.ServiceProvider.GetRequiredService<IFeedDataService>();
+        var deployDataService = scope.ServiceProvider.GetRequiredService<IDeployDataService>();
 
-        var feed = await feedDataService.GetFeedByIdAsync(Guid.Parse(message.FeedId), ct);
+        if (!Guid.TryParse(message.FeedId, out var feedId))
+        {
+            Logger.LogWarning("Ignoring pause event with invalid feed id: {FeedId}", message.FeedId);
+            return;
+        }
+
+        var feed = await feedDataService.GetFeedByIdAsync(feedId, ct);
 
         if (feed == null)
         {
@@ -39,8 +46,56 @@ public sealed class FeedPausedHandler : ServiceBusHandler<FeedPausedEvent>
             return;
         }
 
+        if (!Guid.TryParse(message.DeployId, out var deployId))
+        {
+            Logger.LogWarning(
+                "Ignoring pause event for feed {FeedId}: deploy id is missing or invalid ({DeployId})",
+                message.FeedId,
+                message.DeployId);
+
+            return;
+        }
+
+        if (!feed.CurrentDeployId.HasValue)
+        {
+            Logger.LogWarning(
+                "Ignoring pause event for feed {FeedId}: feed has no current deploy",
+                message.FeedId);
+
+            return;
+        }
+
+        if (feed.CurrentDeployId.Value != deployId)
+        {
+            Logger.LogInformation(
+                "Ignoring stale pause event for feed {FeedId}: event deploy {DeployId}, current deploy {CurrentDeployId}",
+                message.FeedId,
+                deployId,
+                feed.CurrentDeployId.Value);
+
+            return;
+        }
+
         var newStatus = MapPauseSourceToStatus(message.Source);
         var previousStatus = feed.Status;
+
+        var deployUpdated = await UpdateCurrentDeployAsync(
+            deployDataService,
+            feed.Id,
+            deployId,
+            newStatus,
+            message,
+            ct);
+
+        if (!deployUpdated)
+        {
+            Logger.LogWarning(
+                "Ignoring pause event for feed {FeedId}: current deploy {DeployId} was not found",
+                message.FeedId,
+                deployId);
+
+            return;
+        }
 
         if (previousStatus == newStatus)
         {
@@ -72,6 +127,56 @@ public sealed class FeedPausedHandler : ServiceBusHandler<FeedPausedEvent>
             FeedPauseSource.User => FeedStatus.Paused,
             FeedPauseSource.Runtime => FeedStatus.Paused,
             _ => FeedStatus.Paused,
+        };
+    }
+
+    private static async Task<bool> UpdateCurrentDeployAsync(
+        IDeployDataService deployDataService,
+        Guid feedId,
+        Guid deployId,
+        FeedStatus newStatus,
+        FeedPausedEvent message,
+        CancellationToken ct)
+    {
+        var deploy = await deployDataService.GetCurrentDeployAsync(feedId, ct);
+
+        if (deploy == null)
+        {
+            return false;
+        }
+
+        if (deploy.Id != deployId)
+        {
+            return false;
+        }
+
+        if (newStatus == FeedStatus.Error)
+        {
+            deploy.MarkFailed(
+                MapPauseSourceToErrorCode(message.Source),
+                message.Source.ToString(),
+                message.Reason);
+        }
+        else
+        {
+            deploy.Status = DeployStatus.None;
+            deploy.UpdatedAt = DateTimeOffset.UtcNow;
+            deploy.ClearError();
+        }
+
+        await deployDataService.UpdateDeployAsync(deploy, ct);
+
+        return true;
+    }
+
+    private static DeployErrorCode MapPauseSourceToErrorCode(FeedPauseSource source)
+    {
+        return source switch
+        {
+            FeedPauseSource.Delivery => DeployErrorCode.WebhookUnavailable,
+            FeedPauseSource.BlockErrors => DeployErrorCode.BlockDataUnavailable,
+            FeedPauseSource.ProcessingErrors => DeployErrorCode.ProcessingFailed,
+            _ => DeployErrorCode.OperationFailed,
         };
     }
 }

@@ -155,16 +155,25 @@
                         </button>
                     </div>
                 </th>
-                <td mat-cell *matCellDef="let feed" class="!py-2 !px-3"
-                    [title]="streamData[feed.id] ? 'Feed: ' + (streamData[feed.id].feedCursor | number) + ' · Head: ' + (streamData[feed.id].chainHead | number) + ' · Delay: ' + feed.blockDelay : ''">
-                    <span class="inline-flex px-3 py-1 items-center rounded-full text-sm font-medium"
-                          [ngClass]="getStatusColor(feed.status)">
-                        {{getStatusText(feed.status)}}
-                        <ng-container *ngIf="streamData[feed.id]">
-                            <span class="ml-1.5 opacity-75" *ngIf="getFeedLag(feed) > 1">-{{ getFeedLag(feed) | number }} blocks</span>
-                            <span class="ml-1.5 opacity-75" *ngIf="getFeedLag(feed) <= 1 && isFeedRunning(feed)">in sync</span>
-                        </ng-container>
-                    </span>
+                <td mat-cell *matCellDef="let feed" class="!py-2 !px-3">
+                    <div class="inline-flex items-center gap-1.5">
+                        <span class="inline-flex px-3 py-1 items-center rounded-full text-sm font-medium"
+                              [ngClass]="getStatusColor(feed.status)"
+                              [matTooltip]="getFeedStatusTooltip(feed)"
+                              [matTooltipDisabled]="!streamData[feed.id]"
+                              [matTooltipClass]="getFeedStatusTooltipClass(feed)">
+                            {{getStatusText(feed.status)}}
+                            <ng-container *ngIf="streamData[feed.id]">
+                                <span class="ml-1.5 opacity-75" *ngIf="getFeedLag(feed) > 1">-{{ getFeedLag(feed) | number }} blocks</span>
+                                <span class="ml-1.5 opacity-75" *ngIf="getFeedLag(feed) <= 1 && isFeedRunning(feed)">in sync</span>
+                            </ng-container>
+                        </span>
+                        <mat-icon
+                            *ngIf="getFeedErrorInfo(feed)"
+                            class="icon-size-4 text-rose-700 dark:text-rose-300"
+                            [matTooltip]="getFeedErrorTooltip(feed)"
+                            matTooltipClass="feed-error-tooltip">info</mat-icon>
+                    </div>
                 </td>
             </ng-container>
 
@@ -303,6 +312,15 @@
                     [ngClass]="getStatusColor(feed.status)">
                     {{getStatusText(feed.status)}}
                 </span>
+            </div>
+
+            <div
+                *ngIf="getFeedErrorDisplayInfo(feed) as errorInfo"
+                class="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900 dark:border-rose-400/40 dark:bg-rose-500/10 dark:text-rose-100">
+                <div class="font-medium">{{ errorInfo.title }}</div>
+                <div class="mt-1 text-xs text-rose-800 dark:text-rose-100/90">
+                    {{ errorInfo.message }}
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-md border-t

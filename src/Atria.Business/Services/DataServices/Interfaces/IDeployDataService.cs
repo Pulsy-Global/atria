@@ -20,7 +20,7 @@ public interface IDeployDataService
 
     Task<Deploy?> GetCurrentDeployAsync(Guid feedId, CancellationToken ct);
 
-    Task ConfirmDeployedAsync(Guid feedId, CancellationToken ct);
+    Task<bool> ConfirmDeployedAsync(Guid feedId, Guid deployId, CancellationToken ct);
 
     Task<TestResult> TestFeedDeployAsync(TestRequest testRequest, CancellationToken ct);
 }

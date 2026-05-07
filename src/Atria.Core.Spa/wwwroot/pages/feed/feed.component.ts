@@ -22,6 +22,7 @@ import { FeedExecutionFacade } from './facades/feed-execution.facade';
 import { FeedFormFacade } from './facades/feed-form.facade';
 import { FeedTabsFacade } from './facades/feed-tabs.facade';
 import { AppConfigService } from '../../shared/core/config/app.config.service';
+import { getFeedErrorDisplayInfo } from '../../shared/config/feed-error-display.config';
 
 @Component({
     selector: 'feeds',
@@ -53,6 +54,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     readonly TabType = TabType;
     readonly filterTemplates = FILTER_TEMPLATES;
     readonly functionTemplates = FUNCTION_TEMPLATES;
+    readonly getFeedErrorDisplayInfo = getFeedErrorDisplayInfo;
     readonly filterDescription = 'Process blockchain data and return a custom output (or <code class="bg-hover rounded px-1 py-0.5 text-xs">null</code> to skip), and return a custom result.';
     readonly functionDescription = 'Process blockchain data or <code class="bg-hover rounded px-1 py-0.5 text-xs">filter</code> output, optionally call APIs or a managed database, and return a custom result.';
 

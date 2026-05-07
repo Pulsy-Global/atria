@@ -66,6 +66,7 @@ public sealed class FeedRuntimeService : BackgroundService
                     var feedRuntime = new FeedRuntime
                     {
                         Id = request.Id,
+                        DeployId = request.DeployId,
                         ChainId = request.ChainId,
                         DataType = request.FeedDataType,
                         FilterLangKind = request.FilterLangKind,
@@ -83,7 +84,7 @@ public sealed class FeedRuntimeService : BackgroundService
                     var started = await _lifecycle.TryStartWithLeaseAsync(feedRuntime, ct);
                     if (started)
                     {
-                        await PublishDeployedEventAsync(request.Id, ct);
+                        await PublishDeployedEventAsync(request.Id, request.DeployId, ct);
                     }
                 }
                 finally
@@ -116,7 +117,7 @@ public sealed class FeedRuntimeService : BackgroundService
                     }
 
                     await _lifecycle.StopAsync(request.Id, deleteCursor: false, ct);
-                    await PublishPauseEventAsync(request.Id, request.Source, ct);
+                    await PublishPauseEventAsync(request.Id, request.Source, request.Reason, request.DeployId, ct);
                 }
                 finally
                 {
@@ -272,13 +273,18 @@ public sealed class FeedRuntimeService : BackgroundService
         }
     }
 
-    private async Task PublishPauseEventAsync(string feedId, FeedPauseSource source, CancellationToken ct)
+    private async Task PublishPauseEventAsync(
+        string feedId,
+        FeedPauseSource source,
+        string? reason,
+        string? deployId,
+        CancellationToken ct)
     {
         try
         {
             await _serviceBus.PublishAsync(
                 FeedSubjects.System.FeedPaused,
-                new FeedPausedEvent(feedId, source),
+                new FeedPausedEvent(feedId, source, reason, deployId),
                 ct);
         }
         catch (Exception ex)
@@ -287,13 +293,13 @@ public sealed class FeedRuntimeService : BackgroundService
         }
     }
 
-    private async Task PublishDeployedEventAsync(string feedId, CancellationToken ct)
+    private async Task PublishDeployedEventAsync(string feedId, string deployId, CancellationToken ct)
     {
         try
         {
             await _serviceBus.PublishAsync(
                 FeedSubjects.System.FeedDeployed,
-                new FeedDeployedEvent(feedId),
+                new FeedDeployedEvent(feedId, deployId),
                 ct);
         }
         catch (Exception ex)

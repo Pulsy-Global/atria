@@ -117,7 +117,12 @@ public class FeedManager(
 
     public async Task<FeedDto> GetFeedAsync(Guid id, CancellationToken ct)
     {
-        var entity = await feedDataService.GetFeedByIdAsync(id, ct, x => x.FeedTags, x => x.FeedOutputs);
+        var entity = await feedDataService.GetFeedByIdAsync(
+            id,
+            ct,
+            x => x.FeedTags,
+            x => x.FeedOutputs,
+            x => x.CurrentDeploy!);
 
         var dto = Mapper.Map<FeedDto>(entity);
 
@@ -139,7 +144,6 @@ public class FeedManager(
         var mappedQuery = Mapper.MapQueryOptions<FeedDto, Feed>(queryOptions);
 
         var entities = await feedDataService.GetFeedsAsync(mappedQuery, ct);
-
         return Mapper.Map<PagedList<FeedDto>>(entities);
     }
 

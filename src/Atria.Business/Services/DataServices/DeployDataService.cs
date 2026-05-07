@@ -20,6 +20,8 @@ namespace Atria.Business.Services.DataServices;
 
 public class DeployDataService : IDeployDataService
 {
+    private const int DeployHistoryRetentionLimit = 20;
+
     private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly ILogger<DeployDataService> _logger;
     private readonly IFeedEventPublisher _feedEventPublisher;
@@ -74,38 +76,29 @@ public class DeployDataService : IDeployDataService
             throw new CursorBehindTailException(feedCursor.Value, tail.Value);
         }
 
-        await DeactivatePreviousDeploysAsync(uow, feedId, feed.Version, ct);
+        await DeactivatePreviousDeploysAsync(uow, feedId, ct);
 
-        var deploy = await uow.DeployRepository.GetAsync(
-            x => x.FeedId == feedId && x.Version == feed.Version, ct);
-
-        if (deploy == null)
-        {
-            deploy = await uow.DeployRepository.CreateAsync(
-                new Deploy
-                {
-                    FeedId = feedId,
-                    Version = feed.Version,
-                    Status = DeployStatus.Pending,
-                    UpdatedAt = DateTimeOffset.UtcNow,
-                },
-                ct);
-        }
-        else
-        {
-            deploy.Status = DeployStatus.Pending;
-            deploy.UpdatedAt = DateTimeOffset.UtcNow;
-            uow.DeployRepository.Update(deploy);
-        }
+        var deploy = await uow.DeployRepository.CreateAsync(
+            new Deploy
+            {
+                Id = Guid.CreateVersion7(),
+                FeedId = feedId,
+                Version = feed.Version,
+                Status = DeployStatus.Pending,
+                UpdatedAt = DateTimeOffset.UtcNow,
+            },
+            ct);
 
         feed.Status = FeedStatus.Pending;
+        feed.CurrentDeployId = deploy.Id;
         uow.FeedRepository.Update(feed);
 
         await uow.SaveChangesAsync(ct);
+        await TrimDeployHistoryAsync(uow, feedId, deploy.Id, ct);
 
         try
         {
-            await SendDeployRequestAsync(feed, ct);
+            await SendDeployRequestAsync(feed, deploy.Id, ct);
 
             return deploy;
         }
@@ -113,7 +106,10 @@ public class DeployDataService : IDeployDataService
         {
             _logger.LogError(ex, "Failed to deploy feed: {FeedId}", feedId);
 
-            deploy.Status = DeployStatus.Failed;
+            deploy.MarkFailed(
+                DeployErrorCode.DeploymentFailed,
+                nameof(DeployErrorCode.DeploymentFailed),
+                "The deployment request could not be published.");
             feed.Status = FeedStatus.Error;
 
             uow.FeedRepository.Update(feed);
@@ -137,7 +133,24 @@ public class DeployDataService : IDeployDataService
             throw new InvalidOperationException($"Feed with ID {feedId} not found");
         }
 
-        await SendDeployRequestAsync(feed, ct);
+        var deployId = feed.CurrentDeployId;
+
+        if (!deployId.HasValue)
+        {
+            var deploy = await uow.DeployRepository.GetAsync(
+                x => x.FeedId == feedId
+                    && (x.Status == DeployStatus.Pending || x.Status == DeployStatus.Deployed),
+                ct);
+
+            deployId = deploy?.Id;
+        }
+
+        if (!deployId.HasValue)
+        {
+            throw new InvalidOperationException($"Current deploy for feed with ID {feedId} not found");
+        }
+
+        await SendDeployRequestAsync(feed, deployId.Value, ct);
     }
 
     public async Task PauseFromRuntimeAsync(Guid feedId, CancellationToken ct)
@@ -159,9 +172,10 @@ public class DeployDataService : IDeployDataService
 
         try
         {
-            await _feedEventPublisher.PublishFeedPauseAsync(feedId, ct);
+            await _feedEventPublisher.PublishFeedPauseAsync(feedId, entity.CurrentDeployId, ct);
 
             entity.Status = FeedStatus.Paused;
+            await MarkCurrentDeployStoppedAsync(uow, entity, ct);
 
             await uow.SaveChangesAsync(ct);
         }
@@ -170,6 +184,14 @@ public class DeployDataService : IDeployDataService
             _logger.LogError(ex, "Failed to pause feed: {FeedId}", feedId);
 
             entity.Status = FeedStatus.Error;
+
+            await MarkCurrentDeployFailedAsync(
+                uow,
+                entity,
+                DeployErrorCode.OperationFailed,
+                "Pause",
+                "The feed could not be paused.",
+                ct);
 
             await uow.SaveChangesAsync(ct);
 
@@ -199,6 +221,7 @@ public class DeployDataService : IDeployDataService
             await _feedEventPublisher.PublishFeedDeleteAsync(feedId, ct);
 
             entity.Status = FeedStatus.Paused;
+            await MarkCurrentDeployStoppedAsync(uow, entity, ct);
 
             await uow.SaveChangesAsync(ct);
         }
@@ -207,6 +230,13 @@ public class DeployDataService : IDeployDataService
             _logger.LogError(ex, "Failed to delete feed: {FeedId}", feedId);
 
             entity.Status = FeedStatus.Error;
+            await MarkCurrentDeployFailedAsync(
+                uow,
+                entity,
+                DeployErrorCode.OperationFailed,
+                "Delete",
+                "The feed could not be deleted from runtime.",
+                ct);
 
             await uow.SaveChangesAsync(ct);
 
@@ -236,12 +266,18 @@ public class DeployDataService : IDeployDataService
             return null;
         }
 
+        if (feed.CurrentDeployId.HasValue)
+        {
+            return await uow.DeployRepository.GetAsync(feed.CurrentDeployId.Value, ct);
+        }
+
         return await uow.DeployRepository.GetAsync(
-            x => x.FeedId == feedId && x.Version == feed.Version,
+            x => x.FeedId == feedId
+                && (x.Status == DeployStatus.Pending || x.Status == DeployStatus.Deployed),
             ct);
     }
 
-    public async Task ConfirmDeployedAsync(Guid feedId, CancellationToken ct)
+    public async Task<bool> ConfirmDeployedAsync(Guid feedId, Guid deployId, CancellationToken ct)
     {
         using var uow = _unitOfWorkFactory.BuildContext();
 
@@ -252,26 +288,52 @@ public class DeployDataService : IDeployDataService
             throw new InvalidOperationException($"Feed with ID {feedId} not found");
         }
 
-        if (feed.Status == FeedStatus.Running)
+        if (feed.CurrentDeployId.HasValue && feed.CurrentDeployId.Value != deployId)
         {
-            return;
+            _logger.LogInformation(
+                "Ignoring stale deployed event for feed {FeedId}: event deploy {DeployId}, current deploy {CurrentDeployId}",
+                feedId,
+                deployId,
+                feed.CurrentDeployId.Value);
+
+            return false;
         }
 
-        var deploy = await uow.DeployRepository.GetAsync(
-            x => x.FeedId == feedId && x.Version == feed.Version,
-            ct);
+        var deploy = await uow.DeployRepository.GetAsync(deployId, ct);
 
-        if (deploy != null)
+        if (deploy == null || deploy.FeedId != feedId)
         {
-            deploy.Status = DeployStatus.Deployed;
-            deploy.UpdatedAt = DateTimeOffset.UtcNow;
-            uow.DeployRepository.Update(deploy);
+            _logger.LogWarning(
+                "Ignoring deployed event for feed {FeedId}: deploy {DeployId} was not found or belongs to another feed",
+                feedId,
+                deployId);
+
+            return false;
         }
+
+        if (deploy.Status != DeployStatus.Pending && deploy.Status != DeployStatus.Deployed)
+        {
+            _logger.LogInformation(
+                "Ignoring deployed event for feed {FeedId}: deploy {DeployId} is in status {Status}",
+                feedId,
+                deployId,
+                deploy.Status);
+
+            return false;
+        }
+
+        deploy.Status = DeployStatus.Deployed;
+        deploy.ClearError();
+        deploy.UpdatedAt = DateTimeOffset.UtcNow;
+        uow.DeployRepository.Update(deploy);
+        feed.CurrentDeployId = deploy.Id;
 
         feed.Status = FeedStatus.Running;
         uow.FeedRepository.Update(feed);
 
         await uow.SaveChangesAsync(ct);
+
+        return true;
     }
 
     public async Task<TestResult> TestFeedDeployAsync(TestRequest request, CancellationToken ct)
@@ -323,11 +385,10 @@ public class DeployDataService : IDeployDataService
             _ => throw new ArgumentOutOfRangeException(nameof(dataType), $"Unknown data type: {dataType}")
         };
 
-    private async Task DeactivatePreviousDeploysAsync(IUnitOfWork uow, Guid feedId, string currentVersion, CancellationToken ct)
+    private async Task DeactivatePreviousDeploysAsync(IUnitOfWork uow, Guid feedId, CancellationToken ct)
     {
         var activeDeploys = await uow.DeployRepository.GetListAsync(
             x => x.FeedId == feedId
-                && x.Version != currentVersion
                 && (x.Status == DeployStatus.Deployed || x.Status == DeployStatus.Pending),
             ct);
 
@@ -344,12 +405,109 @@ public class DeployDataService : IDeployDataService
         }
     }
 
-    private async Task SendDeployRequestAsync(Feed feed, CancellationToken ct)
+    private async Task TrimDeployHistoryAsync(
+        IUnitOfWork uow,
+        Guid feedId,
+        Guid currentDeployId,
+        CancellationToken ct)
+    {
+        try
+        {
+            var deploys = await uow.DeployRepository.GetListAsync(
+                x => x.FeedId == feedId,
+                ct);
+
+            if (deploys.Count <= DeployHistoryRetentionLimit)
+            {
+                return;
+            }
+
+            var keepIds = deploys
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(DeployHistoryRetentionLimit)
+                .Select(x => x.Id)
+                .Append(currentDeployId)
+                .ToHashSet();
+
+            var deleteIds = deploys
+                .Where(x => !keepIds.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToList();
+
+            if (deleteIds.Count == 0)
+            {
+                return;
+            }
+
+            await uow.DeployRepository.ExecuteDeleteAsync(
+                x => deleteIds.Contains(x.Id),
+                ct);
+
+            _logger.LogInformation(
+                "Trimmed {DeployCount} old deploy history records for feed {FeedId}",
+                deleteIds.Count,
+                feedId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Failed to trim old deploy history records for feed {FeedId}",
+                feedId);
+        }
+    }
+
+    private async Task MarkCurrentDeployStoppedAsync(IUnitOfWork uow, Feed feed, CancellationToken ct)
+    {
+        if (!feed.CurrentDeployId.HasValue)
+        {
+            return;
+        }
+
+        var deploy = await uow.DeployRepository.GetAsync(feed.CurrentDeployId.Value, ct);
+
+        if (deploy == null)
+        {
+            return;
+        }
+
+        deploy.Status = DeployStatus.None;
+        deploy.UpdatedAt = DateTimeOffset.UtcNow;
+        deploy.ClearError();
+        uow.DeployRepository.Update(deploy);
+    }
+
+    private async Task MarkCurrentDeployFailedAsync(
+        IUnitOfWork uow,
+        Feed feed,
+        DeployErrorCode errorCode,
+        string source,
+        string? message,
+        CancellationToken ct)
+    {
+        if (!feed.CurrentDeployId.HasValue)
+        {
+            return;
+        }
+
+        var deploy = await uow.DeployRepository.GetAsync(feed.CurrentDeployId.Value, ct);
+
+        if (deploy == null)
+        {
+            return;
+        }
+
+        deploy.MarkFailed(errorCode, source, message);
+        uow.DeployRepository.Update(deploy);
+    }
+
+    private async Task SendDeployRequestAsync(Feed feed, Guid deployId, CancellationToken ct)
     {
         var (filterCode, functionCode) = await GetFeedCode(feed, ct);
 
         var req = new FeedDeployRequest(
             Id: feed.Id.ToString(),
+            DeployId: deployId.ToString(),
             ChainId: feed.NetworkId,
             FilterCode: filterCode,
             FunctionCode: functionCode,

@@ -2797,6 +2797,7 @@ export class Deploy implements IDeploy {
     feedId?: string;
     version?: string | undefined;
     status?: DeployStatus;
+    errorInfo?: FeedErrorInfo;
     updatedAt?: Date | undefined;
     createdAt?: Date;
 
@@ -2815,6 +2816,7 @@ export class Deploy implements IDeploy {
             this.feedId = _data["feedId"];
             this.version = _data["version"];
             this.status = _data["status"];
+            this.errorInfo = _data["errorInfo"] ? FeedErrorInfo.fromJS(_data["errorInfo"]) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
         }
@@ -2833,6 +2835,7 @@ export class Deploy implements IDeploy {
         data["feedId"] = this.feedId;
         data["version"] = this.version;
         data["status"] = this.status;
+        data["errorInfo"] = this.errorInfo ? this.errorInfo.toJSON() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         return data;
@@ -2844,6 +2847,7 @@ export interface IDeploy {
     feedId?: string;
     version?: string | undefined;
     status?: DeployStatus;
+    errorInfo?: FeedErrorInfo;
     updatedAt?: Date | undefined;
     createdAt?: Date;
 }
@@ -2898,6 +2902,7 @@ export class Feed implements IFeed {
     version?: string | undefined;
     description?: string | undefined;
     status?: FeedStatus;
+    errorInfo?: FeedErrorInfo;
     networkId?: string | undefined;
     dataType?: AtriaDataType;
     startBlock?: string | undefined;
@@ -2927,6 +2932,7 @@ export class Feed implements IFeed {
             this.version = _data["version"];
             this.description = _data["description"];
             this.status = _data["status"];
+            this.errorInfo = _data["errorInfo"] ? FeedErrorInfo.fromJS(_data["errorInfo"]) : undefined as any;
             this.networkId = _data["networkId"];
             this.dataType = _data["dataType"];
             this.startBlock = _data["startBlock"];
@@ -2964,6 +2970,7 @@ export class Feed implements IFeed {
         data["version"] = this.version;
         data["description"] = this.description;
         data["status"] = this.status;
+        data["errorInfo"] = this.errorInfo ? this.errorInfo.toJSON() : undefined as any;
         data["networkId"] = this.networkId;
         data["dataType"] = this.dataType;
         data["startBlock"] = this.startBlock;
@@ -2994,6 +3001,7 @@ export interface IFeed {
     version?: string | undefined;
     description?: string | undefined;
     status?: FeedStatus;
+    errorInfo?: FeedErrorInfo;
     networkId?: string | undefined;
     dataType?: AtriaDataType;
     startBlock?: string | undefined;
@@ -3006,6 +3014,46 @@ export interface IFeed {
     blockDelay?: number;
     createdAt?: Date;
     updatedAt?: Date | undefined;
+}
+
+export class FeedErrorInfo implements IFeedErrorInfo {
+    code?: string | undefined;
+    occurredAt?: Date | undefined;
+
+    constructor(data?: IFeedErrorInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.occurredAt = _data["occurredAt"] ? new Date(_data["occurredAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): FeedErrorInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new FeedErrorInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["occurredAt"] = this.occurredAt ? this.occurredAt.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IFeedErrorInfo {
+    code?: string | undefined;
+    occurredAt?: Date | undefined;
 }
 
 export class Result implements IResult {
