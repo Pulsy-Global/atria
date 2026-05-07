@@ -364,7 +364,7 @@
     
     input[type="text"]:not(.mat-mdc-input-element),
     input[type="search"]:not(.mat-mdc-input-element) {
-        border-color: rgb(100 116 139) !important;
+        border-color: rgb(115 115 115) !important;
         background-color: transparent !important;
         color: #ffffff !important;
         
@@ -433,7 +433,7 @@
         .mat-mdc-header-row {
             .mat-mdc-header-cell {
                 color: #ffffff;
-                background-color: rgb(31 41 55);
+                background-color: var(--fuse-bg-card);
                 border-bottom: 1px solid var(--fuse-border);
 
                 &:first-child {
@@ -551,13 +551,13 @@
     }
 
     .mat-mdc-select-panel {
-        background-color: rgb(31 41 55) !important;
+        background-color: var(--fuse-bg-dialog) !important;
 
         .mat-mdc-option {
-            color: #ffffff !important;
+            color: var(--fuse-text-default) !important;
 
             &:hover {
-                background-color: rgb(55 65 81) !important;
+                background-color: var(--fuse-bg-hover) !important;
             }
         }
     }
@@ -627,12 +627,12 @@
 
     .mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-outlined-button, .mat-mdc-fab {
         &:disabled {
-            background-color: rgb(55 65 81) !important;
-            color: rgb(156 163 175) !important;
-            border-color: rgb(75 85 99) !important;
+            background-color: var(--fuse-bg-hover) !important;
+            color: var(--fuse-text-disabled) !important;
+            border-color: var(--fuse-border) !important;
 
             .mat-icon {
-                color: rgb(156 163 175) !important;
+                color: var(--fuse-text-disabled) !important;
             }
         }
     }

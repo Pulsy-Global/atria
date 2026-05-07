@@ -155,7 +155,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-primary-400;
@@ -190,7 +190,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-accent-400;
@@ -225,7 +225,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-warn-400;
@@ -260,7 +260,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-gray-400;
@@ -295,7 +295,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-blue-400;
@@ -330,7 +330,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-green-400;
@@ -365,7 +365,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-amber-400;
@@ -400,7 +400,7 @@ fuse-alert {
                 }
 
                 .dark & {
-                    @apply bg-gray-700;
+                    @apply bg-card;
 
                     .fuse-alert-border {
                         @apply bg-red-400;

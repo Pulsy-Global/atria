@@ -4,7 +4,7 @@
         class="inline-flex items-center gap-2 border-b-2 px-3 py-2 text-sm text-secondary cursor-pointer"
         [ngClass]="selectedIndex === i
             ? 'text-default border-primary'
-            : 'border-transparent hover:text-default hover:border-slate-200/60 dark:hover:border-slate-700/60'"
+            : 'border-transparent hover:text-default hover:border-neutral-200/60 dark:hover:border-neutral-700/60'"
         (click)="selectTab.emit(i)">
         <mat-icon class="mr-2 text-base">{{ tab.icon }}</mat-icon>
         <span>{{ tab.label }}</span>

@@ -1,6 +1,6 @@
 using Atria.Business.Models;
 using Atria.Business.Services.Deployment.Interfaces;
-using Atria.Common.KV.Interfaces;
+using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Common.Messaging.RequestReply;
 using Atria.Common.Messaging.ServiceBus;
 using Atria.Contracts.Events.Feed;
@@ -13,13 +13,13 @@ public class FeedEventPublisher : IFeedEventPublisher
 {
     private readonly IServiceBus _serviceBus;
     private readonly IRequestClient _requestClient;
-    private readonly IKvNamespaceResolver _kvNamespaceResolver;
+    private readonly IResourceNamespaceResolver _resourceNamespaceResolver;
 
-    public FeedEventPublisher(IServiceBus serviceBus, IRequestClient requestClient, IKvNamespaceResolver kvNamespaceResolver)
+    public FeedEventPublisher(IServiceBus serviceBus, IRequestClient requestClient, IResourceNamespaceResolver resourceNamespaceResolver)
     {
         _serviceBus = serviceBus;
         _requestClient = requestClient;
-        _kvNamespaceResolver = kvNamespaceResolver;
+        _resourceNamespaceResolver = resourceNamespaceResolver;
     }
 
     public async Task<TestResult> ExecuteFeedTestAsync(TestRequest request, FeedDataType dataType, CancellationToken ct = default)
@@ -32,7 +32,7 @@ public class FeedEventPublisher : IFeedEventPublisher
             FunctionCode: request.FunctionCode,
             OutputIds: request.OutputsIds,
             Type: string.IsNullOrEmpty(request.FilterCode) ? FeedType.Passthrough : FeedType.Filtered,
-            EkvNamespace: _kvNamespaceResolver.Resolve());
+            EkvNamespace: _resourceNamespaceResolver.Resolve());
 
         var req = new FeedTestRequest(
             DeployRequest: deployRequest,

@@ -3,7 +3,7 @@
         *ngFor="let item of items; trackBy: trackByType"
         class="flex items-center gap-2 rounded-lg px-3 py-2 text-base text-secondary w-auto lg:self-stretch whitespace-nowrap"
         [ngClass]="{
-            'bg-hover text-default ring-1 ring-inset ring-slate-900/10': selectedType === item.type && !item.comingSoon,
+            'bg-hover text-default ring-1 ring-inset ring-neutral-900/10': selectedType === item.type && !item.comingSoon,
             'hover:bg-hover hover:text-default': !item.comingSoon,
             'opacity-50 cursor-default': item.comingSoon
         }"

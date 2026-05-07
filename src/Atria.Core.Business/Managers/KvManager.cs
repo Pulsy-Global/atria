@@ -1,3 +1,4 @@
+using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Common.KV.Factory;
 using Atria.Common.KV.Interfaces;
 using Atria.Core.Business.Managers.Interfaces;
@@ -9,13 +10,13 @@ namespace Atria.Core.Business.Managers;
 
 public class KvManager(
     IKvStoreFactory kvStoreFactory,
-    IKvNamespaceResolver kvNamespaceResolver,
+    IResourceNamespaceResolver resourceNamespaceResolver,
     ILogger<KvManager> logger,
     IMapper mapper)
     : BaseManager(logger, mapper), IKvManager
 {
     private readonly Task<IKvStore> _kvStoreTask =
-        kvStoreFactory.CreateAsync(kvNamespaceResolver.Resolve());
+        kvStoreFactory.CreateAsync(resourceNamespaceResolver.Resolve());
 
     public async Task AddBucketAsync(string bucket, BucketItemDto dto)
     {

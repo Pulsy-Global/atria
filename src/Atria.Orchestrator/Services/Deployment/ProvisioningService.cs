@@ -72,7 +72,7 @@ public class ProvisioningService : BackgroundService
         var feedManager = scope.ServiceProvider.GetRequiredService<IFeedProvisioningManager>();
 
         var manifests = await manifestScanner.ScanDirectoryAsync<FeedManifest>(
-            _orchestratorOptions.Provisioning.FeedsDirectory,
+            _orchestratorOptions.Provisioning.GetFeedsPath(),
             "manifest.json",
             feedManager.ValidateFeedManifest);
 

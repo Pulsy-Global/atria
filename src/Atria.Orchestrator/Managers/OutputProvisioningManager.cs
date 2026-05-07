@@ -46,7 +46,7 @@ public class OutputProvisioningManager : IOutputProvisioningManager
     public async Task ExecuteProvisioningAsync(CancellationToken ct = default)
     {
         var configs = await _manifestScanner.ScanDirectoryAsync<OutputsConfig>(
-            _orchestratorOptions.Provisioning.OutputsDirectory,
+            _orchestratorOptions.Provisioning.GetOutputsPath(),
             "outputs.json");
 
         using var uow = _uowFactory.BuildContext();

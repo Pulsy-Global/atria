@@ -1,6 +1,7 @@
 using Atria.Business.Models.Enums;
 using Atria.Business.Models.Options;
 using Atria.Business.Services.DataServices.Interfaces;
+using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Business.Services.Storage.Interfaces;
 using Atria.Common.Exceptions;
 using Atria.Common.Models.Generic;
@@ -20,9 +21,13 @@ public class FeedDataService(
     IFileSystemService fileStorageService,
     IOptions<FileStorageOptions> fileStorageOptions,
     IUnitOfWorkFactory unitOfWorkFactory,
+    IResourceNamespaceResolver resourceNamespaceResolver,
     ILogger<FeedDataService> logger)
     : IFeedDataService
 {
+    private const string FilterFileName = "filter.js";
+    private const string FunctionFileName = "function.js";
+
     private readonly FileStorageOptions _fileStorageOptions = fileStorageOptions.Value;
 
     public async Task<Feed> CreateFeedAsync(
@@ -133,17 +138,22 @@ public class FeedDataService(
         await uow.SaveChangesAsync(ct);
     }
 
-    public Task DeleteFeedFileAsync(Guid id, FeedFileType type, CancellationToken ct)
+    public Task DeleteFeedFileAsync(Feed feed, FeedFileType type, CancellationToken ct)
     {
-        var filePath = GenerateFilePath(id, type, ".js");
+        var filePath = GetStoredFilePath(feed, type);
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return Task.CompletedTask;
+        }
+
         return fileStorageService.DeleteFileAsync(filePath, ct);
     }
 
-    public async Task<string?> UploadFeedFileAsync(Guid id, FeedFileType type, string content, CancellationToken ct)
+    public async Task<string?> UploadFeedFileAsync(Feed feed, FeedFileType type, string content, CancellationToken ct)
     {
         if (!string.IsNullOrEmpty(content))
         {
-            var filePath = GenerateFilePath(id, type, ".js");
+            var filePath = GetStoredFilePath(feed, type) ?? GenerateFilePath(feed.Id, type);
             return await UploadFileAsync(content, filePath, ct);
         }
 
@@ -282,18 +292,54 @@ public class FeedDataService(
         }
     }
 
-    private string GenerateFilePath(Guid feedId, FeedFileType fileType, string originalFileName)
+    private string GenerateFilePath(Guid feedId, FeedFileType fileType)
     {
-        var extension = Path.GetExtension(originalFileName);
-        var fileName = $"{feedId}_{fileType}{extension}";
-
-        string basePath = fileType switch
+        if (feedId == Guid.Empty)
         {
-            FeedFileType.Filter => Path.Combine(_fileStorageOptions.UploadsPath, _fileStorageOptions.FilterPath),
-            FeedFileType.Function => Path.Combine(_fileStorageOptions.UploadsPath, _fileStorageOptions.FunctionPath),
+            throw new ArgumentException("Feed id cannot be empty.", nameof(feedId));
+        }
+
+        var namespaceId = GetNamespaceId();
+        var fileName = fileType switch
+        {
+            FeedFileType.Filter => FilterFileName,
+            FeedFileType.Function => FunctionFileName,
             _ => throw new ArgumentException($"Unknown fileType: {fileType}")
         };
 
-        return Path.Combine(basePath, fileName);
+        return Path.Combine(
+            _fileStorageOptions.UploadsPath,
+            _fileStorageOptions.NamespacesPath,
+            namespaceId,
+            _fileStorageOptions.FeedsPath,
+            feedId.ToString(),
+            fileName);
+    }
+
+    private string? GetStoredFilePath(Feed feed, FeedFileType fileType)
+    {
+        return fileType switch
+        {
+            FeedFileType.Filter => feed.FilterPath,
+            FeedFileType.Function => feed.FunctionPath,
+            _ => throw new ArgumentException($"Unknown fileType: {fileType}")
+        };
+    }
+
+    private string GetNamespaceId()
+    {
+        var namespaceId = resourceNamespaceResolver.Resolve();
+
+        if (string.IsNullOrWhiteSpace(namespaceId))
+        {
+            throw new InvalidOperationException("Resource namespace is not available.");
+        }
+
+        if (namespaceId is "." or ".." || namespaceId.Contains('/') || namespaceId.Contains('\\'))
+        {
+            throw new InvalidOperationException("Resource namespace contains invalid path characters.");
+        }
+
+        return namespaceId;
     }
 }

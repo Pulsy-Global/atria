@@ -89,3 +89,9 @@ layout {
         padding: 0;
     }
 }
+
+html.layout-side-panel-scroll-locked,
+body.layout-side-panel-scroll-locked {
+    overflow: hidden;
+    overscroll-behavior: none;
+}

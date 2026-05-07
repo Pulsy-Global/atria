@@ -84,7 +84,7 @@ export const STATUS_CONFIG = {
         [FeedStatus.Paused]: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
         [FeedStatus.Error]: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
         [FeedStatus.Completed]: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
-        [FeedStatus.Draft]: 'bg-slate-100 text-slate-800 dark:bg-slate-800/30 dark:text-slate-300',
+        [FeedStatus.Draft]: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800/30 dark:text-neutral-300',
         [FeedStatus.Pending]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
     } as { [key in FeedStatus]: string },
 

@@ -914,7 +914,7 @@
                     .mdc-notched-outline__leading,
                     .mdc-notched-outline__notch,
                     .mdc-notched-outline__trailing {
-                        @apply border-slate-300 dark:border-slate-500 #{'!important'};
+                        @apply border-neutral-300 dark:border-neutral-500 #{'!important'};
                     }
                 }
             }

@@ -9,9 +9,10 @@ using Atria.Business.Services.Deployment;
 using Atria.Business.Services.Deployment.Interfaces;
 using Atria.Business.Services.Messaging;
 using Atria.Business.Services.Messaging.Interfaces;
+using Atria.Business.Services.Namespaces;
+using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Business.Services.Storage;
 using Atria.Business.Services.Storage.Interfaces;
-using Atria.Common.KV.Interfaces;
 using Atria.Common.Messaging.Extensions;
 using Atria.Common.Models.Options;
 using Microsoft.Extensions.Configuration;
@@ -75,7 +76,7 @@ public static class ServiceExtensions
         }
 
         services.Configure<KvOptions>(configuration.GetSection("Ekv"));
-        services.AddSingleton<IKvNamespaceResolver, KvNamespaceResolver>();
+        services.AddSingleton<IResourceNamespaceResolver, ResourceNamespaceResolver>();
 
         services.AddTransient<IFeedDataService, FeedDataService>();
         services.AddTransient<IFeedMessageService, FeedMessageService>();
