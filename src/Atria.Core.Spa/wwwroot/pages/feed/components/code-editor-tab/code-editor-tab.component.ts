@@ -86,6 +86,10 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
                 this.templates[this.dataType] ||
                 this.templates[AtriaDataType.BlockWithTransactions] ||
                 '';
+
+            if (this.code) {
+                queueMicrotask(() => this.codeChanged.emit(this.code));
+            }
         }
     }
 

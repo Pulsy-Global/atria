@@ -183,18 +183,6 @@ public class FeedDataService(
 
     private async Task<string> UploadFileAsync(string content, string filePath, CancellationToken ct)
     {
-        if (await fileStorageService.FileExistsAsync(filePath, ct))
-        {
-            try
-            {
-                await fileStorageService.DeleteFileAsync(filePath, ct);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to delete existing file: {FilePath}", filePath);
-            }
-        }
-
         using var stream = new MemoryStream();
 
         await using var writer = new StreamWriter(stream);
