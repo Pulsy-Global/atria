@@ -33,7 +33,7 @@ public class S3FileSystemService : IFileSystemService
             Key = filePath,
             InputStream = fileStream,
             ContentType = GetContentType(filePath),
-            DisablePayloadSigning = true,
+            DisablePayloadSigning = _options.DisablePayloadSigning,
         };
 
         var response = await _s3Client.PutObjectAsync(putObjectRequest, ct);
@@ -69,9 +69,9 @@ public class S3FileSystemService : IFileSystemService
 
         var response = await _s3Client.DeleteObjectAsync(deleteObjectRequest, ct);
 
-        if (response.HttpStatusCode != HttpStatusCode.OK)
+        if (response.HttpStatusCode is not (HttpStatusCode.OK or HttpStatusCode.NoContent))
         {
-            throw new Exception("Failed to delete file");
+            throw new Exception($"Failed to delete file. Status: {response.HttpStatusCode}");
         }
     }
 
