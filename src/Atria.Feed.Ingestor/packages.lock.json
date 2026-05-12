@@ -402,6 +402,7 @@
           "Serilog.Extensions.Hosting": "[10.0.0, )",
           "Serilog.Settings.Configuration": "[10.0.0, )",
           "Serilog.Sinks.Console": "[6.1.1, )",
+          "Serilog.Sinks.Grafana.Loki": "[8.3.2, )",
           "Swashbuckle.AspNetCore": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Newtonsoft": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Swagger": "[10.1.5, )",
@@ -617,6 +618,15 @@
         "contentHash": "8jbqgjUyZlfCuSTaJk6lOca465OndqOz3KZP6Cryt/IqZYybyBu7GP0fE/AXBzrrQB3EBmQntBFAvMVz1COvAA==",
         "dependencies": {
           "Serilog": "4.0.0"
+        }
+      },
+      "Serilog.Sinks.Grafana.Loki": {
+        "type": "CentralTransitive",
+        "requested": "[8.3.2, )",
+        "resolved": "8.3.2",
+        "contentHash": "znb7fSb/4NfM++cSp99bUO3MCuP1Xx1k2329BUZCp7Tp+YwzAlDHHzBcVUZCll/EPGLuVPUdx894peHaAjYlvA==",
+        "dependencies": {
+          "Serilog": "2.12.0"
         }
       },
       "Swashbuckle.AspNetCore": {
