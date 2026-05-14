@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://cdn.pulsy.app/atria/oss/banner.png" alt="Atria Banner" width="100%" />
+  <img src="https://cdn.pulsy.app/atria/oss/ossbanner.png" alt="Atria Banner" width="100%" />
   <br/>
   <p>
     <a href="https://pulsy.app/atria">Website</a> •
