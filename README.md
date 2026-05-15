@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://cdn.pulsy.app/atria/oss/banner.png" alt="Atria Banner" width="100%" />
+  <img src="https://cdn.pulsy.app/atria/oss/ossbanner.png" alt="Atria Banner" width="100%" />
   <br/>
   <p>
     <a href="https://pulsy.app/atria">Website</a> •
@@ -12,11 +12,14 @@
   </p>
 </div>
 
-> **Beta timeline**: Atria Cloud (the managed reflection of this repo) enters public beta in **Q2 2026**. [Apply for Early Access](https://pulsy.app/contact-atria).
-
 ## Overview
 
-Use Atria to monitor high-impact transactions, DEX liquidity shifts, bridge flows, stablecoin movements, governance votes, and more. You define a feed, and Atria handles ingestion, real-time processing, and delivery.
+Atria is Pulsy's off-chain backend for event-driven blockchain workflows. It helps teams process on-chain data, apply custom logic, and trigger real-time actions across their systems.
+
+- Build feeds that read blockchain data and apply custom logic.
+- Connect feeds to external systems in real time.
+- Use AI-assisted feed creation and open-source Atria Library.
+- Run through Atria Cloud, self-managed, private, or on-prem deployments.
 
 ## Quick Start
 Run Atria locally using Docker:
@@ -28,8 +31,7 @@ docker compose up -d
 > You can configure the environment via the generated `.env` file.
 
 ## Documentation
-Getting started guides and core concepts for Atria are available on our
-**[documentation site](https://docs.pulsy.app/atria/getting-started/overview)**.
+Getting started guides, runtime concepts, deployment options, and the Atria Library are available on our **[documentation site](https://docs.pulsy.app/atria/getting-started/overview)**.
 
 ## Development
 
