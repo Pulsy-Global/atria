@@ -10,11 +10,8 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
     {
         builder.HasKey(e => e.Id);
 
-        builder.HasIndex(e => new { e.Name, e.Type })
-            .IsUnique()
+        builder.HasIndex(e => e.Name)
             .HasFilter("\"DeletedAt\" IS NULL");
-
-        builder.HasIndex(e => e.Type);
 
         builder.HasMany(e => e.FeedTags)
             .WithOne(e => e.Tag)

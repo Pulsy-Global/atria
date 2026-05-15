@@ -5,7 +5,6 @@ using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Business.Services.Storage.Interfaces;
 using Atria.Common.Exceptions;
 using Atria.Common.Models.Generic;
-using Atria.Core.Data.Entities.Constants;
 using Atria.Core.Data.Entities.Feeds;
 using Atria.Core.Data.Extensions;
 using Atria.Core.Data.Models.Query;
@@ -250,7 +249,7 @@ public class FeedDataService(
         if (uniqueTagIds != null)
         {
             var existingTags = await uow.TagRepository.GetListAsync(
-                x => uniqueTagIds.Contains(x.Id) && x.Type == TagType.Feed, ct);
+                x => uniqueTagIds.Contains(x.Id), ct);
 
             var existingTagIds = existingTags
                 .Select(x => x.Id)

@@ -69,11 +69,11 @@ public class TagManager : BaseManager, ITagManager
         return Mapper.Map<TagDto>(entity);
     }
 
-    public async Task<List<TagDto>> GetTagsByTypeAsync(string type, CancellationToken ct)
+    public async Task<List<TagDto>> GetTagsAsync(CancellationToken ct)
     {
         using var uow = _unitOfWorkFactory.BuildContext();
 
-        var entities = await uow.TagRepository.GetTagsByTypeAsync(type, ct);
+        var entities = await uow.TagRepository.GetTagsAsync(ct);
 
         return Mapper.Map<List<TagDto>>(entities);
     }

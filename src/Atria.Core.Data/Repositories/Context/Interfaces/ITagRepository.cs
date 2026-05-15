@@ -4,5 +4,5 @@ namespace Atria.Core.Data.Repositories.Context.Interfaces;
 
 public interface ITagRepository : IRepository<Guid, Tag>
 {
-    Task<List<Tag>> GetTagsByTypeAsync(string type, CancellationToken ct);
+    Task<List<Tag>> GetTagsAsync(CancellationToken ct);
 }
