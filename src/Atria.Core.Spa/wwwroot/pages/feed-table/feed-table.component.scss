@@ -27,9 +27,15 @@ feed-table {
 }
 
 .feed-error-tooltip .mdc-tooltip__surface {
+    max-width: 320px;
+    padding: 0.75rem 0.875rem;
     border: 1px solid rgb(254 205 211);
     background-color: rgb(255 241 242) !important;
     color: rgb(136 19 55) !important;
+}
+
+.feed-error-tooltip .mdc-tooltip__surface::first-line {
+    font-weight: 600;
 }
 
 .dark .feed-error-tooltip .mdc-tooltip__surface {

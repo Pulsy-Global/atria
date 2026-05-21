@@ -336,7 +336,7 @@ export class FeedTableComponent implements OnInit, OnDestroy {
         return [
             errorDisplayInfo.title,
             errorDisplayInfo.message
-        ].filter(Boolean).join('\n');
+        ].filter(Boolean).join('\n\n');
     }
 
     getFeedStatusTooltip(feed: Feed): string {
