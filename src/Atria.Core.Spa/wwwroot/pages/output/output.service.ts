@@ -40,7 +40,7 @@ export class OutputService {
     }
 
     getTags(): Observable<Tag[]> {
-        return this.apiService.apiClient.getOutputTags().pipe(
+        return this.apiService.apiClient.getTags().pipe(
             tap((tags: Tag[]) => {
                 this._tags.next(tags);
             }),
@@ -51,10 +51,9 @@ export class OutputService {
     }
 
     createTag(name: string, color: string): Observable<Tag> {
-        const createTagDto = new CreateTag({ 
-            name: name, 
-            color: color, 
-            type: 'Output' 
+        const createTagDto = new CreateTag({
+            name: name,
+            color: color,
         });
         
         return this.apiService.apiClient.createTag(createTagDto).pipe(

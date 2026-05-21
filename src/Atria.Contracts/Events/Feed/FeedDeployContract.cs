@@ -4,6 +4,7 @@ namespace Atria.Contracts.Events.Feed;
 
 public record FeedDeployRequest(
     string Id,
+    string DeployId,
     string ChainId,
     string? FilterCode,
     string? FunctionCode,
@@ -20,12 +21,15 @@ public record FeedDeployRequest(
 public sealed record FeedPauseRequest(
     string Id,
     FeedPauseSource Source = FeedPauseSource.User,
-    string? Reason = null);
+    string? Reason = null,
+    string? DeployId = null);
 
 public sealed record FeedDeleteRequest(string Id);
 
 public sealed record FeedPausedEvent(
     string FeedId,
-    FeedPauseSource Source);
+    FeedPauseSource Source,
+    string? Reason = null,
+    string? DeployId = null);
 
-public sealed record FeedDeployedEvent(string FeedId);
+public sealed record FeedDeployedEvent(string FeedId, string DeployId);

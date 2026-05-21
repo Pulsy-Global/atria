@@ -13,7 +13,7 @@ import { FEED_SERVICE_MIDDLEWARE } from '../../shared/services/feed-service-midd
 export class FeedTableService implements OnDestroy {
 
     private readonly _middleware = inject(FEED_SERVICE_MIDDLEWARE, { optional: true });
-    
+
     private _feeds = new BehaviorSubject<Feed[]>([]);
     private _totalCount = new BehaviorSubject<number>(0);
     private _networks = new BehaviorSubject<Network[] | null>(null);
@@ -71,7 +71,7 @@ export class FeedTableService implements OnDestroy {
     }
 
     getTags(): Observable<Tag[]> {
-        return this.apiService.apiClient.getFeedTags().pipe(
+        return this.apiService.apiClient.getTags().pipe(
             tap((tags: Tag[]) => {
                 this._tags.next(tags);
             }),
@@ -163,7 +163,7 @@ export class FeedTableService implements OnDestroy {
 
     private connectToFeedStatusStream(): void {
         this.disconnectFromFeedStatusStream();
-    
+
         const feedsByNetwork = this._feeds.value.reduce((acc, feed) => {
             if (feed.networkId) {
                 if (!acc[feed.networkId]) {
@@ -173,13 +173,13 @@ export class FeedTableService implements OnDestroy {
             }
             return acc;
         }, {});
-    
+
         for (const networkId in feedsByNetwork) {
             if (feedsByNetwork.hasOwnProperty(networkId)) {
                 const feedIds = feedsByNetwork[networkId];
                 const feedIdsQuery = feedIds.map(id => `feedIds=${id}`).join('&');
                 const url = `${this.apiService.apiServer}/feeds/statuses?chainId=${networkId}&${feedIdsQuery}`;
-                
+
                 const stream$ = this.streamService.connect<FeedStatusStreamItem[]>(url);
                 const subscription = stream$.subscribe(items => {
                     const statuses = {...this._feedStatuses.value};

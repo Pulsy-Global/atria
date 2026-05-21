@@ -26,6 +26,7 @@ public class FeedEventPublisher : IFeedEventPublisher
     {
         var deployRequest = new FeedDeployRequest(
             Id: Guid.NewGuid().ToString(),
+            DeployId: Guid.NewGuid().ToString(),
             ChainId: request.BlockchainId,
             FeedDataType: dataType,
             FilterCode: request.FilterCode,
@@ -67,9 +68,12 @@ public class FeedEventPublisher : IFeedEventPublisher
         await _serviceBus.PublishAsync(FeedSubjects.System.DeployRequest, request, ct);
     }
 
-    public async Task PublishFeedPauseAsync(Guid feedId, CancellationToken ct = default)
+    public async Task PublishFeedPauseAsync(Guid feedId, Guid? deployId = null, CancellationToken ct = default)
     {
-        var req = new FeedPauseRequest(Id: feedId.ToString());
+        var req = new FeedPauseRequest(
+            Id: feedId.ToString(),
+            DeployId: deployId?.ToString());
+
         await _serviceBus.PublishAsync(FeedSubjects.System.PauseRequest, req, ct);
     }
 

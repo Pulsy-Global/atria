@@ -84,6 +84,7 @@ public sealed class FeedTestService : BackgroundService
                 var feedRuntime = new FeedRuntime
                 {
                     Id = request.DeployRequest.Id,
+                    DeployId = request.DeployRequest.DeployId,
                     ChainId = request.DeployRequest.ChainId,
                     DataType = request.DeployRequest.FeedDataType,
                     FilterLangKind = request.DeployRequest.FilterLangKind,

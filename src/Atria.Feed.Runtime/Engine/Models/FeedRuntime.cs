@@ -6,6 +6,7 @@ namespace Atria.Feed.Runtime.Engine.Models;
 public class FeedRuntime
 {
     public string Id { get; set; }
+    public string DeployId { get; set; }
     public string ChainId { get; set; }
     public FilterLangKind FilterLangKind { get; set; }
     public FunctionLangKind FunctionLangKind { get; set; }

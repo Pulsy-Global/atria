@@ -2,7 +2,6 @@ using Atria.Business.Services.DataServices.Interfaces;
 using Atria.Business.Services.Deployment.Interfaces;
 using Atria.Common.Exceptions;
 using Atria.Common.Models.Generic;
-using Atria.Core.Data.Entities.Constants;
 using Atria.Core.Data.Entities.Outputs;
 using Atria.Core.Data.Entities.Outputs.Config;
 using Atria.Core.Data.Extensions;
@@ -127,7 +126,7 @@ public class OutputDataService : IOutputDataService
         if (uniqueTagIds != null)
         {
             var existingTags = await uow.TagRepository.GetListAsync(
-                x => uniqueTagIds.Contains(x.Id) && x.Type == TagType.Output, ct);
+                x => uniqueTagIds.Contains(x.Id), ct);
 
             var existingTagIds = existingTags
                 .Select(x => x.Id)

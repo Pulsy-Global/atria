@@ -17,6 +17,8 @@ public class FeedDto : IODataDto
 
     public FeedStatus Status { get; set; }
 
+    public FeedErrorInfoDto? ErrorInfo { get; set; }
+
     public string NetworkId { get; set; }
 
     public AtriaDataType DataType { get; set; }

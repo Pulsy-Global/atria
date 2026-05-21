@@ -12,6 +12,8 @@ public class DeployDto
 
     public DeployStatus Status { get; set; }
 
+    public FeedErrorInfoDto? ErrorInfo { get; set; }
+
     public DateTimeOffset? UpdatedAt { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }

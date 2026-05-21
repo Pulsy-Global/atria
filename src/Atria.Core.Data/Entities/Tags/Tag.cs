@@ -14,9 +14,6 @@ public class Tag : BaseEntity<Guid>, IAuditCreated, IAuditUpdated, IAuditDeleted
     public string? Description { get; set; }
 
     [Required]
-    public string Type { get; set; }
-
-    [Required]
     [MaxLength(7)]
     public string Color { get; set; } = "#000000";
 

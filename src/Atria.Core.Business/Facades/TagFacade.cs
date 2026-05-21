@@ -23,8 +23,8 @@ public class TagFacade
     public async Task<TagDto> GetTagAsync(Guid id, CancellationToken ct) =>
         await _tagManager.GetTagAsync(id, ct);
 
-    public async Task<List<TagDto>> GetTagsByTypeAsync(string type, CancellationToken ct) =>
-        await _tagManager.GetTagsByTypeAsync(type, ct);
+    public async Task<List<TagDto>> GetTagsAsync(CancellationToken ct) =>
+        await _tagManager.GetTagsAsync(ct);
 
     public async Task<List<TagDto>> GetTagsAsync(
         Expression<Func<Tag, bool>> predicate,

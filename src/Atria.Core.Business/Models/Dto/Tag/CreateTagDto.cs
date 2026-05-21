@@ -12,9 +12,6 @@ public class CreateTagDto
     public string? Description { get; set; }
 
     [Required]
-    public string Type { get; set; }
-
-    [Required]
     [MaxLength(7)]
     public string Color { get; set; } = "#000000";
 }

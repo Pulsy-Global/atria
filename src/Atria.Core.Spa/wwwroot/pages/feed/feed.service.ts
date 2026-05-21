@@ -79,7 +79,7 @@ export class FeedService {
     }
 
     getTags(): Observable<Tag[]> {
-        return this.apiService.apiClient.getFeedTags().pipe(
+        return this.apiService.apiClient.getTags().pipe(
             tap((tags: Tag[]) => {
                 this._tags.next(tags);
             }),
@@ -90,10 +90,9 @@ export class FeedService {
     }
 
     createTag(name: string, color: string): Observable<Tag> {
-        const createTagDto = new CreateTag({ 
-            name: name, 
-            color: color, 
-            type: 'Feed' 
+        const createTagDto = new CreateTag({
+            name: name,
+            color: color,
         });
         
         return this.apiService.apiClient.createTag(createTagDto).pipe(

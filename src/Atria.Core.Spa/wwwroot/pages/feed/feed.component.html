@@ -8,6 +8,20 @@
     </feed-header>
 
     <div class="flex-1 min-h-0 flex flex-col px-6 pb-4">
+        <div
+            *ngIf="form.getHeaderStatusClass() === 'is-error' && getFeedErrorDisplayInfo(form.feedErrorInfo) as error"
+            class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-900 shadow-[0_12px_30px_rgba(15,23,42,0.05)] dark:border-rose-400/35 dark:bg-rose-500/10 dark:text-rose-100">
+            <div class="flex items-start gap-3">
+                <mat-icon class="mt-0.5 shrink-0 text-rose-600 dark:text-rose-300">error_outline</mat-icon>
+                <div class="min-w-0">
+                    <div class="text-sm font-semibold">{{ error.title }}</div>
+                    <div class="mt-1 text-sm text-rose-800 dark:text-rose-100/90">
+                        {{ error.message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex-1 min-h-0 flex flex-col gap-4 mt-6 lg:flex-row">
 
             <feed-workspace-nav

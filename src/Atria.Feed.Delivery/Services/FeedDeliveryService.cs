@@ -415,7 +415,7 @@ public class FeedDeliveryService : BackgroundService
             }
             catch (Exception ex)
             {
-                await HandleDeliveryErrorAsync(message, feedOutput.FeedId, ex, ct);
+                await HandleDeliveryErrorAsync(message, feedOutput.FeedId, feedOutput.DeployId, ex, ct);
             }
         }
     }
@@ -423,6 +423,7 @@ public class FeedDeliveryService : BackgroundService
     private async Task HandleDeliveryErrorAsync(
         MessagingEnvelope<FeedOutputData> message,
         string feedId,
+        string? deployId,
         Exception ex,
         CancellationToken ct)
     {
@@ -434,7 +435,11 @@ public class FeedDeliveryService : BackgroundService
 
             await _serviceBus.PublishAsync(
                 FeedSubjects.System.PauseRequest,
-                new FeedPauseRequest(feedId, FeedPauseSource.Delivery, $"Delivery failed: {ex.Message}"),
+                new FeedPauseRequest(
+                    Id: feedId,
+                    Source: FeedPauseSource.Delivery,
+                    Reason: $"Delivery failed: {ex.Message}",
+                    DeployId: deployId),
                 ct);
 
             await message.AckAsync();

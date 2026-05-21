@@ -22,6 +22,7 @@ import { FilterModalComponent } from '../../shared/modals/filter/filter-modal.co
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, combineLatest, timer, interval, filter, finalize } from 'rxjs';
 import { FuseLoadingService } from 'fuse/services/loading';
 import { Feed, FeedStatus, AtriaDataType, Network, Environment, Tag } from '../../api/api.client';
+import type { FeedErrorInfo } from '../../api/api.client';
 import { ColumnConfig, TableState, PaginationState } from '../../shared/table/table.types';
 import { SearchBarComponent } from '../../shared/core/search/search.component'
 import { AtriaPaginationDirective } from '../../shared/core/paginator/paginator.directive'
@@ -36,6 +37,7 @@ import { TablePaginationService } from '../../shared/table/services/table.pagina
 import { TableODataService } from '../../shared/table/services/table.odata.service';
 import { FEED_TABLE_CONFIG, STATUS_CONFIG, BLOCK_CONFIG } from './feed-table.config';
 import { DATA_TYPE_CONFIG } from '../../shared/config/data-type.config';
+import { getFeedErrorDisplayInfo, type FeedErrorDisplayInfo } from '../../shared/config/feed-error-display.config';
 
 @Component({
     selector: 'feed-table',
@@ -312,10 +314,70 @@ export class FeedTableComponent implements OnInit, OnDestroy {
         return STATUS_CONFIG.getStatusLabel(status);
     }
 
+    getFeedErrorInfo(feed: Feed): FeedErrorInfo | null {
+        if (feed.status !== FeedStatus.Error) {
+            return null;
+        }
+
+        return feed.errorInfo ?? null;
+    }
+
+    getFeedErrorDisplayInfo(feed: Feed): FeedErrorDisplayInfo | null {
+        return getFeedErrorDisplayInfo(this.getFeedErrorInfo(feed));
+    }
+
+    getFeedErrorTooltip(feed: Feed): string {
+        const errorDisplayInfo = this.getFeedErrorDisplayInfo(feed);
+
+        if (!errorDisplayInfo) {
+            return '';
+        }
+
+        return [
+            errorDisplayInfo.title,
+            errorDisplayInfo.message
+        ].filter(Boolean).join('\n\n');
+    }
+
+    getFeedStatusTooltip(feed: Feed): string {
+        const data = this.streamData[feed.id];
+
+        if (!data) {
+            return '';
+        }
+
+        return [
+            `Feed cursor: ${this.formatTooltipNumber(data.feedCursor)}`,
+            `Chain head: ${this.formatTooltipNumber(data.chainHead)}`,
+            `Block delay: ${feed.blockDelay ?? 0}`,
+        ].join('\n');
+    }
+
+    getFeedStatusTooltipClass(feed: Feed): string {
+        switch (feed.status) {
+            case FeedStatus.Running:
+                return 'feed-status-tooltip feed-status-tooltip-running';
+            case FeedStatus.Paused:
+                return 'feed-status-tooltip feed-status-tooltip-paused';
+            case FeedStatus.Pending:
+                return 'feed-status-tooltip feed-status-tooltip-pending';
+            case FeedStatus.Completed:
+                return 'feed-status-tooltip feed-status-tooltip-completed';
+            case FeedStatus.Error:
+                return 'feed-error-tooltip';
+            default:
+                return 'feed-status-tooltip feed-status-tooltip-neutral';
+        }
+    }
+
     getFeedLag(feed: any): number {
         const data = this.streamData[feed.id];
         if (!data) return 0;
         return Math.max(0, data.chainHead - data.feedCursor - (feed.blockDelay || 0));
+    }
+
+    private formatTooltipNumber(value: number | undefined): string {
+        return value == null ? '-' : new Intl.NumberFormat().format(value);
     }
 
     getDataTypeColor(dataType: AtriaDataType): string {

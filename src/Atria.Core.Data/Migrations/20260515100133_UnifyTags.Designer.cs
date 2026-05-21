@@ -3,6 +3,7 @@ using System;
 using Atria.Core.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Atria.Core.Data.Migrations
 {
     [DbContext(typeof(AtriaDbContext))]
-    partial class AtriaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515100133_UnifyTags")]
+    partial class UnifyTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,21 +37,6 @@ namespace Atria.Core.Data.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ErrorCode")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTimeOffset?>("ErrorOccurredAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ErrorSource")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
 
                     b.Property<Guid>("FeedId")
                         .HasColumnType("uuid");
@@ -120,9 +108,6 @@ namespace Atria.Core.Data.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("CurrentDeployId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("DataType")
                         .HasColumnType("integer");
 
@@ -183,8 +168,6 @@ namespace Atria.Core.Data.Migrations
                         .HasColumnType("character varying(25)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrentDeployId");
 
                     b.HasIndex("Name");
 
@@ -412,16 +395,6 @@ namespace Atria.Core.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Deploy");
-                });
-
-            modelBuilder.Entity("Atria.Core.Data.Entities.Feeds.Feed", b =>
-                {
-                    b.HasOne("Atria.Core.Data.Entities.Deploys.Deploy", "CurrentDeploy")
-                        .WithMany()
-                        .HasForeignKey("CurrentDeployId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("CurrentDeploy");
                 });
 
             modelBuilder.Entity("Atria.Core.Data.Entities.Feeds.FeedOutput", b =>

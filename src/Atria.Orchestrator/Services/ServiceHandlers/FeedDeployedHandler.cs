@@ -29,10 +29,25 @@ public sealed class FeedDeployedHandler : ServiceBusHandler<FeedDeployedEvent>
         using var scope = _serviceProvider.CreateScope();
         var deployDataService = scope.ServiceProvider.GetRequiredService<IDeployDataService>();
 
-        var feedId = Guid.Parse(message.FeedId);
+        if (!Guid.TryParse(message.FeedId, out var feedId)
+            || !Guid.TryParse(message.DeployId, out var deployId))
+        {
+            Logger.LogWarning(
+                "Ignoring deployed event with invalid feed or deploy id: feed {FeedId}, deploy {DeployId}",
+                message.FeedId,
+                message.DeployId);
 
-        await deployDataService.ConfirmDeployedAsync(feedId, ct);
+            return;
+        }
 
-        Logger.LogInformation("Feed {FeedId} confirmed running by runtime", message.FeedId);
+        var confirmed = await deployDataService.ConfirmDeployedAsync(feedId, deployId, ct);
+
+        if (confirmed)
+        {
+            Logger.LogInformation(
+                "Feed {FeedId} confirmed running by runtime for deploy {DeployId}",
+                message.FeedId,
+                message.DeployId);
+        }
     }
 }

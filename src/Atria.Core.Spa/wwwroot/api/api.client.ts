@@ -163,7 +163,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     createFeed(body: CreateFeed | undefined): Observable<Feed> {
@@ -235,11 +235,11 @@ export class ApiClient {
     }
 
     /**
-     * @param orderby (optional) 
-     * @param filter (optional) 
-     * @param skip (optional) 
-     * @param top (optional) 
-     * @param search (optional) 
+     * @param orderby (optional)
+     * @param filter (optional)
+     * @param skip (optional)
+     * @param top (optional)
+     * @param search (optional)
      * @return OK
      */
     getFeeds(orderby: string | undefined, filter: string | undefined, skip: number | undefined, top: number | undefined, search: string | undefined): Observable<PagedList_FeedDto> {
@@ -327,7 +327,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     updateFeed(id: string, body: UpdateFeed | undefined): Observable<Feed> {
@@ -699,7 +699,7 @@ export class ApiClient {
     }
 
     /**
-     * @param limit (optional) 
+     * @param limit (optional)
      * @return OK
      */
     getFeedResults(id: string, limit: number | undefined): Observable<Result[]> {
@@ -781,7 +781,7 @@ export class ApiClient {
     }
 
     /**
-     * @param afterSeq (optional) 
+     * @param afterSeq (optional)
      * @return OK
      */
     streamFeedResults(id: string, afterSeq: number | undefined): Observable<void> {
@@ -836,8 +836,8 @@ export class ApiClient {
     }
 
     /**
-     * @param chainId (optional) 
-     * @param feedIds (optional) 
+     * @param chainId (optional)
+     * @param feedIds (optional)
      * @return OK
      */
     getStreamFeedStatuses(chainId: string | undefined, feedIds: string[] | undefined): Observable<void> {
@@ -909,7 +909,7 @@ export class ApiClient {
     }
 
     /**
-     * @param resetCursor (optional) 
+     * @param resetCursor (optional)
      * @return OK
      */
     startFeed(id: string, resetCursor: boolean | undefined): Observable<void> {
@@ -1014,7 +1014,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     testFeed(body: TestRequest | undefined): Observable<TestResult> {
@@ -1070,7 +1070,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     addBucket(bucket: string, body: BucketItem | undefined): Observable<void> {
@@ -1125,7 +1125,7 @@ export class ApiClient {
     }
 
     /**
-     * @param key (optional) 
+     * @param key (optional)
      * @return OK
      */
     getBucket(bucket: string, key: string | undefined): Observable<BucketValue> {
@@ -1200,7 +1200,7 @@ export class ApiClient {
     }
 
     /**
-     * @param key (optional) 
+     * @param key (optional)
      * @return No Content
      */
     deleteBucket(bucket: string, key: string | undefined): Observable<void> {
@@ -1271,8 +1271,8 @@ export class ApiClient {
     }
 
     /**
-     * @param limit (optional) 
-     * @param cursor (optional) 
+     * @param limit (optional)
+     * @param cursor (optional)
      * @return OK
      */
     getBucketValues(bucket: string, limit: number | undefined, cursor: string | undefined): Observable<BucketValues> {
@@ -1351,7 +1351,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     addBucketBatch(bucket: string, body: AddBucketBatch | undefined): Observable<void> {
@@ -1406,7 +1406,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return No Content
      */
     deleteBucketBatch(bucket: string, body: BucketBatchKeys | undefined): Observable<void> {
@@ -1477,7 +1477,7 @@ export class ApiClient {
     }
 
     /**
-     * @param keys (optional) 
+     * @param keys (optional)
      * @return OK
      */
     getBucketBatch(bucket: string, keys: string | undefined): Observable<BucketBatchItems> {
@@ -1552,7 +1552,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     createOutput(body: CreateOutput | undefined): Observable<Output> {
@@ -1624,11 +1624,11 @@ export class ApiClient {
     }
 
     /**
-     * @param orderby (optional) 
-     * @param filter (optional) 
-     * @param skip (optional) 
-     * @param top (optional) 
-     * @param search (optional) 
+     * @param orderby (optional)
+     * @param filter (optional)
+     * @param skip (optional)
+     * @param top (optional)
+     * @param search (optional)
      * @return OK
      */
     getOutputs(orderby: string | undefined, filter: string | undefined, skip: number | undefined, top: number | undefined, search: string | undefined): Observable<PagedList_OutputDto> {
@@ -1716,7 +1716,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     updateOutput(id: string, body: UpdateOutput | undefined): Observable<Output> {
@@ -1934,7 +1934,7 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return OK
      */
     createTag(body: CreateTag | undefined): Observable<Tag> {
@@ -2006,7 +2006,81 @@ export class ApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * @return OK
+     */
+    getTags(): Observable<Tag[]> {
+        let url_ = this.baseUrl + "/tags";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTags(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTags(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Tag[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Tag[]>;
+        }));
+    }
+
+    protected processGetTags(response: HttpResponseBase): Observable<Tag[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Tag.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = DefaultValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let resultdefault: any = null;
+            let resultDatadefault = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            resultdefault = UnexpectedProblemDetails.fromJS(resultDatadefault);
+            return throwException("Error", status, _responseText, _headers, resultdefault);
+            }));
+        }
+    }
+
+    /**
+     * @param body (optional)
      * @return OK
      */
     updateTag(id: string, body: UpdateTag | undefined): Observable<Tag> {
@@ -2198,154 +2272,6 @@ export class ApiClient {
         if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = DefaultValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let resultdefault: any = null;
-            let resultDatadefault = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            resultdefault = UnexpectedProblemDetails.fromJS(resultDatadefault);
-            return throwException("Error", status, _responseText, _headers, resultdefault);
-            }));
-        }
-    }
-
-    /**
-     * @return OK
-     */
-    getFeedTags(): Observable<Tag[]> {
-        let url_ = this.baseUrl + "/tags/feed";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetFeedTags(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetFeedTags(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<Tag[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<Tag[]>;
-        }));
-    }
-
-    protected processGetFeedTags(response: HttpResponseBase): Observable<Tag[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Tag.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = DefaultValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let resultdefault: any = null;
-            let resultDatadefault = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            resultdefault = UnexpectedProblemDetails.fromJS(resultDatadefault);
-            return throwException("Error", status, _responseText, _headers, resultdefault);
-            }));
-        }
-    }
-
-    /**
-     * @return OK
-     */
-    getOutputTags(): Observable<Tag[]> {
-        let url_ = this.baseUrl + "/tags/output";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetOutputTags(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetOutputTags(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<Tag[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<Tag[]>;
-        }));
-    }
-
-    protected processGetOutputTags(response: HttpResponseBase): Observable<Tag[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Tag.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(result200);
             }));
         } else if (status === 400) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2797,6 +2723,7 @@ export class Deploy implements IDeploy {
     feedId?: string;
     version?: string | undefined;
     status?: DeployStatus;
+    errorInfo?: FeedErrorInfo;
     updatedAt?: Date | undefined;
     createdAt?: Date;
 
@@ -2815,6 +2742,7 @@ export class Deploy implements IDeploy {
             this.feedId = _data["feedId"];
             this.version = _data["version"];
             this.status = _data["status"];
+            this.errorInfo = _data["errorInfo"] ? FeedErrorInfo.fromJS(_data["errorInfo"]) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : undefined as any;
             this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : undefined as any;
         }
@@ -2833,6 +2761,7 @@ export class Deploy implements IDeploy {
         data["feedId"] = this.feedId;
         data["version"] = this.version;
         data["status"] = this.status;
+        data["errorInfo"] = this.errorInfo ? this.errorInfo.toJSON() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : undefined as any;
         data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : undefined as any;
         return data;
@@ -2844,6 +2773,7 @@ export interface IDeploy {
     feedId?: string;
     version?: string | undefined;
     status?: DeployStatus;
+    errorInfo?: FeedErrorInfo;
     updatedAt?: Date | undefined;
     createdAt?: Date;
 }
@@ -2898,6 +2828,7 @@ export class Feed implements IFeed {
     version?: string | undefined;
     description?: string | undefined;
     status?: FeedStatus;
+    errorInfo?: FeedErrorInfo;
     networkId?: string | undefined;
     dataType?: AtriaDataType;
     startBlock?: string | undefined;
@@ -2927,6 +2858,7 @@ export class Feed implements IFeed {
             this.version = _data["version"];
             this.description = _data["description"];
             this.status = _data["status"];
+            this.errorInfo = _data["errorInfo"] ? FeedErrorInfo.fromJS(_data["errorInfo"]) : undefined as any;
             this.networkId = _data["networkId"];
             this.dataType = _data["dataType"];
             this.startBlock = _data["startBlock"];
@@ -2964,6 +2896,7 @@ export class Feed implements IFeed {
         data["version"] = this.version;
         data["description"] = this.description;
         data["status"] = this.status;
+        data["errorInfo"] = this.errorInfo ? this.errorInfo.toJSON() : undefined as any;
         data["networkId"] = this.networkId;
         data["dataType"] = this.dataType;
         data["startBlock"] = this.startBlock;
@@ -2994,6 +2927,7 @@ export interface IFeed {
     version?: string | undefined;
     description?: string | undefined;
     status?: FeedStatus;
+    errorInfo?: FeedErrorInfo;
     networkId?: string | undefined;
     dataType?: AtriaDataType;
     startBlock?: string | undefined;
@@ -3006,6 +2940,46 @@ export interface IFeed {
     blockDelay?: number;
     createdAt?: Date;
     updatedAt?: Date | undefined;
+}
+
+export class FeedErrorInfo implements IFeedErrorInfo {
+    code?: string | undefined;
+    occurredAt?: Date | undefined;
+
+    constructor(data?: IFeedErrorInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.code = _data["code"];
+            this.occurredAt = _data["occurredAt"] ? new Date(_data["occurredAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): FeedErrorInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new FeedErrorInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["code"] = this.code;
+        data["occurredAt"] = this.occurredAt ? this.occurredAt.toISOString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IFeedErrorInfo {
+    code?: string | undefined;
+    occurredAt?: Date | undefined;
 }
 
 export class Result implements IResult {
@@ -3957,7 +3931,6 @@ export interface IUpdateOutput {
 export class CreateTag implements ICreateTag {
     name!: string;
     description?: string | undefined;
-    type!: string;
     color!: string;
 
     constructor(data?: ICreateTag) {
@@ -3973,7 +3946,6 @@ export class CreateTag implements ICreateTag {
         if (_data) {
             this.name = _data["name"];
             this.description = _data["description"];
-            this.type = _data["type"];
             this.color = _data["color"];
         }
     }
@@ -3989,7 +3961,6 @@ export class CreateTag implements ICreateTag {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["description"] = this.description;
-        data["type"] = this.type;
         data["color"] = this.color;
         return data;
     }
@@ -3998,7 +3969,6 @@ export class CreateTag implements ICreateTag {
 export interface ICreateTag {
     name: string;
     description?: string | undefined;
-    type: string;
     color: string;
 }
 

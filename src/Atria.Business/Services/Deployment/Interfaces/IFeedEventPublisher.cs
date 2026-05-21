@@ -10,7 +10,7 @@ public interface IFeedEventPublisher
 
     Task PublishFeedDeployAsync(FeedDeployRequest request, CancellationToken ct = default);
 
-    Task PublishFeedPauseAsync(Guid feedId, CancellationToken ct = default);
+    Task PublishFeedPauseAsync(Guid feedId, Guid? deployId = null, CancellationToken ct = default);
 
     Task PublishFeedDeleteAsync(Guid feedId, CancellationToken ct = default);
 }

@@ -55,6 +55,10 @@ public class Feed : BaseEntity<Guid>, IAuditCreated, IAuditUpdated, IAuditDelete
 
     public ICollection<Deploy> Deploys { get; set; } = new List<Deploy>();
 
+    public Guid? CurrentDeployId { get; set; }
+
+    public Deploy? CurrentDeploy { get; set; }
+
     public ICollection<FeedTag> FeedTags { get; set; } = new List<FeedTag>();
 
     public string? SearchContent { get; set; }

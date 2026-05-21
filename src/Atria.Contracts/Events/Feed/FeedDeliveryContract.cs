@@ -12,7 +12,8 @@ public sealed record FeedOutputData(
     List<string>? OutputIds,
     object? Data,
     bool IsTestExecution = false,
-    string? BlockNumber = null);
+    string? BlockNumber = null,
+    string? DeployId = null);
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "targetType")]
 [JsonDerivedType(typeof(FeedWebhookTarget), "webhook")]
