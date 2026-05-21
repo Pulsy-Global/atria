@@ -4,6 +4,7 @@ using Atria.Core.Spa.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureOptionFiles();
+builder.AddSerilogLogging(builder.Configuration);
 
 builder.Services.AddSpaServices();
 builder.Services.AddMvcServices();

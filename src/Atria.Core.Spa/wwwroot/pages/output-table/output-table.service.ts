@@ -60,7 +60,7 @@ export class OutputTableService {
     }
 
     getTags(): Observable<Tag[]> {
-        return this.apiService.apiClient.getOutputTags().pipe(
+        return this.apiService.apiClient.getTags().pipe(
             tap((tags: Tag[]) => {
                 this._tags.next(tags);
             }),

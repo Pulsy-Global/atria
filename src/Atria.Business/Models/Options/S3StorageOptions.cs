@@ -8,5 +8,6 @@ public class S3StorageOptions
     public string AccessKey { get; set; }
     public string SecretKey { get; set; }
     public string? Region { get; set; }
-    public bool ForcePathStyle = true;
+    public bool ForcePathStyle { get; set; } = true;
+    public bool DisablePayloadSigning { get; set; } = true;
 }

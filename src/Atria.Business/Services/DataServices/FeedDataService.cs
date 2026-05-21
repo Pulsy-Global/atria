@@ -5,7 +5,6 @@ using Atria.Business.Services.Namespaces.Interfaces;
 using Atria.Business.Services.Storage.Interfaces;
 using Atria.Common.Exceptions;
 using Atria.Common.Models.Generic;
-using Atria.Core.Data.Entities.Constants;
 using Atria.Core.Data.Entities.Feeds;
 using Atria.Core.Data.Extensions;
 using Atria.Core.Data.Models.Query;
@@ -183,18 +182,6 @@ public class FeedDataService(
 
     private async Task<string> UploadFileAsync(string content, string filePath, CancellationToken ct)
     {
-        if (await fileStorageService.FileExistsAsync(filePath, ct))
-        {
-            try
-            {
-                await fileStorageService.DeleteFileAsync(filePath, ct);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Failed to delete existing file: {FilePath}", filePath);
-            }
-        }
-
         using var stream = new MemoryStream();
 
         await using var writer = new StreamWriter(stream);
@@ -262,7 +249,7 @@ public class FeedDataService(
         if (uniqueTagIds != null)
         {
             var existingTags = await uow.TagRepository.GetListAsync(
-                x => uniqueTagIds.Contains(x.Id) && x.Type == TagType.Feed, ct);
+                x => uniqueTagIds.Contains(x.Id), ct);
 
             var existingTagIds = existingTags
                 .Select(x => x.Id)

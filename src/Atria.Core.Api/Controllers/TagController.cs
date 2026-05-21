@@ -1,7 +1,6 @@
 using Atria.Common.Web.Controllers;
 using Atria.Core.Business.Facades;
 using Atria.Core.Business.Models.Dto.Tag;
-using Atria.Core.Data.Entities.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Atria.Core.Api.Controllers;
@@ -42,17 +41,10 @@ public class TagController : ApiControllerBase
         return Ok(result);
     }
 
-    [HttpGet("feed")]
-    public async Task<ActionResult<List<TagDto>>> GetFeedTagsAsync(CancellationToken ct)
+    [HttpGet]
+    public async Task<ActionResult<List<TagDto>>> GetTagsAsync(CancellationToken ct)
     {
-        var result = await _tagFacade.GetTagsByTypeAsync(TagType.Feed, ct);
-        return Ok(result);
-    }
-
-    [HttpGet("output")]
-    public async Task<ActionResult<List<TagDto>>> GetOutputTagsAsync(CancellationToken ct)
-    {
-        var result = await _tagFacade.GetTagsByTypeAsync(TagType.Output, ct);
+        var result = await _tagFacade.GetTagsAsync(ct);
         return Ok(result);
     }
 

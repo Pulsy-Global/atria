@@ -12,10 +12,9 @@ public class TagRepository : Repository<Guid, Tag>, ITagRepository
     {
     }
 
-    public async Task<List<Tag>> GetTagsByTypeAsync(string type, CancellationToken ct)
+    public async Task<List<Tag>> GetTagsAsync(CancellationToken ct)
     {
         return await Context.Set<Tag>()
-            .Where(t => t.Type == type)
             .OrderBy(t => t.Name)
             .ToListAsync(ct);
     }

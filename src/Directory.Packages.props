@@ -55,6 +55,7 @@
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="4.3.1" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageVersion Include="Serilog.Sinks.Grafana.Loki" Version="8.3.2" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
     <!-- NATS -->

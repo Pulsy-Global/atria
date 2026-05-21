@@ -9,7 +9,7 @@ public interface ITagManager : IBaseManager
     Task<TagDto> CreateTagAsync(CreateTagDto dto, CancellationToken ct);
     Task<TagDto> UpdateTagAsync(Guid id, UpdateTagDto dto, CancellationToken ct);
     Task<TagDto> GetTagAsync(Guid id, CancellationToken ct);
-    Task<List<TagDto>> GetTagsByTypeAsync(string type, CancellationToken ct);
+    Task<List<TagDto>> GetTagsAsync(CancellationToken ct);
 
     Task<List<TagDto>> GetTagsAsync(
         Expression<Func<Tag, bool>> predicate,
