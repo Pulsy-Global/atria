@@ -1,5 +1,6 @@
 using Atria.Business.Services.Messaging.Interfaces;
 using Atria.Business.Services.Messaging.Models;
+using Atria.Common.Helpers.Json;
 using Atria.Common.Messaging.Core;
 using Atria.Contracts.Events.Feed;
 using Atria.Contracts.Subjects.Feed;
@@ -22,6 +23,7 @@ public class FeedMessageService(
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        MaxDepth = AtriaJsonSerializerOptions.MaxDepth,
     };
 
     private readonly NatsJSContext _js = connectionManager.JSContext;
@@ -52,7 +54,7 @@ public class FeedMessageService(
                 return [];
             }
 
-            var outputData = JsonSerializer.Deserialize<FeedOutputData>(stored.Data.Span);
+            var outputData = JsonSerializer.Deserialize<FeedOutputData>(stored.Data.Span, OutputJsonOpts);
 
             if (outputData == null)
             {
