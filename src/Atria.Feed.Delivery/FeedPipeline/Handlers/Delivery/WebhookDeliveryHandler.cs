@@ -1,9 +1,11 @@
+using Atria.Common.Helpers.Json;
 using Atria.Common.Net;
 using Atria.Common.Observability;
 using Atria.Contracts.Events.Feed;
 using Atria.Contracts.Events.Feed.Enums;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Atria.Feed.Delivery.FeedPipeline.Handlers.Delivery;
 
@@ -11,6 +13,9 @@ public class WebhookDeliveryHandler : IDeliveryHandler
 {
     private const string FeedIdHeaderName = "X-Atria-Feed-Id";
     private const string TestExecutionHeaderName = "X-Atria-Test-Execution";
+
+    private static readonly JsonSerializerOptions JsonOptions =
+        AtriaJsonSerializerOptions.Create(JsonSerializerOptions.Default);
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<WebhookDeliveryHandler> _logger;
@@ -70,7 +75,7 @@ public class WebhookDeliveryHandler : IDeliveryHandler
     {
         var request = new HttpRequestMessage(new HttpMethod(webhook.Method), webhook.Url)
         {
-            Content = JsonContent.Create(payload),
+            Content = JsonContent.Create(payload, options: JsonOptions),
         };
 
         request.Headers.Add(FeedIdHeaderName, feedId);

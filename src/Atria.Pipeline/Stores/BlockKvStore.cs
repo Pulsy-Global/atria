@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NATS.Client.KeyValueStore;
 using System.Numerics;
-using System.Text.Json;
 using BlockchainContracts = Atria.Contracts.Subjects.Blockchain.Blockchain;
 
 namespace Atria.Pipeline.Stores;
@@ -49,7 +48,7 @@ public sealed class BlockKvStore
     {
         var store = await GetStoreAsync(chainId, ct);
         var key = FormatKey(dataType, blockNumber);
-        var json = JsonSerializer.SerializeToUtf8Bytes(data);
+        var json = BlockDataJsonSerializer.SerializeToUtf8Bytes(data);
 
         await store.PutAsync(key, json, cancellationToken: ct);
 
@@ -79,7 +78,7 @@ public sealed class BlockKvStore
                 return null;
             }
 
-            return JsonSerializer.Deserialize<T>(entry.Value);
+            return BlockDataJsonSerializer.Deserialize<T>(entry.Value);
         }
         catch (NatsKVKeyNotFoundException)
         {

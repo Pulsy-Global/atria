@@ -1,3 +1,4 @@
+using Atria.Common.Helpers.Json;
 using Atria.Feed.Runtime.Engine.Exceptions;
 using Atria.Feed.Runtime.Engine.Filters.Interfaces;
 using Atria.Feed.Runtime.Engine.Filters.Js.Interfaces;
@@ -12,6 +13,9 @@ namespace Atria.Feed.Runtime.Engine.Filters.Js;
 
 public partial class JsFilterContext : IFilterContext
 {
+    private static readonly JsonSerializerOptions JsonOptions =
+        AtriaJsonSerializerOptions.Create(JsonSerializerOptions.Default);
+
     private readonly V8ScriptEngine _engine;
     private readonly IJsRuntimeProvider _runtimeProvider;
     private readonly Lock _syncRoot = new();
@@ -64,7 +68,7 @@ public partial class JsFilterContext : IFilterContext
             {
                 null => "null",
                 JsonElement je => je.GetRawText(),
-                _ => JsonSerializer.Serialize(input),
+                _ => JsonSerializer.Serialize(input, JsonOptions),
             };
 
             await using var reg = ct.Register(() => _engine.Interrupt());
@@ -95,7 +99,7 @@ public partial class JsFilterContext : IFilterContext
                     string.Empty);
             }
 
-            return JsonSerializer.Deserialize<JsonElement>(json);
+            return JsonSerializer.Deserialize<JsonElement>(json, JsonOptions);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {

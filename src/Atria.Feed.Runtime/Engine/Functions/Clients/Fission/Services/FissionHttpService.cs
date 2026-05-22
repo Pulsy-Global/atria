@@ -1,3 +1,4 @@
+using Atria.Common.Helpers.Json;
 using Atria.Feed.Runtime.Engine.Exceptions;
 using Atria.Feed.Runtime.Engine.Functions.Options;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ public class FissionHttpService
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
+        MaxDepth = AtriaJsonSerializerOptions.MaxDepth,
     };
 
     private readonly HttpClient _httpClient;
