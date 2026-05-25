@@ -1,4 +1,5 @@
 using Atria.Common.Extensions;
+using Atria.Common.Helpers.Json;
 using Atria.Common.Models.Options;
 using Atria.Feed.Ingestor.ChainClients;
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
@@ -46,7 +47,7 @@ public static class ServiceExtensions
 
         JsonConvert.DefaultSettings = () => new JsonSerializerSettings
         {
-            MaxDepth = 256,
+            MaxDepth = AtriaJsonSerializerOptions.MaxDepth,
         };
     }
 
