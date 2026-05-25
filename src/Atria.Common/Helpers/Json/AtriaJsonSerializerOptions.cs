@@ -4,7 +4,7 @@ namespace Atria.Common.Helpers.Json;
 
 public static class AtriaJsonSerializerOptions
 {
-    public const int MaxDepth = 256;
+    public const int MaxDepth = 4096;
 
     public static JsonSerializerOptions Create(JsonSerializerOptions? defaults = null)
     {
