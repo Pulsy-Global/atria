@@ -10,6 +10,8 @@ public class FeedOutputConfiguration : IEntityTypeConfiguration<FeedOutput>
     {
         builder.HasKey(e => e.Id);
 
-        builder.HasIndex(e => new { e.FeedId, e.OutputId }).IsUnique();
+        builder.HasIndex(e => new { e.FeedId, e.OutputId })
+            .IsUnique()
+            .HasFilter("\"DeletedAt\" IS NULL");
     }
 }
