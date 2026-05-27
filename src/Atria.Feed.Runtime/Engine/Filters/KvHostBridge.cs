@@ -108,32 +108,4 @@ public class KvHostBridge : IKvHostBridge
             throw new InvalidOperationException($"KV bucket removeBatch failed for '{name}': {ex.Status.Detail}", ex);
         }
     }
-
-    public async Task<string> BucketValuesAsync(string name, int limit, string cursor)
-    {
-        try
-        {
-            var result = await _kvStore.BucketValuesAsync(
-                name,
-                limit,
-                string.IsNullOrEmpty(cursor) ? null : cursor);
-
-            var items = result.Items.Select(e => new
-            {
-                key = e.Key,
-                value = string.IsNullOrEmpty(e.Value) ? null : (object?)JsonSerializer.Deserialize<JsonElement>(e.Value),
-            });
-
-            return JsonSerializer.Serialize(new
-            {
-                items,
-                cursor = result.Cursor,
-                hasMore = result.HasMore,
-            });
-        }
-        catch (RpcException ex)
-        {
-            throw new InvalidOperationException($"KV bucket values failed for '{name}': {ex.Status.Detail}", ex);
-        }
-    }
 }

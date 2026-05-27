@@ -31,11 +31,6 @@ module.exports = {
             removeMany: async function(keys) {
                 await host.BucketRemoveBatchAsync(name, JSON.stringify(keys));
             },
-            list: async function(opts) {
-                var limit = (opts && opts.limit) ? opts.limit : 100;
-                var cursor = (opts && opts.cursor) ? opts.cursor : '';
-                return JSON.parse(await host.BucketValuesAsync(name, limit, cursor));
-            },
         };
     }
 };

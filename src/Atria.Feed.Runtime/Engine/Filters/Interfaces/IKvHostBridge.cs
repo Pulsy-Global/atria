@@ -13,6 +13,4 @@ public interface IKvHostBridge
     Task BucketRemoveAsync(string name, string key);
 
     Task BucketRemoveBatchAsync(string name, string itemsJson);
-
-    Task<string> BucketValuesAsync(string name, int limit, string cursor);
 }
