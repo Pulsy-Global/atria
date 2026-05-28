@@ -349,6 +349,7 @@ export class FeedTableComponent implements OnInit, OnDestroy {
         return [
             `Feed cursor: ${this.formatTooltipNumber(data.feedCursor)}`,
             `Chain head: ${this.formatTooltipNumber(data.chainHead)}`,
+            `Lag: ${this.formatTooltipNumber(this.getFeedLag(feed))} blocks`,
             `Block delay: ${feed.blockDelay ?? 0}`,
         ].join('\n');
     }
@@ -374,6 +375,19 @@ export class FeedTableComponent implements OnInit, OnDestroy {
         const data = this.streamData[feed.id];
         if (!data) return 0;
         return Math.max(0, data.chainHead - data.feedCursor - (feed.blockDelay || 0));
+    }
+
+    formatFeedLag(feed: any): string {
+        const lag = this.getFeedLag(feed);
+
+        if (lag < 1000) {
+            return this.formatTooltipNumber(lag);
+        }
+
+        return new Intl.NumberFormat('en-US', {
+            notation: 'compact',
+            maximumFractionDigits: 1,
+        }).format(lag);
     }
 
     private formatTooltipNumber(value: number | undefined): string {
@@ -591,7 +605,7 @@ export class FeedTableComponent implements OnInit, OnDestroy {
             paginationAndSort$
         ])
         .pipe(takeUntil(this._unsubscribeAll))
-        .subscribe(([ 
+        .subscribe(([
             [searchTerm, filters],
             [paginationState, sortState]
         ]) => {
