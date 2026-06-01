@@ -38,8 +38,17 @@
                     [color]="'primary'"
                     [checked]="isSelected(option.value)"
                     (change)="onSelectionChange(option.value, $event.checked)">
-                    <div class="text-md font-semibold text-default">
-                        {{option.label}}
+                    <div class="flex min-w-0 items-center gap-3">
+                        <network-icon
+                            *ngIf="hasOptionIcons"
+                            class="shrink-0"
+                            [iconSource]="option.iconSource"
+                            [fallbackLabel]="option.label"
+                            size="sm">
+                        </network-icon>
+                        <div class="text-md font-semibold text-default truncate">
+                            {{option.label}}
+                        </div>
                     </div>
                 </mat-checkbox>
             </ng-container>

@@ -1,11 +1,12 @@
 import { Injectable, OnDestroy, inject } from '@angular/core';
 import { Observable, throwError, BehaviorSubject, Subscription } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from '../../api/api.service';
-import { Feed, PagedList_FeedDto, Networks, ProblemDetails, Network, FeedStatus, Tag } from '../../api/api.client';
+import { Feed, PagedList_FeedDto, ProblemDetails, Network, FeedStatus, Tag } from '../../api/api.client';
 import { StreamService } from '../../shared/services/stream/stream.service';
 import { FeedStatusStreamItem } from '../../shared/services/stream/stream.types';
 import { FEED_SERVICE_MIDDLEWARE } from '../../shared/services/feed-service-middleware.token';
+import { NetworkInfoService } from '../../shared/services/network-info.service';
 
 @Injectable({
     providedIn: 'root'
@@ -13,10 +14,12 @@ import { FEED_SERVICE_MIDDLEWARE } from '../../shared/services/feed-service-midd
 export class FeedTableService implements OnDestroy {
 
     private readonly _middleware = inject(FEED_SERVICE_MIDDLEWARE, { optional: true });
+    private readonly _networkInfoService = inject(NetworkInfoService);
+    private readonly apiService = inject(ApiService);
+    private readonly streamService = inject(StreamService);
 
     private _feeds = new BehaviorSubject<Feed[]>([]);
     private _totalCount = new BehaviorSubject<number>(0);
-    private _networks = new BehaviorSubject<Network[] | null>(null);
     private _tags = new BehaviorSubject<Tag[]>([]);
     private _feedStatuses = new BehaviorSubject<{ [key: string]: { feedCursor: number, chainHead: number } }>({});
     private _streamSubscriptions: Subscription[] = [];
@@ -30,7 +33,7 @@ export class FeedTableService implements OnDestroy {
     }
 
     get networks$(): Observable<Network[] | null> {
-        return this._networks.asObservable();
+        return this._networkInfoService.networks$;
     }
 
     get tags$(): Observable<Tag[]> {
@@ -41,11 +44,6 @@ export class FeedTableService implements OnDestroy {
         return this._feedStatuses.asObservable();
     }
 
-    constructor(
-        private readonly apiService: ApiService,
-        private readonly streamService: StreamService,
-    ) {}
-
     ngOnDestroy(): void {
         this.disconnectFromFeedStatusStream();
     }
@@ -53,21 +51,12 @@ export class FeedTableService implements OnDestroy {
     clearState(): void {
         this._feeds.next([]);
         this._totalCount.next(0);
-        this._networks.next(null);
         this._tags.next([]);
         this.disconnectFromFeedStatusStream();
     }
 
     getNetworks(): Observable<Network[]> {
-        return this.apiService.apiClient.getNetworks().pipe(
-            map((response: Networks) => response.networks || []),
-            tap((networks: Network[]) => {
-                this._networks.next(networks);
-            }),
-            catchError((error): Observable<any> => {
-                return throwError(() => new ProblemDetails(error));
-            })
-        );
+        return this._networkInfoService.getNetworks();
     }
 
     getTags(): Observable<Tag[]> {
@@ -175,7 +164,7 @@ export class FeedTableService implements OnDestroy {
         }, {});
 
         for (const networkId in feedsByNetwork) {
-            if (feedsByNetwork.hasOwnProperty(networkId)) {
+            if (Object.prototype.hasOwnProperty.call(feedsByNetwork, networkId)) {
                 const feedIds = feedsByNetwork[networkId];
                 const feedIdsQuery = feedIds.map(id => `feedIds=${id}`).join('&');
                 const url = `${this.apiService.apiServer}/feeds/statuses?chainId=${networkId}&${feedIdsQuery}`;

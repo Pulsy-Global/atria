@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
+    inject,
     Input,
     Output,
     ViewEncapsulation,
@@ -33,6 +34,7 @@ type ErrorHandlingOption = EnumOption & {
 };
 
 @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'feed-settings',
     standalone: true,
     templateUrl: './feed-settings.component.html',
@@ -51,6 +53,8 @@ type ErrorHandlingOption = EnumOption & {
     ],
 })
 export class FeedSettingsComponent {
+    private readonly _dialog = inject(MatDialog);
+
     @Input({ required: true }) feedForm!: FormGroup;
     @Input() isLoading: boolean = false;
     @Input() networks: Network[] = [];
@@ -69,8 +73,6 @@ export class FeedSettingsComponent {
 
     private _sourcePickerRef?: MatDialogRef<FeedSourcePickerModalComponent>;
     private _streamPickerRef?: MatDialogRef<FeedStreamPickerModalComponent>;
-
-    constructor(private readonly _dialog: MatDialog) {}
 
     toggleTagsEditor(): void {
         this.showTagsEditor = !this.showTagsEditor;

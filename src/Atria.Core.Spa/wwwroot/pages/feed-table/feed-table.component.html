@@ -189,10 +189,13 @@
                     </div>
                 </th>
                 <td mat-cell *matCellDef="let feed" class="!py-2 !px-3">
-                    <div class="text-md text-default">
-                        <div class="font-medium text-default">{{getNetworkTitle(feed.networkId)}}</div>
-                        <div class="text-sm text-secondary">{{getEnvironmentTitle(feed.networkId)}}</div>
-                    </div>
+                    <network-display
+                        class="feed-table-network-display"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="stacked"
+                        size="md">
+                    </network-display>
                 </td>
             </ng-container>
 
@@ -305,7 +308,13 @@
                             <span class="text-sm text-secondary">{{feed.version || 'v1.0.0'}}</span>
                         </div>
                     </div>
-                    <p class="text-sm text-secondary mt-1">{{getNetworkTitle(feed.networkId)}} - {{getEnvironmentTitle(feed.networkId)}}</p>
+                    <network-display
+                        class="mt-1 block"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="inline"
+                        size="sm">
+                    </network-display>
                 </div>
                 <span
                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ml-3 shrink-0"
@@ -331,7 +340,13 @@
                 </div>
                 <div class="w-full">
                     <span class="font-medium text-secondary">Network:</span>
-                    <div class="text-default mt-1">{{getNetworkTitle(feed.networkId)}}</div>
+                    <network-display
+                        class="mt-1 block"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="inline"
+                        size="sm">
+                    </network-display>
                 </div>
                 <div class="w-full">
                     <span class="font-medium text-secondary">Block Delay:</span>

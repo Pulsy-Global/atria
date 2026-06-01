@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { ApiService } from '../../api/api.service';
-import { CreateFeed, Feed, ProblemDetails, Output, Deploy, UpdateFeed, Networks, Network, PagedList_OutputDto, Tag, CreateTag, TestRequest, TestResult, LatestBlock } from '../../api/api.client';
+import { CreateFeed, Feed, ProblemDetails, Output, Deploy, UpdateFeed, Network, PagedList_OutputDto, Tag, CreateTag, TestRequest, TestResult, LatestBlock } from '../../api/api.client';
 import { FEED_SERVICE_MIDDLEWARE } from '../../shared/services/feed-service-middleware.token';
+import { NetworkInfoService } from '../../shared/services/network-info.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,16 +12,17 @@ import { FEED_SERVICE_MIDDLEWARE } from '../../shared/services/feed-service-midd
 export class FeedService {
 
     private readonly _middleware = inject(FEED_SERVICE_MIDDLEWARE, { optional: true });
+    private readonly _networkInfoService = inject(NetworkInfoService);
+    private readonly apiService = inject(ApiService);
     
-    private _networks: BehaviorSubject<Network[] | null> = new BehaviorSubject<Network[] | null>(null);
     private _outputs: BehaviorSubject<Output[] | null> = new BehaviorSubject<Output[] | null>(null);
     private _feedOutputs: BehaviorSubject<Output[] | null> = new BehaviorSubject<Output[] | null>(null);
     private _deployHistory: BehaviorSubject<Deploy[] | null> = new BehaviorSubject<Deploy[] | null>(null);
     private _feed: BehaviorSubject<Feed | null> = new BehaviorSubject<Feed | null>(null);
     private _tags: BehaviorSubject<Tag[]> = new BehaviorSubject<Tag[]>([]);
 
-    get networks$(): Observable<Network[]> {
-        return this._networks.asObservable();
+    get networks$(): Observable<Network[] | null> {
+        return this._networkInfoService.networks$;
     }
 
     get outputs$(): Observable<Output[]> {
@@ -43,10 +45,7 @@ export class FeedService {
         return this._tags.asObservable();
     }
 
-    constructor(private apiService: ApiService) {}
-
     clearState(): void {
-        this._networks.next(null);
         this._outputs.next(null);
         this._feedOutputs.next(null);
         this._deployHistory.next(null);
@@ -55,15 +54,7 @@ export class FeedService {
     }
 
     getNetworks(): Observable<Network[]> {
-        return this.apiService.apiClient.getNetworks().pipe(
-            map((response: Networks) => response.networks || []),
-            tap((networks: Network[]) => {
-                this._networks.next(networks);
-            }),
-            catchError((error): Observable<any> => {
-                return throwError(() => new ProblemDetails(error));
-            })
-        );
+        return this._networkInfoService.getNetworks();
     }
 
     getOutputs(): Observable<Output[]> {
