@@ -3,7 +3,7 @@ services:
     build:
       context: ../../..
       dockerfile: src/Atria.Core.Api/Dockerfile
-    container_name: atria-api
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-api
     restart: on-failure
     environment:
       - ASPNETCORE_URLS=http://+:4300
@@ -22,7 +22,7 @@ services:
     build:
       context: ../../..
       dockerfile: src/Atria.Core.Spa/Dockerfile
-    container_name: atria-spa
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-spa
     restart: on-failure
     environment:
       - ASPNETCORE_URLS=http://+:7150
@@ -41,7 +41,7 @@ services:
     build:
       context: ../../..
       dockerfile: src/Atria.Feed.Ingestor/Dockerfile
-    container_name: atria-feed-ingestor
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-ingestor
     restart: on-failure
     env_file:
       - ./development.env
@@ -56,7 +56,7 @@ services:
     build:
       context: ../../..
       dockerfile: src/Atria.Feed.Runtime/Dockerfile
-    container_name: atria-feed-runtime
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-runtime
     restart: on-failure
     env_file:
       - ./development.env
@@ -72,7 +72,7 @@ services:
     build:
       context: ../../..
       dockerfile: src/Atria.Feed.Delivery/Dockerfile
-    container_name: atria-feed-delivery
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-delivery
     restart: on-failure
     env_file:
       - ./development.env

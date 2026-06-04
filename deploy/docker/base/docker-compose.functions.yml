@@ -2,7 +2,7 @@ services:
   k3s:
     profiles: ["functions"]
     image: rancher/k3s:v1.28.5-k3s1
-    container_name: atria-k3s
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-k3s
     restart: on-failure
     privileged: true
     tmpfs:
@@ -27,7 +27,7 @@ services:
   fission-installer:
     profiles: ["functions"]
     image: alpine/k8s:1.28.5
-    container_name: atria-fission-installer
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-fission-installer
     restart: "no"
     depends_on:
       - k3s
@@ -78,7 +78,12 @@ services:
         kubectl wait --for=condition=available --timeout=180s deployment/router -n fission || true
 
         echo "Installing fission CLI..."
-        curl -Lo /tmp/fission https://github.com/fission/fission/releases/download/v1.22.0/fission-v1.22.0-linux-amd64
+        case "$(uname -m)" in
+          x86_64|amd64) fission_arch="amd64" ;;
+          aarch64|arm64) fission_arch="arm64" ;;
+          *) echo "Unsupported architecture for fission CLI: $(uname -m)" >&2; exit 1 ;;
+        esac
+        curl -Lo /tmp/fission "https://github.com/fission/fission/releases/download/v1.22.0/fission-v1.22.0-linux-$${fission_arch}"
         chmod +x /tmp/fission
 
         echo "Creating nodejs environment..."
