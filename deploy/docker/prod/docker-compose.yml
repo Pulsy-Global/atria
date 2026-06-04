@@ -1,4 +1,4 @@
-name: atria-prod
+name: ${COMPOSE_PROJECT_NAME:-atria}
 include:
   - path: ../base/docker-compose.infra.yml
     required: true
