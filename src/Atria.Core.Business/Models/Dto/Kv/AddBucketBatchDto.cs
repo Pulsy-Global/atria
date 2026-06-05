@@ -4,7 +4,7 @@ namespace Atria.Core.Business.Models.Dto.Kv;
 
 public class AddBucketBatchDto
 {
-    public List<KeyValuePair<string, string>> Items { get; set; } = [];
+    public List<BucketItemDto> Items { get; set; } = [];
 
     public IReadOnlyDictionary<string, string> ToReadOnlyItems()
         => new ReadOnlyDictionary<string, string>(

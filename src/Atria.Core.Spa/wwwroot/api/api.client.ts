@@ -3255,7 +3255,7 @@ export interface IUpdateFeed {
 }
 
 export class AddBucketBatch implements IAddBucketBatch {
-    items?: KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e[] | undefined;
+    items?: BucketItem[] | undefined;
 
     constructor(data?: IAddBucketBatch) {
         if (data) {
@@ -3271,7 +3271,7 @@ export class AddBucketBatch implements IAddBucketBatch {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e.fromJS(item));
+                    this.items!.push(BucketItem.fromJS(item));
             }
         }
     }
@@ -3295,7 +3295,7 @@ export class AddBucketBatch implements IAddBucketBatch {
 }
 
 export interface IAddBucketBatch {
-    items?: KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e[] | undefined;
+    items?: BucketItem[] | undefined;
 }
 
 export class BucketBatchItems implements IBucketBatchItems {
@@ -4170,46 +4170,6 @@ export interface IProblemDetails {
     instance?: string | undefined;
 
     [key: string]: any;
-}
-
-export class KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e implements IKeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
-    key?: string | undefined;
-    value?: string | undefined;
-
-    constructor(data?: IKeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.key = _data["key"];
-            this.value = _data["value"];
-        }
-    }
-
-    static fromJS(data: any): KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
-        data = typeof data === 'object' ? data : {};
-        let result = new KeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["key"] = this.key;
-        data["value"] = this.value;
-        return data;
-    }
-}
-
-export interface IKeyValuePair_2OfOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798eAndOfStringAndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
-    key?: string | undefined;
-    value?: string | undefined;
 }
 
 export class ApiException extends Error {
