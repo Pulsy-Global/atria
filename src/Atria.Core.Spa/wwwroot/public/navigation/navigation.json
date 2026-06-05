@@ -11,7 +11,7 @@
             "id": "outputs",
             "title": "Outputs",
             "type": "basic",
-            "icon": "heroicons_outline:arrow-top-right-on-square",
+            "icon": "heroicons_outline:squares-plus",
             "link": "/outputs"
         }
     ]
