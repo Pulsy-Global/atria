@@ -104,25 +104,19 @@
                     <mat-icon [svgIcon]="'heroicons_solid:pencil'" class="icon-size-4 text-sm"></mat-icon>
                 </button>
                 <div class="flex flex-col gap-4">
-                    <div class="flex min-w-0 flex-col gap-2 text-sm">
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span class="text-sm text-secondary">Network</span>
-                            <span [ngClass]="hasNetworkSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
-                                {{ getSelectedNetworkTitle() }}
-                            </span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span class="text-sm text-secondary">Environment</span>
-                            <span [ngClass]="hasEnvironmentSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
-                                {{ getSelectedEnvironmentTitle() }}
-                            </span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span class="text-sm text-secondary">Dataset</span>
-                            <span [ngClass]="hasDatasetSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
-                                {{ getSelectedDatasetLabel() }}
-                            </span>
-                        </div>
+                    <div class="grid min-w-0 grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 text-sm">
+                        <span class="text-sm text-secondary">Network</span>
+                        <span class="min-w-0 truncate" [ngClass]="hasNetworkSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                            {{ getSelectedNetworkTitle() }}
+                        </span>
+                        <span class="text-sm text-secondary">Environment</span>
+                        <span class="min-w-0 truncate" [ngClass]="hasEnvironmentSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                            {{ getSelectedEnvironmentTitle() }}
+                        </span>
+                        <span class="text-sm text-secondary">Dataset</span>
+                        <span class="min-w-0 truncate" [ngClass]="hasDatasetSelection() ? 'text-default font-semibold' : 'text-secondary font-medium'">
+                            {{ getSelectedDatasetLabel() }}
+                        </span>
                     </div>
 
                 </div>

@@ -19,6 +19,9 @@ public class FeedMessageService(
     IOptions<MessagingSettings> settings)
     : IFeedMessageService
 {
+    private static readonly JsonSerializerOptions EnvelopeJsonOpts =
+        AtriaJsonSerializerOptions.Create(JsonSerializerOptions.Default);
+
     private static readonly JsonSerializerOptions OutputJsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -54,7 +57,7 @@ public class FeedMessageService(
                 return [];
             }
 
-            var outputData = JsonSerializer.Deserialize<FeedOutputData>(stored.Data.Span, OutputJsonOpts);
+            var outputData = JsonSerializer.Deserialize<FeedOutputData>(stored.Data.Span, EnvelopeJsonOpts);
 
             if (outputData == null)
             {

@@ -19,11 +19,11 @@ import { NotificationService } from '../../shared/services/notification/notifica
 import { ConfirmModalComponent, ConfirmModalData } from '../../shared/modals/confirm/confirm-modal.component';
 import { openCursorResetConfirm, isCursorBehindTailError } from '../../shared/modals/cursor-reset/cursor-reset.helper';
 import { FilterModalComponent } from '../../shared/modals/filter/filter-modal.component';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, combineLatest, timer, interval, filter, finalize } from 'rxjs';
+import { Subject, takeUntil, distinctUntilChanged, combineLatest, timer, interval, filter, finalize } from 'rxjs';
 import { FuseLoadingService } from 'fuse/services/loading';
-import { Feed, FeedStatus, AtriaDataType, Network, Environment, Tag } from '../../api/api.client';
+import { Feed, FeedStatus, AtriaDataType, Network, Tag } from '../../api/api.client';
 import type { FeedErrorInfo } from '../../api/api.client';
-import { ColumnConfig, TableState, PaginationState } from '../../shared/table/table.types';
+import { TableState, PaginationState } from '../../shared/table/table.types';
 import { SearchBarComponent } from '../../shared/core/search/search.component'
 import { AtriaPaginationDirective } from '../../shared/core/paginator/paginator.directive'
 import { FilterModalData, FilterModalResult, FilterElement } from '../../shared/modals/filter/filter-modal.types';
@@ -38,6 +38,8 @@ import { TableODataService } from '../../shared/table/services/table.odata.servi
 import { FEED_TABLE_CONFIG, STATUS_CONFIG, BLOCK_CONFIG } from './feed-table.config';
 import { DATA_TYPE_CONFIG } from '../../shared/config/data-type.config';
 import { getFeedErrorDisplayInfo, type FeedErrorDisplayInfo } from '../../shared/config/feed-error-display.config';
+import { NetworkDisplayComponent } from '../../shared/components/network-display/network-display.component';
+import { getNetworkOptions } from '../../shared/components/network-display/network-display.helper';
 
 @Component({
     selector: 'feed-table',
@@ -68,7 +70,8 @@ import { getFeedErrorDisplayInfo, type FeedErrorDisplayInfo } from '../../shared
         MatChipsModule,
         FuseCardComponent,
         SearchBarComponent,
-        AtriaPaginationDirective
+        AtriaPaginationDirective,
+        NetworkDisplayComponent
     ]
 })
 export class FeedTableComponent implements OnInit, OnDestroy {
@@ -398,30 +401,6 @@ export class FeedTableComponent implements OnInit, OnDestroy {
         return DATA_TYPE_CONFIG.getDataTypeColor(dataType);
     }
 
-    getNetworkTitle(networkId: string): string {
-        if (!this.networks || !networkId) return 'Unknown';
-
-        for (const network of this.networks) {
-            const environment = network.environments?.find(env => env.id === networkId);
-            if (environment) {
-                return network.title || 'Unknown';
-            }
-        }
-        return 'Unknown';
-    }
-
-    getEnvironmentTitle(networkId: string): string {
-        if (!this.networks || !networkId) return 'Unknown';
-
-        for (const network of this.networks) {
-            const environment = network.environments?.find(env => env.id === networkId);
-            if (environment) {
-                return environment.title || 'Unknown';
-            }
-        }
-        return 'Unknown';
-    }
-
     getTagName(tagId: string): string {
         const tag = this.tags.find(t => t.id === tagId);
         return tag?.name || 'Unknown';
@@ -503,20 +482,7 @@ export class FeedTableComponent implements OnInit, OnDestroy {
     }
 
     private _getNetworkOptions() {
-        if (!this.networks) return [];
-
-        const options = [];
-        for (const network of this.networks) {
-            if (network.environments) {
-                for (const environment of network.environments) {
-                    options.push({
-                        value: environment.id,
-                        label: `${network.title} - ${environment.title}`
-                    });
-                }
-            }
-        }
-        return options;
+        return getNetworkOptions(this.networks);
     }
 
     private _setupSubscriptions(): void {

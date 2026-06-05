@@ -2,10 +2,12 @@ import { STRING_EMPTY } from 'shared/core/constants/common.constants';
 import { FilterType, FilterOperator } from '../../table/odata.types';
 import { ColumnConfig } from '../../table/table.types';
 import { Tag } from '../../../api/api.client';
+import type { NetworkDisplayIconSource } from '../../components/network-display/network-display-icons';
 
 export interface EnumOption {
     value: any;
     label: string;
+    iconSource?: NetworkDisplayIconSource;
 }
 
 export interface FilterModalResult {

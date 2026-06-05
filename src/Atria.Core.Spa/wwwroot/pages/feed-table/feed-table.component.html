@@ -189,10 +189,13 @@
                     </div>
                 </th>
                 <td mat-cell *matCellDef="let feed" class="!py-2 !px-3">
-                    <div class="text-md text-default">
-                        <div class="font-medium text-default">{{getNetworkTitle(feed.networkId)}}</div>
-                        <div class="text-sm text-secondary">{{getEnvironmentTitle(feed.networkId)}}</div>
-                    </div>
+                    <network-display
+                        class="feed-table-network-display"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="stacked"
+                        size="md">
+                    </network-display>
                 </td>
             </ng-container>
 
@@ -257,10 +260,10 @@
                             class="compact-toggle">
                         </mat-slide-toggle>
                         <button mat-icon-button [matTooltip]="'Edit'" (click)="onEditFeed(feed)" class="ultra-compact-action-btn">
-                            <mat-icon [svgIcon]="'heroicons_solid:pencil'"></mat-icon>
+                            <mat-icon [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
                         </button>
                         <button mat-icon-button [matTooltip]="'Delete'" (click)="onDeleteFeed(feed)" class="ultra-compact-action-btn">
-                            <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                            <mat-icon [svgIcon]="'heroicons_mini:trash'"></mat-icon>
                         </button>
                     </div>
                 </td>
@@ -305,7 +308,13 @@
                             <span class="text-sm text-secondary">{{feed.version || 'v1.0.0'}}</span>
                         </div>
                     </div>
-                    <p class="text-sm text-secondary mt-1">{{getNetworkTitle(feed.networkId)}} - {{getEnvironmentTitle(feed.networkId)}}</p>
+                    <network-display
+                        class="mt-1 block"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="inline"
+                        size="sm">
+                    </network-display>
                 </div>
                 <span
                     class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ml-3 shrink-0"
@@ -331,7 +340,13 @@
                 </div>
                 <div class="w-full">
                     <span class="font-medium text-secondary">Network:</span>
-                    <div class="text-default mt-1">{{getNetworkTitle(feed.networkId)}}</div>
+                    <network-display
+                        class="mt-1 block"
+                        [networks]="networks"
+                        [networkId]="feed.networkId"
+                        variant="inline"
+                        size="sm">
+                    </network-display>
                 </div>
                 <div class="w-full">
                     <span class="font-medium text-secondary">Block Delay:</span>
@@ -386,14 +401,14 @@
                         [matTooltip]="'Edit'"
                         (click)="onEditFeed(feed)"
                         class="ultra-compact-action-btn">
-                        <mat-icon [svgIcon]="'heroicons_solid:pencil'"></mat-icon>
+                        <mat-icon [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
                     </button>
                     <button
                         mat-icon-button
                         [matTooltip]="'Delete'"
                         (click)="onDeleteFeed(feed)"
                         class="ultra-compact-action-btn">
-                        <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                        <mat-icon [svgIcon]="'heroicons_mini:trash'"></mat-icon>
                     </button>
                 </div>
             </div>
@@ -408,7 +423,7 @@
             [length]="total"
             [pageSize]="tableState.pagination.pageSize"
             [pageIndex]="tableState.pagination.pageIndex"
-            [pageSizeOptions]="[10, 25, 50, 100]"
+            [pageSizeOptions]="[10, 25]"
             [showFirstLastButtons]="true"
             (page)="onPageChange($event)"
             class="!bg-transparent !shadow-none w-full compact-paginator">

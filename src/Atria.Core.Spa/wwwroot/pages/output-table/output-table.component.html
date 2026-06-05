@@ -207,10 +207,10 @@
                 <td mat-cell *matCellDef="let output" class="!py-2 !px-3">
                     <div class="flex items-center justify-center space-x-1">
                         <button mat-icon-button [matTooltip]="'Edit'" (click)="onEditOutput(output)" class="ultra-compact-action-btn">
-                            <mat-icon [svgIcon]="'heroicons_solid:pencil'"></mat-icon>
+                            <mat-icon [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
                         </button>
                         <button mat-icon-button [matTooltip]="'Delete'" (click)="onDeleteOutput(output)" class="ultra-compact-action-btn">
-                            <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                            <mat-icon [svgIcon]="'heroicons_mini:trash'"></mat-icon>
                         </button>
                     </div>
                 </td>
@@ -225,7 +225,7 @@
 
 <ng-template #noContentTemplate>
     <div class="flex flex-col items-center justify-center py-16 w-full h-full">
-        <mat-icon class="text-4xl w-8 h-8 text-secondary mb-4" [svgIcon]="'heroicons_outline:arrow-top-right-on-square'"></mat-icon>
+        <mat-icon class="text-4xl w-8 h-8 text-secondary mb-4" [svgIcon]="'heroicons_outline:squares-plus'"></mat-icon>
         <div class="text-lg font-medium text-default mb-2">No outputs found</div>
         <div class="text-sm text-secondary">Create your first output to get started.</div>
     </div>
@@ -296,14 +296,14 @@
                         [matTooltip]="'Edit'"
                         (click)="onEditOutput(output)"
                         class="ultra-compact-action-btn">
-                        <mat-icon [svgIcon]="'heroicons_solid:pencil'"></mat-icon>
+                        <mat-icon [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
                     </button>
                     <button
                         mat-icon-button
                         [matTooltip]="'Delete'"
                         (click)="onDeleteOutput(output)"
                         class="ultra-compact-action-btn">
-                        <mat-icon [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                        <mat-icon [svgIcon]="'heroicons_mini:trash'"></mat-icon>
                     </button>
                 </div>
             </div>
@@ -318,7 +318,7 @@
             [length]="total"
             [pageSize]="tableState.pagination.pageSize"
             [pageIndex]="tableState.pagination.pageIndex"
-            [pageSizeOptions]="[10, 25, 50, 100]"
+            [pageSizeOptions]="[10, 25]"
             [showFirstLastButtons]="true"
             (page)="onPageChange($event)"
             class="!bg-transparent !shadow-none w-full compact-paginator">

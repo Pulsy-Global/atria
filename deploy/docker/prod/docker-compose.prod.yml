@@ -1,26 +1,37 @@
+x-atria-service-environment: &atria-service-environment
+  DOTNET_ENVIRONMENT: Production
+  ConnectionStrings__AtriaConnection: "Host=postgresql;Database=${POSTGRES_DB:-Atria};Username=${POSTGRES_USER:-Atria};Password=${POSTGRES_PASSWORD:-Atria};Maximum Pool Size=100"
+  Messaging__Url: "nats://nats:4222"
+  Messaging__Username: "${NATS_USER:-natsadmin}"
+  Messaging__Password: "${NATS_PASS:-natsadmin}"
+
 services:
   atria-api:
     image: ghcr.io/pulsy-global/atria-core-api:${ATRIA_IMAGE_TAG:-latest}
-    container_name: atria-api
+    platform: ${ATRIA_IMAGE_PLATFORM:-linux/amd64}
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-api
     restart: on-failure
     environment:
-      - ASPNETCORE_URLS=http://+:4300
-    privileged: true
+      <<: *atria-service-environment
+      ASPNETCORE_URLS: http://+:4300
     ports:
       - target: 4300
         published: 4300
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     networks:
       - atria-network
 
   atria-spa:
     image: ghcr.io/pulsy-global/atria-core-spa:${ATRIA_IMAGE_TAG:-latest}
-    container_name: atria-spa
+    platform: ${ATRIA_IMAGE_PLATFORM:-linux/amd64}
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-spa
     restart: on-failure
     environment:
-      - ASPNETCORE_URLS=http://+:7150
-    privileged: true
+      ASPNETCORE_URLS: http://+:7150
     ports:
       - target: 7150
         published: 7150
@@ -31,37 +42,55 @@ services:
 
   atria-feed-ingestor:
     image: ghcr.io/pulsy-global/atria-feed-ingestor:${ATRIA_IMAGE_TAG:-latest}
-    container_name: atria-feed-ingestor
+    platform: ${ATRIA_IMAGE_PLATFORM:-linux/amd64}
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-ingestor
     restart: on-failure
-    privileged: true
+    environment:
+      <<: *atria-service-environment
     depends_on:
-      - postgresql
-      - nats
+      postgresql:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     networks:
       - atria-network
 
   atria-feed-runtime:
     image: ghcr.io/pulsy-global/atria-feed-runtime:${ATRIA_IMAGE_TAG:-latest}
-    container_name: atria-feed-runtime
+    platform: ${ATRIA_IMAGE_PLATFORM:-linux/amd64}
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-runtime
     restart: on-failure
-    privileged: true
     depends_on:
-      - postgresql
-      - nats
-      - atria-feed-ingestor
+      postgresql:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      atria-feed-ingestor:
+        condition: service_started
     environment:
-      - Runtime__Functions__Fission__Client__InClusterConfig=true
+      <<: *atria-service-environment
+      Features__FunctionsEnabled: "${ATRIA_FUNCTIONS_ENABLED:-false}"
+      Runtime__Functions__Fission__Client__BaseUrl: "http://k3s:31314/"
+      Runtime__Functions__Fission__Client__InClusterConfig: "false"
+      Runtime__Functions__Fission__Client__KubeConfigPath: "/root/.kube/kubeconfig-internal.yaml"
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/data/k3s:/root/.kube:ro
     networks:
       - atria-network
 
   atria-feed-delivery:
     image: ghcr.io/pulsy-global/atria-feed-delivery:${ATRIA_IMAGE_TAG:-latest}
-    container_name: atria-feed-delivery
+    platform: ${ATRIA_IMAGE_PLATFORM:-linux/amd64}
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-feed-delivery
     restart: on-failure
-    privileged: true
+    environment:
+      <<: *atria-service-environment
     depends_on:
-      - postgresql
-      - nats
-      - atria-feed-runtime
+      postgresql:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      atria-feed-runtime:
+        condition: service_started
     networks:
       - atria-network

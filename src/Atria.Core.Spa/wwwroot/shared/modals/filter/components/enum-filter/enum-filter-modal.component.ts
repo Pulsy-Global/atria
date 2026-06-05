@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,10 +13,10 @@ import {
     EnumOption,
     EnumFilterValue
 } from '../../filter-modal.types';
-import { FilterType } from '../../../../table/odata.types';
-import { STRING_EMPTY } from '../../../../core/constants/common.constants';
+import { NetworkIconComponent } from '../../../../components/network-display/network-icon.component';
 
 @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'enum-filter-modal',
     standalone: true,
     imports: [
@@ -27,16 +27,18 @@ import { STRING_EMPTY } from '../../../../core/constants/common.constants';
         MatFormFieldModule,
         MatInputModule,
         MatIconModule,
+        NetworkIconComponent,
         FormsModule
     ],
     templateUrl: './enum-filter-modal.component.html'
 })
-export class EnumFilterModalComponent {
+export class EnumFilterModalComponent implements OnInit {
     @Input() data!: FilterModalData;
     @Output() result = new EventEmitter<FilterModalResult | null>();
 
-    selectedValues: any[] = [];
+    selectedValues: EnumFilterValue['values'] = [];
     filteredOptions: EnumOption[] = [];
+    hasOptionIcons = false;
 
     ngOnInit(): void {
         if (this.data.currentFilter) {
@@ -46,6 +48,8 @@ export class EnumFilterModalComponent {
         }
 
         this.filteredOptions = [...(this.data.enumOptions || [])];
+        this.hasOptionIcons = this.filteredOptions
+            .some((option) => !!option.iconSource);
     }
 
     get canConfirm(): boolean {
@@ -61,11 +65,11 @@ export class EnumFilterModalComponent {
         );
     }
 
-    isSelected(value: any): boolean {
+    isSelected(value: EnumOption['value']): boolean {
         return this.selectedValues.includes(value);
     }
 
-    onSelectionChange(value: any, checked: boolean): void {
+    onSelectionChange(value: EnumOption['value'], checked: boolean): void {
         if (checked) {
             this.selectedValues.push(value);
         } else {

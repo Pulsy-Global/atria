@@ -65,8 +65,8 @@
     },
     "ethereum": {
       "Title": "Ethereum",
-      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Ethereum.svg",
       "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Ethereum.svg",
       "Environments": [
         {
           "Id": "ethereum-mainnet",
@@ -86,8 +86,8 @@
     },
     "optimism": {
       "Title": "Optimism",
-      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Optimism.svg",
       "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Optimism.svg",
       "Environments": [
         {
           "Id": "optimism-mainnet",
@@ -100,8 +100,8 @@
     },
     "polygon": {
       "Title": "Polygon",
-      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Polygon.svg",
       "NetworkFamily": "EVM",
+      "IconUrl": "https://cdn.pulsy.app/images/network/svg/Polygon.svg",
       "Environments": [
         {
           "Id": "polygon-mainnet",
