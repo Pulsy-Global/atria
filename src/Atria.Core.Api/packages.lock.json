@@ -639,7 +639,6 @@
       "atria.common.worker": {
         "type": "Project",
         "dependencies": {
-          "AspNetCore.HealthChecks.Nats": "[9.0.0, )",
           "Atria.Common": "[1.0.0, )"
         }
       },
@@ -698,15 +697,6 @@
           "NATS.Client.Core": "[2.7.3, )",
           "NATS.Client.JetStream": "[2.7.3, )",
           "NATS.Client.KeyValueStore": "[2.7.3, )"
-        }
-      },
-      "AspNetCore.HealthChecks.Nats": {
-        "type": "CentralTransitive",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "K0vgYyYn2jeGQoKaIWtHUJt64/41syLlOj3ZIVcU5irB8SecyUulkkhreGrl69LZVvtE8UVCBt/OIn9aW7WWAA==",
-        "dependencies": {
-          "NATS.Net": "2.5.4"
         }
       },
       "AWSSDK.S3": {

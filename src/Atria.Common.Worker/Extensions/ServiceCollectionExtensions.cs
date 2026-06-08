@@ -1,7 +1,6 @@
-using Atria.Common.Messaging.Core;
+using Atria.Common.Worker.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NATS.Client.Core;
 
 namespace Atria.Common.Worker.Extensions;
 
@@ -11,24 +10,11 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var messagingSettings = new MessagingSettings();
-        configuration.GetSection("Messaging").Bind(messagingSettings);
-
-        var natsOpts = new NatsOpts
-        {
-            Url = messagingSettings.Url,
-            AuthOpts = new NatsAuthOpts
-            {
-                Username = messagingSettings.Username,
-                Password = messagingSettings.Password,
-            },
-        };
-
-        var connectionFactory = new Func<IServiceProvider, INatsConnection>(_ => new NatsConnection(natsOpts));
+        _ = configuration;
 
         services
             .AddHealthChecks()
-            .AddNats(connectionFactory);
+            .AddCheck<NatsConnectionHealthCheck>("nats");
 
         return services;
     }

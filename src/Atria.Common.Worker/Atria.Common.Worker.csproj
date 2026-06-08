@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.HealthChecks.Nats" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
         <PackageReference Include="StyleCop.Analyzers" PrivateAssets="All" />
     </ItemGroup>
 
