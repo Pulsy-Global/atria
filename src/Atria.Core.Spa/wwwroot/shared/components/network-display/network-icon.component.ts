@@ -75,9 +75,9 @@ export class NetworkIconComponent implements OnChanges {
 
     get iconClasses(): string[] {
         const sizeClasses: Record<NetworkIconSize, string> = {
-            sm: 'h-5 w-5',
-            md: 'h-7 w-7',
-            lg: 'h-10 w-10',
+            sm: 'h-5 w-5 p-0.5',
+            md: 'h-7 w-7 p-0.5',
+            lg: 'h-10 w-10 p-1.5',
         };
 
         return [sizeClasses[this.size]];
