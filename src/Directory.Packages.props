@@ -26,6 +26,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.5" />
@@ -63,7 +64,6 @@
     <PackageVersion Include="NATS.Client.JetStream" Version="2.7.3" />
     <PackageVersion Include="NATS.Client.KeyValueStore" Version="2.7.3" />
     <PackageVersion Include="NATS.Net" Version="2.7.3" />
-    <PackageVersion Include="AspNetCore.HealthChecks.Nats" Version="9.0.0" />
     <!-- Blockchain/Ethereum -->
     <PackageVersion Include="Nethereum.JsonRpc.Client" Version="6.0.1" />
     <PackageVersion Include="Nethereum.JsonRpc.RpcClient" Version="6.0.1" />

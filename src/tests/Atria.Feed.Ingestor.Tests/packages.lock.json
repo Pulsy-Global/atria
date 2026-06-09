@@ -147,21 +147,10 @@
           "Microsoft.Extensions.Options": "10.0.5"
         }
       },
-      "Microsoft.Extensions.Diagnostics.HealthChecks": {
-        "type": "Transitive",
-        "resolved": "8.0.11",
-        "contentHash": "zLgN22Zp9pk8RHlwssRTexw4+a6wqOnKWN+VejdPn5Yhjql4XiBhkFo35Nu8mmqHIk/UEmmCnMGLWq75aFfkOw==",
-        "dependencies": {
-          "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": "8.0.11",
-          "Microsoft.Extensions.Hosting.Abstractions": "8.0.1",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
-          "Microsoft.Extensions.Options": "8.0.2"
-        }
-      },
       "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": {
         "type": "Transitive",
-        "resolved": "8.0.11",
-        "contentHash": "So3JUdRxozRjvQ3cxU6F3nI/i4emDnjane6yMYcJhvTTTu29ltlIdoXjkFGRceIWz8yKvuEpzXItZ0x5GvN2nQ=="
+        "resolved": "10.0.5",
+        "contentHash": "NrIMTy7dpqxAvA6kHAYH8cXID/YgeNOy0OqFKpLtkPu5X4WS/basX91UszANzVrMNRAICJ2GOnGiRxJtsRyEQw=="
       },
       "Microsoft.Extensions.FileProviders.Abstractions": {
         "type": "Transitive",
@@ -532,6 +521,7 @@
           "Serilog.Extensions.Hosting": "[10.0.0, )",
           "Serilog.Settings.Configuration": "[10.0.0, )",
           "Serilog.Sinks.Console": "[6.1.1, )",
+          "Serilog.Sinks.Grafana.Loki": "[8.3.2, )",
           "Swashbuckle.AspNetCore": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Newtonsoft": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Swagger": "[10.1.5, )",
@@ -542,8 +532,8 @@
       "atria.common.worker": {
         "type": "Project",
         "dependencies": {
-          "AspNetCore.HealthChecks.Nats": "[9.0.0, )",
-          "Atria.Common": "[1.0.0, )"
+          "Atria.Common": "[1.0.0, )",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "[10.0.5, )"
         }
       },
       "atria.contracts": {
@@ -580,16 +570,6 @@
           "NATS.Client.Core": "[2.7.3, )",
           "NATS.Client.JetStream": "[2.7.3, )",
           "NATS.Client.KeyValueStore": "[2.7.3, )"
-        }
-      },
-      "AspNetCore.HealthChecks.Nats": {
-        "type": "CentralTransitive",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "K0vgYyYn2jeGQoKaIWtHUJt64/41syLlOj3ZIVcU5irB8SecyUulkkhreGrl69LZVvtE8UVCBt/OIn9aW7WWAA==",
-        "dependencies": {
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11",
-          "NATS.Net": "2.5.4"
         }
       },
       "Mapster": {
@@ -675,6 +655,18 @@
         "requested": "[10.0.5, )",
         "resolved": "10.0.5",
         "contentHash": "iVMtq9eRvzyhx8949EGT0OCYJfXi737SbRVzWXE5GrOgGj5AaZ9eUuxA/BSUfmOMALKn/g8KfFaNQw0eiB3lyA=="
+      },
+      "Microsoft.Extensions.Diagnostics.HealthChecks": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.5, )",
+        "resolved": "10.0.5",
+        "contentHash": "REdt95QXHscGdtw/UUgyCW2lF9DJcAOJxmebKW2IkgUjuCAdMODIi2HNOWg5utW98nm8ekgV0Gjqs/sljwwqMw==",
+        "dependencies": {
+          "Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions": "10.0.5",
+          "Microsoft.Extensions.Hosting.Abstractions": "10.0.5",
+          "Microsoft.Extensions.Logging.Abstractions": "10.0.5",
+          "Microsoft.Extensions.Options": "10.0.5"
+        }
       },
       "Microsoft.Extensions.Hosting.Abstractions": {
         "type": "CentralTransitive",
@@ -907,6 +899,15 @@
         "contentHash": "8jbqgjUyZlfCuSTaJk6lOca465OndqOz3KZP6Cryt/IqZYybyBu7GP0fE/AXBzrrQB3EBmQntBFAvMVz1COvAA==",
         "dependencies": {
           "Serilog": "4.0.0"
+        }
+      },
+      "Serilog.Sinks.Grafana.Loki": {
+        "type": "CentralTransitive",
+        "requested": "[8.3.2, )",
+        "resolved": "8.3.2",
+        "contentHash": "znb7fSb/4NfM++cSp99bUO3MCuP1Xx1k2329BUZCp7Tp+YwzAlDHHzBcVUZCll/EPGLuVPUdx894peHaAjYlvA==",
+        "dependencies": {
+          "Serilog": "2.12.0"
         }
       },
       "Swashbuckle.AspNetCore": {

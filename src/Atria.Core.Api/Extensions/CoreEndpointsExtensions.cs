@@ -1,5 +1,6 @@
 using Atria.Common.Worker.Extensions;
 using Atria.Core.Data.Context;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Atria.Core.Api.Extensions;
 
@@ -11,7 +12,10 @@ public static class CoreEndpointsExtensions
         {
             endpoints.MapGroup("/api").MapControllers();
 
-            endpoints.MapHealthChecks("/health/live");
+            endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+            {
+                Predicate = _ => false,
+            });
             endpoints.MapHealthChecks("/health/ready");
             endpoints.MapHealthChecks("/health");
         });
