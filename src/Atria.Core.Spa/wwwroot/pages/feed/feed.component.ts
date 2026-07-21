@@ -106,6 +106,9 @@ export class FeedComponent implements OnInit, OnDestroy {
         this.form.initializeFeedData();
         this.form.initializeForm();
         this.tabs.addTab(TabType.Settings);
+        if (this._activatedRoute.snapshot.queryParamMap.get('setup') === 'output') {
+            this.tabs.addTab(TabType.Output);
+        }
         this.form.setupSubscriptions((tabType, setActive) => {
             this.tabs.addTab(tabType, setActive);
         });

@@ -1,11 +1,12 @@
 <div class="bg-card p-6 mx-6 mt-3 rounded-xl">
     <div class="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div class="flex min-w-0 items-center gap-3">
-            <button mat-icon-button
+            <button *ngIf="showBackButton" mat-icon-button
                     (click)="back.emit()"
                     class="shrink-0">
                 <mat-icon>arrow_back</mat-icon>
             </button>
+            <ng-content select="[feed-header-leading]"></ng-content>
             <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="text-2xl font-semibold text-default">
@@ -21,10 +22,13 @@
                         {{ statusLabel }}
                     </span>
                 </div>
-                <p *ngIf="description" class="text-sm text-secondary mt-1">
+                <p *ngIf="description" class="text-sm text-secondary">
                     {{ description }}
                 </p>
             </div>
+        </div>
+        <div *ngIf="actionComponent" class="flex items-center justify-end">
+            <ng-container *ngComponentOutlet="actionComponent; inputs: actionInputs"></ng-container>
         </div>
     </div>
 

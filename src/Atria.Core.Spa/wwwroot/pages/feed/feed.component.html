@@ -4,6 +4,7 @@
         [description]="form.feedForm.get('description')?.value"
         [statusLabel]="form.getHeaderStatusLabel()"
         [statusClass]="form.getHeaderStatusClass()"
+        [actionInputs]="{ feedId: form.feedId }"
         (back)="onBack()">
     </feed-header>
 

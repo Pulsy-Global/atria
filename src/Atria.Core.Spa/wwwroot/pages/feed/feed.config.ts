@@ -150,7 +150,9 @@ export const FILTER_TEMPLATES: Record<AtriaDataType, string> = {
     ethTransfers
   };
 }`,
-    [AtriaDataType.BlockWithLogs]: `function main(stream) {
+    [AtriaDataType.BlockWithLogs]: `const ethers = require("ethers");
+
+function main(stream) {
   // Filter block logs based on your criteria
   const iface = new ethers.Interface([{
     name: 'Transfer', type: 'event', inputs: [
