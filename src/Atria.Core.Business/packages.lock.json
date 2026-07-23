@@ -534,7 +534,7 @@
           "Serilog.Extensions.Hosting": "[10.0.0, )",
           "Serilog.Settings.Configuration": "[10.0.0, )",
           "Serilog.Sinks.Console": "[6.1.1, )",
-          "Serilog.Sinks.Grafana.Loki": "[8.3.2, )",
+          "Serilog.Sinks.OpenTelemetry": "[4.2.0, )",
           "Swashbuckle.AspNetCore": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Newtonsoft": "[10.1.5, )",
           "Swashbuckle.AspNetCore.Swagger": "[10.1.5, )",
@@ -928,13 +928,15 @@
           "Serilog": "4.0.0"
         }
       },
-      "Serilog.Sinks.Grafana.Loki": {
+      "Serilog.Sinks.OpenTelemetry": {
         "type": "CentralTransitive",
-        "requested": "[8.3.2, )",
-        "resolved": "8.3.2",
-        "contentHash": "znb7fSb/4NfM++cSp99bUO3MCuP1Xx1k2329BUZCp7Tp+YwzAlDHHzBcVUZCll/EPGLuVPUdx894peHaAjYlvA==",
+        "requested": "[4.2.0, )",
+        "resolved": "4.2.0",
+        "contentHash": "PzMCyE5G19tjr5IZEi5qg+4UU5QrxBEoBEMu/hhYybTrGKXqUDiSGWKZNUDBgelaVKqLADlsmlJVyKce5SyPrg==",
         "dependencies": {
-          "Serilog": "2.12.0"
+          "Google.Protobuf": "3.30.1",
+          "Grpc.Net.Client": "2.70.0",
+          "Serilog": "4.2.0"
         }
       },
       "Swashbuckle.AspNetCore": {

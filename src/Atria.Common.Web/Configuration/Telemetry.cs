@@ -16,39 +16,15 @@ public static class Telemetry
         var section = builder.Configuration.GetSection(TelemetryOptions.SectionName);
         builder.Services.Configure<TelemetryOptions>(section);
 
-        var options = section.Get<TelemetryOptions>() ?? new TelemetryOptions();
-
-        if (string.IsNullOrWhiteSpace(options.ServiceName))
-        {
-            throw new InvalidOperationException(
-                $"{TelemetryOptions.SectionName}:{nameof(TelemetryOptions.ServiceName)} is required.");
-        }
-
-        if (options.Component == null)
-        {
-            throw new InvalidOperationException(
-                $"{TelemetryOptions.SectionName}:{nameof(TelemetryOptions.Component)} is required.");
-        }
-
-        if (!Uri.TryCreate(options.OtlpEndpoint, UriKind.Absolute, out var endpoint))
-        {
-            throw new InvalidOperationException(
-                $"{TelemetryOptions.SectionName}:{nameof(TelemetryOptions.OtlpEndpoint)} must be an absolute URI.");
-        }
-
+        var options = TelemetryConfiguration.GetRequiredOptions(builder);
+        var endpoint = TelemetryConfiguration.GetRequiredOtlpEndpoint(options);
         var exportInterval = TimeSpan.FromSeconds(Math.Max(1, options.MetricExportIntervalSeconds));
-        var instanceId = Environment.GetEnvironmentVariable("HOSTNAME") ?? Environment.MachineName;
-        var component = options.Component.Value.ToString().ToLowerInvariant();
 
         builder.Services
             .AddOpenTelemetry()
             .ConfigureResource(resource => resource
-                .AddService(options.ServiceName, serviceInstanceId: instanceId)
-                .AddAttributes(
-                [
-                    new KeyValuePair<string, object>("atria.component", component),
-                    new KeyValuePair<string, object>("deployment.environment.name", builder.Environment.EnvironmentName),
-                ]))
+                .AddService(options.ServiceName, serviceInstanceId: TelemetryConfiguration.GetServiceInstanceId())
+                .AddAttributes(TelemetryConfiguration.CreateResourceAttributes(builder, options)))
             .WithMetrics(metrics => metrics
                 .AddMeter(AtriaMeters.ObservabilityMeterName, AtriaMeters.BusinessMetricsMeterName)
                 .AddAspNetCoreInstrumentation()

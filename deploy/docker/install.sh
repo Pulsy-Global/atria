@@ -33,6 +33,7 @@ mkdir -p \
   "${TARGET_DIR}/config/observability/grafana/dashboards" \
   "${TARGET_DIR}/config/observability/grafana/provisioning/dashboards" \
   "${TARGET_DIR}/config/observability/grafana/provisioning/datasources" \
+  "${TARGET_DIR}/config/observability/loki" \
   "${TARGET_DIR}/config/observability/otel-collector" \
   "${TARGET_DIR}/config/observability/prometheus" \
   "${TARGET_DIR}/data/k3s"
@@ -80,6 +81,7 @@ OBSERVABILITY_FILES=(
   "grafana/dashboards/atria-runtime.json"
   "grafana/provisioning/dashboards/dashboards.yml"
   "grafana/provisioning/datasources/metrics.yml"
+  "loki/config.yaml"
   "otel-collector/config.yaml"
   "prometheus/alerts.yml"
   "prometheus/prometheus.yml"
@@ -133,6 +135,7 @@ if [[ "${ENABLE_FUNCTIONS}" =~ ^[Yy]$ ]]; then
 Services (default ports):
   - API: http://localhost:4300
   - SPA: http://localhost:7150
+  - Grafana: http://localhost:3000
   - Functions: http://localhost:31314 (k3s + Fission)
 EOF
 else
@@ -142,6 +145,7 @@ else
 Services (default ports):
   - API: http://localhost:4300
   - SPA: http://localhost:7150
+  - Grafana: http://localhost:3000
 
 Note: To enable serverless functions later, run:
   cd ./atria-oss/prod && docker compose --profile functions up -d

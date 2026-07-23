@@ -33,6 +33,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-atria}-spa
     restart: on-failure
     environment:
+      <<: *atria-service-environment
       ASPNETCORE_URLS: http://+:7150
     ports:
       - target: 7150
@@ -41,6 +42,12 @@ services:
       - atria-api
     networks:
       - atria-network
+
+  grafana:
+    ports:
+      - target: 3000
+        published: ${GRAFANA_PORT:-3000}
+        host_ip: 127.0.0.1
 
   atria-feed-ingestor:
     image: ghcr.io/pulsy-global/atria-feed-ingestor:${ATRIA_IMAGE_TAG:-latest}

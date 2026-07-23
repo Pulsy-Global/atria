@@ -5,6 +5,8 @@ deleteDatasources:
     orgId: 1
   - name: Atria Business Metrics
     orgId: 1
+  - name: Atria Logs
+    orgId: 1
 
 datasources:
   - name: Atria Observability
@@ -21,4 +23,14 @@ datasources:
     access: proxy
     url: http://victoria-metrics:8428
     isDefault: false
+    editable: false
+
+  - name: Atria Logs
+    uid: atria-logs
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    jsonData:
+      maxLines: 1000
     editable: false

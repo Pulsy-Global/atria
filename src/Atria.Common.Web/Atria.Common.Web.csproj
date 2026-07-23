@@ -8,7 +8,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Serilog.Sinks.Console" />
-        <PackageReference Include="Serilog.Sinks.Grafana.Loki" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />

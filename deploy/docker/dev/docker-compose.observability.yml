@@ -1,4 +1,10 @@
 services:
+  loki:
+    ports:
+      - target: 3100
+        published: 3100
+        host_ip: 127.0.0.1
+
   otel-collector:
     ports:
       - target: 4317

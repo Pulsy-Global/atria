@@ -1,9 +1,13 @@
+using Atria.Common.Web.Models.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace Atria.Common.Web.Configuration;
 
@@ -25,8 +29,20 @@ public static class Infrastructure
     {
         Serilog.Debugging.SelfLog.Enable(Console.Error);
 
-        builder.Host.UseSerilog((ctx, cfg) =>
-            cfg.ReadFrom.Configuration(configuration));
+        var telemetryOptions = TelemetryConfiguration.GetRequiredOptions(builder);
+        var otlpEndpoint = TelemetryConfiguration.GetRequiredOtlpEndpoint(telemetryOptions);
+
+        builder.Host.UseSerilog((_, cfg) =>
+            cfg
+                .ReadFrom.Configuration(configuration)
+                .WriteTo.OpenTelemetry(options =>
+                {
+                    options.Endpoint = otlpEndpoint.AbsoluteUri;
+                    options.Protocol = OtlpProtocol.Grpc;
+                    options.ResourceAttributes = CreateLogResourceAttributes(builder, telemetryOptions);
+                    options.RestrictedToMinimumLevel = LogEventLevel.Information;
+                    options.OnBeginSuppressInstrumentation = SuppressInstrumentationScope.Begin;
+                }));
 
         builder.Services.AddLogging(loggingBuilder =>
         {
@@ -54,5 +70,17 @@ public static class Infrastructure
         builder.Configuration.AddEnvironmentVariables();
 
         return builder;
+    }
+
+    private static Dictionary<string, object> CreateLogResourceAttributes(
+        WebApplicationBuilder builder,
+        TelemetryOptions options)
+    {
+        var attributes = TelemetryConfiguration.CreateResourceAttributes(builder, options);
+
+        attributes["service.name"] = options.ServiceName;
+        attributes["service.instance.id"] = TelemetryConfiguration.GetServiceInstanceId();
+
+        return attributes;
     }
 }

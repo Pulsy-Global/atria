@@ -6,4 +6,5 @@ public enum TelemetryComponent
     Ingestor,
     Runtime,
     Delivery,
+    Spa,
 }

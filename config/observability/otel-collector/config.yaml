@@ -28,6 +28,18 @@ processors:
     timeout: 5s
 
 exporters:
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    compression: gzip
+    sending_queue:
+      enabled: true
+      num_consumers: 2
+      queue_size: 2048
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 30s
+      max_elapsed_time: 5m
   prometheus/observability:
     endpoint: 0.0.0.0:9464
     resource_to_telemetry_conversion:
@@ -58,6 +70,14 @@ service:
   extensions:
     - health_check
   pipelines:
+    logs:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - batch
+      exporters:
+        - otlphttp/loki
     metrics/observability:
       receivers:
         - otlp
