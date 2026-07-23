@@ -61,7 +61,7 @@ export class MetricsTabComponent implements OnChanges, OnDestroy {
     readonly chartWidth = 720;
     readonly chartHeight = 180;
 
-    selectedRange: FeedMetricsRange = 'last24Hours';
+    selectedRange: FeedMetricsRange = 'lastHour';
     metrics: FeedMetricsResponse | null = null;
     chartLines: FeedMetricChartLine[] = [];
     chartTooltip: FeedMetricChartTooltip | null = null;
