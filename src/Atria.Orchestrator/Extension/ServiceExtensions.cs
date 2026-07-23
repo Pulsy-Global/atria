@@ -1,5 +1,6 @@
 using Atria.Orchestrator.Config.Options;
 using Atria.Orchestrator.Managers;
+using Atria.Orchestrator.Observability;
 using Atria.Orchestrator.Services;
 using Atria.Orchestrator.Services.Deployment;
 using Atria.Orchestrator.Services.Interfaces;
@@ -32,6 +33,7 @@ public static class ServiceExtensions
 
     private static void AddOrchestratorServices(this IServiceCollection services, IConfiguration cfg)
     {
+        services.AddSingleton<OrchestratorMetricsRecorder>();
         services.Configure<LeaseOptions>(cfg.GetSection(LeaseOptions.SectionName));
         services.AddSingleton<LeaseStore>();
 

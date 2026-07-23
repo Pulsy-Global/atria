@@ -19,4 +19,5 @@ public class FeedRuntime
     public BigInteger? StartBlock { get; set; }
     public ErrorHandlingStrategy ErrorHandling { get; set; }
     public string? EkvNamespace { get; set; }
+    public string? ResourceNamespace { get; set; }
 }

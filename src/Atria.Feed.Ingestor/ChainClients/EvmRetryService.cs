@@ -1,4 +1,5 @@
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
+using Atria.Feed.Ingestor.Observability;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
@@ -12,11 +13,13 @@ public class EvmRetryService : IEvmRetryService
     private readonly IAsyncPolicy _combinedPolicy;
     private readonly IAsyncPolicy _retryPolicy;
     private readonly IAsyncPolicy _circuitBreakerPolicy;
+    private readonly IngestorMetricsRecorder _metrics;
     private int _rateLimitHits;
 
-    public EvmRetryService(ILogger<EvmRetryService> logger)
+    public EvmRetryService(ILogger<EvmRetryService> logger, IngestorMetricsRecorder metrics)
     {
         _logger = logger;
+        _metrics = metrics;
         _retryPolicy = CreateRetryPolicy();
         _circuitBreakerPolicy = CreateCircuitBreakerPolicy();
         _combinedPolicy = Policy.WrapAsync(_retryPolicy, _circuitBreakerPolicy);
@@ -59,6 +62,7 @@ public class EvmRetryService : IEvmRetryService
                 onRetry: (exception, delay, retryCount, context) =>
                 {
                     Interlocked.Increment(ref _rateLimitHits);
+                    _metrics.RecordRpcRetry(context.OperationKey, IngestorMetricsRecorder.RateLimitReason);
 
                     _logger.LogWarning(
                         "Rate limit hit for {Operation}: {Error}. Retry {RetryCount}/{MaxRetries} after {Delay:F1}s.",
@@ -77,6 +81,7 @@ public class EvmRetryService : IEvmRetryService
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Min(Math.Pow(2, retryAttempt - 1), 30)),
                 onRetry: (exception, delay, retryCount, context) =>
                 {
+                    _metrics.RecordRpcRetry(context.OperationKey, IngestorMetricsRecorder.TransientReason);
                     _logger.LogWarning(
                         "Attempt {RetryCount} failed for {Operation}: {Error}. Retrying in {Delay:F1}s",
                         retryCount,
@@ -97,6 +102,7 @@ public class EvmRetryService : IEvmRetryService
                 durationOfBreak: TimeSpan.FromSeconds(30),
                 onBreak: (exception, breakDelay) =>
                 {
+                    _metrics.RecordCircuitBreakerEvent("opened");
                     _logger.LogWarning(
                         "Circuit breaker opened for {BreakDelay:F1}m due to persistent rate limiting: {Error}",
                         breakDelay.TotalMinutes,
@@ -104,6 +110,7 @@ public class EvmRetryService : IEvmRetryService
                 },
                 onReset: () =>
                 {
+                    _metrics.RecordCircuitBreakerEvent("reset");
                     _logger.LogInformation("Circuit breaker reset. Resuming normal request rate.");
                 });
     }

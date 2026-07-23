@@ -5,6 +5,7 @@
             <p class="text-secondary text-sm" [innerHTML]="description"></p>
         </div>
         <button
+            *ngIf="!readOnly"
             mat-icon-button
             type="button"
             (click)="fileInput.click()"

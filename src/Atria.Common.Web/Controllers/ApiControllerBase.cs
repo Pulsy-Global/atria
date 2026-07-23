@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Atria.Common.Web.Configuration;
 using Atria.Common.Web.Swagger.Constants;
 using Microsoft.AspNetCore.Http;

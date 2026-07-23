@@ -24,6 +24,7 @@ public class FeedEventPublisher : IFeedEventPublisher
 
     public async Task<TestResult> ExecuteFeedTestAsync(TestRequest request, FeedDataType dataType, CancellationToken ct = default)
     {
+        var resourceNamespace = _resourceNamespaceResolver.Resolve();
         var deployRequest = new FeedDeployRequest(
             Id: Guid.NewGuid().ToString(),
             DeployId: Guid.NewGuid().ToString(),
@@ -33,7 +34,8 @@ public class FeedEventPublisher : IFeedEventPublisher
             FunctionCode: request.FunctionCode,
             OutputIds: request.OutputsIds,
             Type: string.IsNullOrEmpty(request.FilterCode) ? FeedType.Passthrough : FeedType.Filtered,
-            EkvNamespace: _resourceNamespaceResolver.Resolve());
+            EkvNamespace: resourceNamespace,
+            ResourceNamespace: resourceNamespace);
 
         var req = new FeedTestRequest(
             DeployRequest: deployRequest,

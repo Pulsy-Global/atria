@@ -1,0 +1,50 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "links": [{ "title": "Atria Overview", "type": "link", "url": "/d/atria-overview" }],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "atria_ingestor_chain_head", "legendFormat": "{{chain}} head" }, { "expr": "atria_ingestor_block_last_processed", "legendFormat": "{{chain}} processed" }],
+      "title": "Chain progress",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [{ "expr": "atria_ingestor_chain_lag", "legendFormat": "{{chain}}" }],
+      "title": "Chain lag",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, chain, operation) (rate(atria_ingestor_block_fetch_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{chain}} {{operation}}" }],
+      "title": "Block fetch p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [{ "expr": "sum by (chain, outcome) (rate(atria_ingestor_reorgs_total[$__rate_interval]))", "legendFormat": "{{chain}} {{outcome}}" }],
+      "title": "Reorganizations",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["atria", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Atria Ingestor",
+  "uid": "atria-ingestor",
+  "version": 1
+}

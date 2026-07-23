@@ -4,12 +4,22 @@ export enum TabType {
     Function = 'function',
     Output = 'output',
     Result = 'result',
-    DeployHistory = 'deployHistory'
+    DeployHistory = 'deployHistory',
+    Metrics = 'metrics',
+}
+
+const DRAFT_HIDDEN_TABS = new Set([TabType.Metrics, TabType.Result]);
+
+export function isFeedTabAvailable(
+    tabType: TabType,
+    isDraft: boolean
+): boolean {
+    return !isDraft || !DRAFT_HIDDEN_TABS.has(tabType);
 }
 
 export enum FeedOperation {
     Create = 'create',
-    Update = 'update'
+    Update = 'update',
 }
 
 export interface TabConfig {

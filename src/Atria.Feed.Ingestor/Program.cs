@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureOptionFiles();
 builder.AddSerilogLogging(builder.Configuration);
+builder.AddAtriaTelemetry();
 builder.ConfigureKestrel(builder.Configuration);
 
 builder.Services.AddMapsterService();

@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Atria
+    orgId: 1
+    folder: Atria
+    type: file
+    disableDeletion: true
+    editable: false
+    options:
+      path: /etc/grafana/dashboards

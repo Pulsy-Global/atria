@@ -1,11 +1,11 @@
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Atria.Common.Extensions;
 using Atria.Common.Web.Models.Abstractions;
 using Atria.Common.Web.Models.Errors;
 using Atria.Common.Web.OData.Resolvers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +34,9 @@ public static class Framework
 
     public static void AddVersioningApi(this IServiceCollection services)
     {
-        services.AddApiVersioning(SetupApiVersioning);
-        services.AddVersionedApiExplorer(SetupVersionedApiExplorer);
+        services
+            .AddApiVersioning(SetupApiVersioning)
+            .AddApiExplorer(SetupVersionedApiExplorer);
     }
 
     public static void ConfigureApiBehavior(this IServiceCollection services)

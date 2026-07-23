@@ -1,0 +1,63 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "links": [
+    { "title": "Ingestor", "type": "link", "url": "/d/atria-ingestor" },
+    { "title": "Runtime", "type": "link", "url": "/d/atria-runtime" },
+    { "title": "Delivery", "type": "link", "url": "/d/atria-delivery" },
+    { "title": "API and Orchestrator", "type": "link", "url": "/d/atria-api-orchestrator" },
+    { "title": "Collector", "type": "link", "url": "/d/atria-collector" }
+  ],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(atria_runtime_block_processing_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "p95"
+        }
+      ],
+      "title": "Runtime block processing p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "sum(rate(otelcol_exporter_send_failed_metric_points[$__rate_interval])) by (exporter)",
+          "legendFormat": "{{exporter}}"
+        }
+      ],
+      "title": "Collector failed metric exports",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "sum(atria_delivery_consumers_active)",
+          "legendFormat": "active"
+        }
+      ],
+      "title": "Active delivery consumers",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["atria", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "Atria Overview",
+  "uid": "atria-overview",
+  "version": 1
+}

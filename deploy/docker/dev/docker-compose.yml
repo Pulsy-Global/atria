@@ -6,3 +6,5 @@ include:
     required: false
   - path: ./docker-compose.dev.yml
     required: false
+  - path: ./docker-compose.observability.yml
+    required: false

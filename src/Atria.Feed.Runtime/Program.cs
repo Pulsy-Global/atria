@@ -16,6 +16,7 @@ public static class Program
 
         builder.ConfigureOptionFiles();
         builder.AddSerilogLogging(builder.Configuration);
+        builder.AddAtriaTelemetry();
         builder.ConfigureKestrel(builder.Configuration);
 
         builder.Services.ConfigureCommonOptions(builder.Configuration);

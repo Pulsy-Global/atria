@@ -7,5 +7,7 @@ public interface IFeedPipeline
         List<string> outputIds,
         object? data,
         bool isTestExecution,
-        CancellationToken ct = default);
+        CancellationToken ct = default,
+        string? resourceNamespace = null,
+        int? dataSizeBytes = null);
 }

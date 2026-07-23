@@ -1,11 +1,12 @@
 <ng-template #navItems let-items="items">
     <button
         *ngFor="let item of items; trackBy: trackByType"
-        class="flex items-center gap-2 rounded-lg px-3 py-2 text-base text-secondary w-auto lg:self-stretch whitespace-nowrap"
+        class="text-secondary flex w-auto items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-base lg:self-stretch"
         [ngClass]="{
-            'bg-hover text-default ring-1 ring-inset ring-neutral-900/10': selectedType === item.type && !item.comingSoon,
-            'hover:bg-hover hover:text-default': !item.comingSoon,
-            'opacity-50 cursor-default': item.comingSoon
+            'text-default bg-hover ring-1 ring-inset ring-neutral-900/10':
+                selectedType === item.type && !item.comingSoon,
+            'hover:text-default hover:bg-hover': !item.comingSoon,
+            'cursor-default opacity-50': item.comingSoon,
         }"
         (click)="!item.comingSoon && selectTab.emit(item.type)">
         <mat-icon class="text-base">{{ item.icon }}</mat-icon>
@@ -24,38 +25,110 @@
         </span>
         <span
             *ngIf="item.section === 'components' && item.closable && item.isAdded && !item.comingSoon"
-            class="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-secondary hover:text-default lg:hidden"
+            class="text-secondary ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full hover:text-default lg:hidden"
             role="button"
             tabindex="0"
             (click)="closeTab.emit(item.type); $event.stopPropagation()"
             [attr.aria-label]="'Close ' + item.label">
-            <mat-icon class="!text-xs !w-3.5 !h-3.5">close</mat-icon>
+            <mat-icon class="!h-3.5 !w-3.5 !text-xs">close</mat-icon>
         </span>
     </button>
 </ng-template>
 
-<aside class="hidden lg:flex w-56 shrink-0 flex-col rounded-2xl bg-card p-4 sticky top-6 h-fit">
-    <div class="mb-4 text-xs uppercase tracking-[0.2em] text-secondary">Workspace</div>
+<aside class="bg-card sticky top-6 hidden h-fit w-56 shrink-0 flex-col rounded-2xl p-4 lg:flex">
+    <div class="text-secondary mb-4 text-xs uppercase tracking-[0.2em]">Workspace</div>
     <div class="flex flex-col gap-1">
         <ng-container *ngTemplateOutlet="navItems; context: { items: primaryItems }"></ng-container>
     </div>
 
     <div *ngIf="componentItems.length > 0" class="mt-4">
-        <div class="mb-2 text-xs uppercase tracking-[0.2em] text-secondary">Components</div>
+        <div class="text-secondary mb-2 text-xs uppercase tracking-[0.2em]">Components</div>
         <div class="flex flex-col gap-1">
             <ng-container *ngTemplateOutlet="navItems; context: { items: componentItems }"></ng-container>
         </div>
     </div>
 </aside>
 
-<div class="lg:hidden flex flex-col gap-3 pb-2">
-    <div class="flex items-center gap-2 overflow-x-auto">
-        <ng-container *ngTemplateOutlet="navItems; context: { items: primaryItems }"></ng-container>
-    </div>
-    <div *ngIf="componentItems.length > 0">
-        <div class="mb-2 text-xs uppercase tracking-[0.2em] text-secondary">Components</div>
-        <div class="flex items-center gap-2 overflow-x-auto">
-            <ng-container *ngTemplateOutlet="navItems; context: { items: componentItems }"></ng-container>
+<div class="lg:hidden">
+    <nav
+        class="bg-card flex min-w-0 items-stretch gap-1 rounded-2xl border border-neutral-900/10 p-1.5 shadow-[0_10px_28px_rgba(15,23,42,0.04)] dark:border-white/10"
+        aria-label="Feed workspace">
+        <button
+            *ngFor="let item of primaryItems; trackBy: trackByType"
+            type="button"
+            class="text-secondary flex min-h-[4.5rem] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-colors hover:text-default hover:bg-hover"
+            [ngClass]="{
+                'text-default bg-hover ring-1 ring-inset ring-neutral-900/10': selectedType === item.type,
+            }"
+            (click)="selectMobileItem(item)"
+            [attr.aria-current]="selectedType === item.type ? 'page' : null">
+            <mat-icon class="!h-5 !w-5 !text-xl">{{ item.icon }}</mat-icon>
+            <span class="max-w-full truncate text-xs font-medium">
+                {{ mobileLabel(item) }}
+            </span>
+        </button>
+
+        <button
+            *ngIf="componentItems.length > 0"
+            type="button"
+            class="text-secondary relative flex min-h-[4.5rem] min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-colors hover:text-default hover:bg-hover"
+            [ngClass]="{
+                'text-default bg-hover ring-1 ring-inset ring-neutral-900/10': pipelineExpanded || isPipelineSelected,
+            }"
+            (click)="togglePipeline()"
+            aria-controls="mobile-pipeline-menu"
+            [attr.aria-expanded]="pipelineExpanded">
+            <mat-icon class="!h-5 !w-5 !text-xl">build</mat-icon>
+            <span class="max-w-full truncate text-xs font-medium"> Pipeline </span>
+            <span
+                class="text-default bg-hover absolute right-1.5 top-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-semibold"
+                aria-label="Available pipeline components">
+                {{ availableComponentCount }}
+            </span>
+        </button>
+    </nav>
+
+    <div
+        *ngIf="pipelineExpanded"
+        id="mobile-pipeline-menu"
+        class="bg-card mt-3 rounded-2xl border border-neutral-900/10 p-2 shadow-[0_12px_30px_rgba(15,23,42,0.08)] dark:border-white/10">
+        <div class="text-secondary px-2 pb-1.5 pt-1 text-xs uppercase tracking-[0.2em]">Pipeline</div>
+        <div class="grid gap-1 sm:grid-cols-3">
+            <div
+                *ngFor="let item of componentItems; trackBy: trackByType"
+                class="flex min-w-0 items-center rounded-xl"
+                [ngClass]="{
+                    'bg-hover ring-1 ring-inset ring-neutral-900/10': selectedType === item.type && !item.comingSoon,
+                    'opacity-50': item.comingSoon,
+                }">
+                <button
+                    type="button"
+                    class="text-secondary flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:text-default disabled:cursor-default"
+                    [disabled]="item.comingSoon"
+                    (click)="selectMobileItem(item)">
+                    <mat-icon class="!h-5 !w-5 !text-xl">
+                        {{ item.icon }}
+                    </mat-icon>
+                    <span class="truncate">{{ item.label }}</span>
+                    <span
+                        *ngIf="item.comingSoon"
+                        class="ml-auto inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+                        Soon
+                    </span>
+                    <mat-icon *ngIf="!item.isAdded && !item.comingSoon" class="ml-auto !h-4 !w-4 !text-base">
+                        add
+                    </mat-icon>
+                </button>
+
+                <button
+                    *ngIf="item.closable && item.isAdded && !item.comingSoon"
+                    type="button"
+                    class="text-secondary mr-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors hover:text-default hover:bg-default"
+                    (click)="closeMobileItem(item.type)"
+                    [attr.aria-label]="'Close ' + item.label">
+                    <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                </button>
+            </div>
         </div>
     </div>
 </div>

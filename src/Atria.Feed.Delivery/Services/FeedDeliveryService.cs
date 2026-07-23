@@ -1,9 +1,12 @@
 using Atria.Common.Messaging.Models;
 using Atria.Common.Messaging.ServiceBus;
+using Atria.Common.Observability.Models;
 using Atria.Contracts.Events.Feed;
 using Atria.Contracts.Events.Feed.Enums;
 using Atria.Contracts.Subjects.Feed;
 using Atria.Feed.Delivery.FeedPipeline.Interfaces;
+using Atria.Feed.Delivery.FeedPipeline.Models;
+using Atria.Feed.Delivery.Observability;
 using Atria.Pipeline.Interfaces;
 using Atria.Pipeline.Options;
 using Atria.Pipeline.Stores;
@@ -25,6 +28,7 @@ public class FeedDeliveryService : BackgroundService
     private readonly IServiceBus _serviceBus;
     private readonly LeaseStore _leaseStore;
     private readonly LeaseOptions _leaseOptions;
+    private readonly DeliveryMetricsRecorder _metrics;
     private readonly ILogger<FeedDeliveryService> _logger;
     private readonly string _instanceId;
 
@@ -38,6 +42,7 @@ public class FeedDeliveryService : BackgroundService
         IServiceBus serviceBus,
         LeaseStore leaseStore,
         IOptions<LeaseOptions> leaseOptions,
+        DeliveryMetricsRecorder metrics,
         ILogger<FeedDeliveryService> logger)
     {
         _feedPipeline = feedPipeline;
@@ -45,6 +50,7 @@ public class FeedDeliveryService : BackgroundService
         _serviceBus = serviceBus;
         _leaseStore = leaseStore;
         _leaseOptions = leaseOptions.Value;
+        _metrics = metrics;
         _logger = logger;
         _instanceId = $"{Environment.MachineName}-{Guid.NewGuid():N}"[..32];
     }
@@ -318,6 +324,8 @@ public class FeedDeliveryService : BackgroundService
             return;
         }
 
+        _metrics.ConsumerStarted();
+
         var consumerName = GetConsumerName(feedId);
         _feedTasks[feedId] = Task.Run(
             async () =>
@@ -348,6 +356,7 @@ public class FeedDeliveryService : BackgroundService
         {
             if (_feedCts.TryRemove(feedId, out var cts))
             {
+                _metrics.ConsumerStopped();
                 cts.Dispose();
             }
 
@@ -367,6 +376,7 @@ public class FeedDeliveryService : BackgroundService
     {
         if (_feedCts.TryRemove(feedId, out var cts))
         {
+            _metrics.ConsumerStopped();
             await cts.CancelAsync();
             cts.Dispose();
         }
@@ -409,28 +419,43 @@ public class FeedDeliveryService : BackgroundService
                     feedOutput.OutputIds,
                     feedOutput.Data,
                     feedOutput.IsTestExecution,
-                    ct);
+                    ct,
+                    feedOutput.ResourceNamespace,
+                    feedOutput.DataSizeBytes);
 
                 await message.AckAsync();
+                _metrics.RecordMessageHandled(succeeded: true);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                await HandleDeliveryErrorAsync(message, feedOutput.FeedId, feedOutput.DeployId, ex, ct);
+                _metrics.RecordMessageHandled(succeeded: false);
+                await HandleDeliveryErrorAsync(message, feedOutput, ex, ct);
             }
         }
     }
 
     private async Task HandleDeliveryErrorAsync(
         MessagingEnvelope<FeedOutputData> message,
-        string feedId,
-        string? deployId,
+        FeedOutputData feedOutput,
         Exception ex,
         CancellationToken ct)
     {
+        var feedId = feedOutput.FeedId;
         var attempt = (int)message.DeliveryAttempt;
 
         if (attempt >= MaxDeliver)
         {
+            var targetType = ex is DeliveryTargetException targetException
+                ? targetException.TargetType
+                : TargetType.None;
+            _metrics.RecordExhausted(
+                BusinessMetricScope.Create(feedOutput.ResourceNamespace, feedId),
+                targetType,
+                feedOutput.IsTestExecution);
             _logger.LogError(ex, "Feed {FeedId}: delivery failed after {Attempts} attempts, pausing", feedId, attempt);
 
             await _serviceBus.PublishAsync(
@@ -439,13 +464,14 @@ public class FeedDeliveryService : BackgroundService
                     Id: feedId,
                     Source: FeedPauseSource.Delivery,
                     Reason: $"Delivery failed: {ex.Message}",
-                    DeployId: deployId),
+                    DeployId: feedOutput.DeployId),
                 ct);
 
             await message.AckAsync();
         }
         else
         {
+            _metrics.RecordRetry();
             _logger.LogWarning(ex, "Feed {FeedId}: delivery failed, attempt {Attempt}/{Max}", feedId, attempt, MaxDeliver);
             await message.NakAsync(TimeSpan.FromSeconds(30));
         }

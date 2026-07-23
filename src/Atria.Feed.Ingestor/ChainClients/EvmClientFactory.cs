@@ -1,5 +1,6 @@
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
 using Atria.Feed.Ingestor.Config.Options;
+using Atria.Feed.Ingestor.Observability;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ public class EvmClientFactory : IClientFactory<EvmClient>
     private readonly ILogger<EvmHttpClient> _httpLogger;
     private readonly ILogger<EvmRetryService> _retryLogger;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IngestorMetricsRecorder _metrics;
 
     public EvmClientFactory(
         IOptions<IngestorNetworkOptions> networkOptions,
@@ -23,7 +25,8 @@ public class EvmClientFactory : IClientFactory<EvmClient>
         ILogger<EvmClient> logger,
         ILogger<EvmHttpClient> httpLogger,
         ILogger<EvmRetryService> retryLogger,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IngestorMetricsRecorder metrics)
     {
         _networkOptions = networkOptions;
         _mapper = mapper;
@@ -31,6 +34,7 @@ public class EvmClientFactory : IClientFactory<EvmClient>
         _httpLogger = httpLogger;
         _retryLogger = retryLogger;
         _httpClientFactory = httpClientFactory;
+        _metrics = metrics;
     }
 
     public EvmClient CreateClient()
@@ -39,11 +43,12 @@ public class EvmClientFactory : IClientFactory<EvmClient>
         var httpClient = _httpClientFactory.CreateClient(HttpClientName);
 
         var httpService = new EvmHttpClient(chainOptions, _mapper, _httpLogger, httpClient);
-        var retryService = new EvmRetryService(_retryLogger);
+        var retryService = new EvmRetryService(_retryLogger, _metrics);
 
         return new EvmClient(
             _logger,
             httpService,
-            retryService);
+            retryService,
+            _metrics);
     }
 }

@@ -2,6 +2,7 @@ using Atria.Common.Net;
 using Atria.Feed.Delivery.Config.Options;
 using Atria.Feed.Delivery.FeedPipeline.Handlers.Delivery;
 using Atria.Feed.Delivery.FeedPipeline.Interfaces;
+using Atria.Feed.Delivery.Observability;
 using Atria.Feed.Delivery.Services;
 using Atria.Feed.Delivery.Services.ServiceHandlers;
 using Atria.Pipeline.Extensions;
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
         svc.AddSingleton<DeliveryConfigService>();
         svc.AddMemoryCache();
         svc.AddBlockProvider(configuration);
+        svc.AddSingleton<DeliveryMetricsRecorder>();
 
         svc.AddScoped<IFeedPipeline, FeedPipeline.FeedPipeline>();
         svc.AddHostedService<FeedDeliveryService>();

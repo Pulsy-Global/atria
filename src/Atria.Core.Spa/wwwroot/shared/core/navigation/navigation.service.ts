@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Navigation } from 'shared/core/navigation/navigation.types';
-import { Observable, ReplaySubject, tap, forkJoin, map } from 'rxjs';
+import { Observable, ReplaySubject, tap, forkJoin, map, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -16,6 +16,17 @@ export class NavigationService {
 
     setNavigationSources(sources: string[]): void {
         this._navigationSources = sources;
+    }
+
+    clear(): Observable<Navigation> {
+        this._navigationSources = [];
+        const navigation: Navigation = { items: [] };
+
+        return of(navigation).pipe(
+            tap((value) => {
+                this._navigation.next(value);
+            })
+        );
     }
 
     get(): Observable<Navigation> {

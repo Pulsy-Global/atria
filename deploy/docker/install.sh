@@ -26,7 +26,17 @@ else
   exit 1
 fi
 
-mkdir -p "${TARGET_DIR}/base" "${TARGET_DIR}/prod" "${TARGET_DIR}/config/nats" "${TARGET_DIR}/data/k3s"
+mkdir -p \
+  "${TARGET_DIR}/base" \
+  "${TARGET_DIR}/prod" \
+  "${TARGET_DIR}/config/nats" \
+  "${TARGET_DIR}/config/observability/grafana/dashboards" \
+  "${TARGET_DIR}/config/observability/grafana/provisioning/dashboards" \
+  "${TARGET_DIR}/config/observability/grafana/provisioning/datasources" \
+  "${TARGET_DIR}/config/observability/loki" \
+  "${TARGET_DIR}/config/observability/otel-collector" \
+  "${TARGET_DIR}/config/observability/prometheus" \
+  "${TARGET_DIR}/data/k3s"
 
 # Helper function: copy if local file exists, otherwise download
 get_file() {
@@ -54,12 +64,34 @@ get_repo_file() {
 }
 
 get_file "base/docker-compose.infra.yml" "${TARGET_DIR}/base/docker-compose.infra.yml"
+get_file "base/docker-compose.observability.yml" "${TARGET_DIR}/base/docker-compose.observability.yml"
 get_file "base/docker-compose.functions.yml" "${TARGET_DIR}/base/docker-compose.functions.yml"
 get_file "prod/docker-compose.yml" "${TARGET_DIR}/prod/docker-compose.yml"
 get_file "prod/docker-compose.prod.yml" "${TARGET_DIR}/prod/docker-compose.prod.yml"
 get_file "prod/.env.example" "${TARGET_DIR}/prod/.env"
 get_repo_file "config/nats/nats-server.cfg" "${TARGET_DIR}/config/nats/nats-server.cfg"
 get_repo_file "config/nats/dashboard-config.json" "${TARGET_DIR}/config/nats/dashboard-config.json"
+
+OBSERVABILITY_FILES=(
+  "grafana/dashboards/atria-api-orchestrator.json"
+  "grafana/dashboards/atria-collector.json"
+  "grafana/dashboards/atria-delivery.json"
+  "grafana/dashboards/atria-ingestor.json"
+  "grafana/dashboards/atria-overview.json"
+  "grafana/dashboards/atria-runtime.json"
+  "grafana/provisioning/dashboards/dashboards.yml"
+  "grafana/provisioning/datasources/metrics.yml"
+  "loki/config.yaml"
+  "otel-collector/config.yaml"
+  "prometheus/alerts.yml"
+  "prometheus/prometheus.yml"
+)
+
+for observability_file in "${OBSERVABILITY_FILES[@]}"; do
+  get_repo_file \
+    "config/observability/${observability_file}" \
+    "${TARGET_DIR}/config/observability/${observability_file}"
+done
 
 read -r -s -p "NATS password (default: natsadmin): " NATS_PASS_INPUT
 echo
@@ -103,6 +135,7 @@ if [[ "${ENABLE_FUNCTIONS}" =~ ^[Yy]$ ]]; then
 Services (default ports):
   - API: http://localhost:4300
   - SPA: http://localhost:7150
+  - Grafana: http://localhost:3000
   - Functions: http://localhost:31314 (k3s + Fission)
 EOF
 else
@@ -112,6 +145,7 @@ else
 Services (default ports):
   - API: http://localhost:4300
   - SPA: http://localhost:7150
+  - Grafana: http://localhost:3000
 
 Note: To enable serverless functions later, run:
   cd ./atria-oss/prod && docker compose --profile functions up -d

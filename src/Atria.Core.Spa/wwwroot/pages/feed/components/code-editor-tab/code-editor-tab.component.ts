@@ -39,6 +39,7 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
     @Input() templates: Record<AtriaDataType, string> = {} as Record<AtriaDataType, string>;
     @Input() initialCode: string = '';
     @Input() dataType: AtriaDataType = AtriaDataType.BlockWithTransactions;
+    @Input() readOnly: boolean = false;
 
     @Output() codeChanged = new EventEmitter<string>();
 
@@ -53,6 +54,7 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
         lineNumbers: 'on',
         scrollBeyondLastLine: false,
         wordWrap: 'on',
+        readOnly: false,
         scrollbar: { useShadows: false, verticalScrollbarSize: 8, horizontalScrollbarSize: 8, alwaysConsumeMouseWheel: false },
     };
 
@@ -81,6 +83,8 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
 
         if (this.initialCode) {
             this.code = this.initialCode;
+        } else if (this.readOnly) {
+            this.code = '';
         } else {
             this.code =
                 this.templates[this.dataType] ||
@@ -94,6 +98,13 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        if (changes['readOnly']) {
+            this.editorOptions = {
+                ...this.editorOptions,
+                readOnly: this.readOnly,
+            };
+        }
+
         if (changes['initialCode'] && !changes['initialCode'].firstChange) {
             const newCode = changes['initialCode'].currentValue;
             if (newCode && newCode !== this.code) {
@@ -116,7 +127,9 @@ export class CodeEditorTabComponent implements OnInit, OnChanges, OnDestroy {
 
     onCodeChange(code: string): void {
         this.code = code;
-        this.codeChanged.emit(code);
+        if (!this.readOnly) {
+            this.codeChanged.emit(code);
+        }
     }
 
     onFileUpload(event: Event): void {

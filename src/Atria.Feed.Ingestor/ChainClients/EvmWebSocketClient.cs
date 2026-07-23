@@ -1,5 +1,6 @@
 using Atria.Common.Models.Options;
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
+using Atria.Feed.Ingestor.Observability;
 using Microsoft.Extensions.Logging;
 using Nethereum.JsonRpc.WebSocketStreamingClient;
 using Nethereum.RPC.Reactive.Eth.Subscriptions;
@@ -11,13 +12,16 @@ public class EvmWebSocketClient : IEvmWebSocketClient
 {
     private readonly ILogger<EvmWebSocketClient> _logger;
     private readonly NetworkOptions _chainOptions;
+    private readonly IngestorMetricsRecorder _metrics;
 
     public EvmWebSocketClient(
         ILogger<EvmWebSocketClient> logger,
-        NetworkOptions chainOptions)
+        NetworkOptions chainOptions,
+        IngestorMetricsRecorder metrics)
     {
         _logger = logger;
         _chainOptions = chainOptions;
+        _metrics = metrics;
     }
 
     public async Task ListenAsync(ChannelWriter<bool> signal, TimeSpan inactivityTimeout, CancellationToken ct)
@@ -42,17 +46,20 @@ public class EvmWebSocketClient : IEvmWebSocketClient
         try
         {
             _logger.LogInformation("Connecting WebSocket to {WsUrl} for {Chain}", _chainOptions.NodeWsUrl, _chainOptions.Id);
+            _metrics.RecordWebSocketEvent("connecting");
 
             await ws.StartAsync();
             await subscription.SubscribeAsync();
 
             _logger.LogInformation("WebSocket connected for {Chain}", _chainOptions.Id);
+            _metrics.RecordWebSocketEvent("connected");
 
             using var reg = timeoutCts.Token.Register(() => completion.TrySetCanceled(ct));
             await completion.Task;
         }
         finally
         {
+            _metrics.RecordWebSocketEvent("disconnected");
             await DisposeQuietlyAsync(subscription, ws);
         }
     }

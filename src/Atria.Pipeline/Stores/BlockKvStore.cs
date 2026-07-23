@@ -1,5 +1,6 @@
 using Atria.Common.Messaging.Core;
 using Atria.Contracts.Events.Feed.Enums;
+using Atria.Pipeline.Models;
 using Atria.Pipeline.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -66,6 +67,18 @@ public sealed class BlockKvStore
         CancellationToken ct)
         where T : class
     {
+        var block = await GetStoredBlockAsync<T>(chainId, dataType, blockNumber, ct);
+
+        return block?.Data;
+    }
+
+    public async Task<StoredBlock<T>?> GetStoredBlockAsync<T>(
+        string chainId,
+        string dataType,
+        BigInteger blockNumber,
+        CancellationToken ct)
+        where T : class
+    {
         try
         {
             var store = await GetStoreAsync(chainId, ct);
@@ -78,7 +91,9 @@ public sealed class BlockKvStore
                 return null;
             }
 
-            return BlockDataJsonSerializer.Deserialize<T>(entry.Value);
+            var data = BlockDataJsonSerializer.Deserialize<T>(entry.Value);
+
+            return data == null ? null : new StoredBlock<T>(data, entry.Value.Length);
         }
         catch (NatsKVKeyNotFoundException)
         {

@@ -1,0 +1,110 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.153.0
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-otel-collector
+    restart: unless-stopped
+    command:
+      - --config=/etc/otelcol-contrib/config.yaml
+    depends_on:
+      loki:
+        condition: service_started
+      victoria-metrics:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/otelcol-contrib", "validate", "--config=/etc/otelcol-contrib/config.yaml"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/observability/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+
+  loki:
+    image: grafana/loki:3.7.0
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-loki
+    restart: unless-stopped
+    command:
+      - -config.file=/etc/loki/config.yaml
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/observability/loki/config.yaml:/etc/loki/config.yaml:ro
+      - loki-data:/loki
+
+  prometheus:
+    image: prom/prometheus:v3.12.0
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=1GB
+      - --storage.tsdb.wal-compression
+    depends_on:
+      otel-collector:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:9090/-/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${ATRIA_ROOT:-../../..}/config/observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.144.0
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-victoria-metrics
+    restart: unless-stopped
+    command:
+      - -storageDataPath=/victoria-metrics-data
+      - -retentionPeriod=30d
+      - -httpListenAddr=:8428
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8428/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atria-network
+    volumes:
+      - victoria-metrics-data:/victoria-metrics-data
+
+  grafana:
+    image: grafana/grafana:13.1.0
+    container_name: ${COMPOSE_PROJECT_NAME:-atria}-grafana
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    depends_on:
+      loki:
+        condition: service_started
+      prometheus:
+        condition: service_healthy
+      victoria-metrics:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atria-network
+    volumes:
+      - ${ATRIA_ROOT:-../../..}/config/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ${ATRIA_ROOT:-../../..}/config/observability/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  loki-data:
+  prometheus-data:
+  victoria-metrics-data:
+  grafana-data:

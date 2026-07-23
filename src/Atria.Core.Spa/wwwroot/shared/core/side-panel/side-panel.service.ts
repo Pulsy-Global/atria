@@ -17,4 +17,9 @@ export class SidePanelService {
         this._config.set(config);
         this._isOpenRef.set(isOpen);
     }
+
+    reset(): void {
+        this._config.set(null);
+        this._isOpenRef.set(signal(false));
+    }
 }

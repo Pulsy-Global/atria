@@ -16,7 +16,8 @@ public record FeedDeployRequest(
     int BlockDelay = 0,
     ulong? StartBlock = null,
     ErrorHandlingStrategy ErrorHandling = ErrorHandlingStrategy.StopOnError,
-    string? EkvNamespace = null);
+    string? EkvNamespace = null,
+    string? ResourceNamespace = null);
 
 public sealed record FeedPauseRequest(
     string Id,

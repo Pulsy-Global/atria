@@ -1,0 +1,41 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "links": [{ "title": "Atria Overview", "type": "link", "url": "/d/atria-overview" }],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "sum by (http_response_status_code) (rate(http_server_request_duration_seconds_count[$__rate_interval]))", "legendFormat": "HTTP {{http_response_status_code}}" }],
+      "title": "API request rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, outcome) (rate(atria_orchestrator_reconciliation_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{outcome}}" }],
+      "title": "Reconciliation p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "atria_orchestrator_deployments_pending", "legendFormat": "pending" }, { "expr": "sum by (operation, reason) (rate(atria_orchestrator_reconciliation_actions_total[$__rate_interval]))", "legendFormat": "{{operation}} {{reason}}" }],
+      "title": "Pending deployments and reconciliation actions",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["atria", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Atria API and Orchestrator",
+  "uid": "atria-api-orchestrator",
+  "version": 1
+}

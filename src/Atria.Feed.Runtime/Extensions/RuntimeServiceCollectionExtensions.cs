@@ -4,6 +4,7 @@ using Atria.Feed.Runtime.Engine;
 using Atria.Feed.Runtime.Engine.Filters.Js;
 using Atria.Feed.Runtime.Engine.Filters.Js.Interfaces;
 using Atria.Feed.Runtime.Engine.Filters.Js.Options;
+using Atria.Feed.Runtime.Observability;
 using Atria.Feed.Runtime.Processing;
 using Atria.Feed.Runtime.Services;
 using Atria.Pipeline.Options;
@@ -21,7 +22,6 @@ public static class RuntimeServiceCollectionExtensions
         services.Configure<RuntimeOptions>(configuration.GetSection("Runtime"));
         services.Configure<JsRuntimeOptions>(configuration.GetSection("Runtime:JsRuntime"));
         services.Configure<LeaseOptions>(configuration.GetSection(LeaseOptions.SectionName));
-
         services.AddEkv(configuration);
 
         services.AddSingleton<IJsModuleRegistry, JsModuleRegistry>();
@@ -30,6 +30,7 @@ public static class RuntimeServiceCollectionExtensions
         services.AddSingleton<FeedManager>();
         services.AddSingleton<FeedRuntimeRegistry>();
         services.AddSingleton<FeedBlockProcessor>();
+        services.AddSingleton<RuntimeMetricsRecorder>();
         services.AddSingleton<FeedLifecycleManager>();
         services.AddSingleton<LeaseStore>();
         services.AddHostedService<FeedRuntimeService>();

@@ -4,6 +4,7 @@ using Atria.Common.Models.Options;
 using Atria.Feed.Ingestor.ChainClients;
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
 using Atria.Feed.Ingestor.Config.Options;
+using Atria.Feed.Ingestor.Observability;
 using Atria.Feed.Ingestor.Services.RealtimePublisher;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,7 @@ public static class ServiceExtensions
     public static void AddNodeClient(this IServiceCollection services)
     {
         services.AddTransient<ReorgHeaderHandler>();
+        services.AddSingleton<IngestorMetricsRecorder>();
 
         services.AddHttpClient(EvmClientFactory.HttpClientName)
             .AddHttpMessageHandler<ReorgHeaderHandler>();
@@ -57,7 +59,9 @@ public static class ServiceExtensions
         {
             var networkOptions = sp.GetRequiredService<IOptions<IngestorNetworkOptions>>();
             var logger = sp.GetRequiredService<ILogger<EvmWebSocketClient>>();
-            return new EvmWebSocketClient(logger, networkOptions.Value.NetworkOptions);
+            var metrics = sp.GetRequiredService<IngestorMetricsRecorder>();
+
+            return new EvmWebSocketClient(logger, networkOptions.Value.NetworkOptions, metrics);
         });
 
         services.AddSingleton<BlockProcessor>();

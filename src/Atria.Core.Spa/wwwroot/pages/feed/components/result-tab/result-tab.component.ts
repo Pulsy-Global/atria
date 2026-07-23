@@ -7,8 +7,10 @@ import {
     ViewChild,
     ElementRef,
     ChangeDetectorRef,
+    EventEmitter,
     Inject,
     Optional,
+    Output,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -41,6 +43,10 @@ import { STREAM_AUTH_HEADERS } from '../../../../shared/services/stream-auth.tok
 })
 export class ResultTabComponent implements OnInit, OnDestroy {
     @Input() feedId: string | null = null;
+    @Input() initialResults: Result[] = [];
+    @Input() streamUrl: string | null = null;
+
+    @Output() streamNotFound = new EventEmitter<void>();
 
     @ViewChild('resultsContainer')
     resultsContainer?: ElementRef<HTMLDivElement>;
@@ -71,9 +77,15 @@ export class ResultTabComponent implements OnInit, OnDestroy {
     ) {}
 
     async ngOnInit(): Promise<void> {
-        if (!this.feedId) return;
-        await this.fetchResults();
-        this.connectStream(this.upCursor > 0 ? this.upCursor : undefined);
+        this.applyInitialResults();
+
+        if (this.feedId) {
+            await this.fetchResults();
+        }
+
+        if (this.feedId || this.streamUrl) {
+            this.connectStream(this.upCursor > 0 ? this.upCursor : undefined);
+        }
     }
 
     ngOnDestroy(): void {
@@ -181,20 +193,22 @@ export class ResultTabComponent implements OnInit, OnDestroy {
     }
 
     private async connectStream(afterSeq?: number): Promise<void> {
-        if (this.isDestroyed || !this.feedId) return;
+        if (this.isDestroyed || (!this.feedId && !this.streamUrl)) return;
 
         this.abortController?.abort();
         this.abortController = new AbortController();
 
         const params = afterSeq !== undefined ? `?afterSeq=${afterSeq}` : '';
-        const url = `${this.apiService.apiServer}/feeds/${this.feedId}/results/stream${params}`;
+        const url = this.streamUrl
+            ? `${this.streamUrl}${params}`
+            : `${this.apiService.apiServer}/feeds/${this.feedId}/results/stream${params}`;
 
         this.isStreamConnected = true;
         this.cdr.markForCheck();
 
         try {
             const headers: Record<string, string> = {};
-            if (this.getStreamHeaders) {
+            if (this.feedId && this.getStreamHeaders) {
                 Object.assign(headers, await this.getStreamHeaders());
             }
 
@@ -202,6 +216,12 @@ export class ResultTabComponent implements OnInit, OnDestroy {
                 headers,
                 signal: this.abortController.signal,
             });
+
+            if (response.status === 404) {
+                this.isDestroyed = true;
+                this.streamNotFound.emit();
+                return;
+            }
 
             if (!response.ok || !response.body) {
                 throw new Error(`Stream response error: ${response.status}`);
@@ -294,6 +314,24 @@ export class ResultTabComponent implements OnInit, OnDestroy {
         } finally {
             this.isLoading = false;
             this.cdr.markForCheck();
+        }
+    }
+
+    private applyInitialResults(): void {
+        if (!this.initialResults.length) {
+            return;
+        }
+
+        this.resultHistory = [...this.initialResults];
+        this.selectedResult = this.resultHistory[0] ?? null;
+
+        const maxSeq = this.resultHistory
+            .map((result) => result.seqNumber)
+            .filter((seqNumber): seqNumber is number => seqNumber !== undefined)
+            .reduce((highest, seqNumber) => Math.max(highest, seqNumber), -1);
+
+        if (maxSeq > 0) {
+            this.upCursor = maxSeq;
         }
     }
 }
