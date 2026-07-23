@@ -11,7 +11,7 @@
         <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" />

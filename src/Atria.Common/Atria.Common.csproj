@@ -5,9 +5,6 @@
       <PackageReference Include="Mapster" />
       <PackageReference Include="Mapster.DependencyInjection" />
       <PackageReference Include="Microsoft.AspNetCore.OData" />
-      <PackageReference Include="NATS.Client.Core" />
-      <PackageReference Include="NATS.Client.JetStream" />
-      <PackageReference Include="NATS.Client.KeyValueStore" />
       <PackageReference Include="NATS.Net" />
       <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
