@@ -2,11 +2,13 @@ using Atria.Business.Services.DataServices.Interfaces;
 using Atria.Core.Data.Entities.Enums;
 using Atria.Core.Data.Entities.Feeds;
 using Atria.Orchestrator.Config.Options;
+using Atria.Orchestrator.Observability;
 using Atria.Pipeline.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace Atria.Orchestrator.Services.ServiceHandlers;
 
@@ -16,16 +18,19 @@ public sealed class FeedDeploymentReconciler : BackgroundService
     private readonly LeaseStore _leaseStore;
     private readonly OrchestratorOptions _orchestratorOptions;
     private readonly ILogger<FeedDeploymentReconciler> _logger;
+    private readonly OrchestratorMetricsRecorder _metrics;
 
     public FeedDeploymentReconciler(
         IServiceProvider serviceProvider,
         LeaseStore leaseStore,
         IOptions<OrchestratorOptions> orchestratorOptions,
+        OrchestratorMetricsRecorder metrics,
         ILogger<FeedDeploymentReconciler> logger)
     {
         _serviceProvider = serviceProvider;
         _leaseStore = leaseStore;
         _orchestratorOptions = orchestratorOptions.Value;
+        _metrics = metrics;
         _logger = logger;
     }
 
@@ -35,14 +40,21 @@ public sealed class FeedDeploymentReconciler : BackgroundService
 
         while (!ct.IsCancellationRequested)
         {
+            var startedAt = Stopwatch.GetTimestamp();
+            var succeeded = false;
             try
             {
                 await CheckPendingDeploysAsync(ct);
                 await CheckRunningFeedsLeaseAsync(ct);
+                succeeded = true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in deploy check cycle");
+            }
+            finally
+            {
+                _metrics.RecordReconciliation(succeeded, Stopwatch.GetElapsedTime(startedAt));
             }
 
             var delay = TimeSpan.FromSeconds(_orchestratorOptions.Provisioning.PoolingIntervalSec);
@@ -58,6 +70,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
         var deployService = scope.ServiceProvider.GetRequiredService<IDeployDataService>();
 
         var feeds = await feedDataService.GetFeedsAsync(x => x.Status == FeedStatus.Pending, ct);
+        _metrics.SetPendingDeployments(feeds.Count);
 
         foreach (var feed in feeds)
         {
@@ -96,6 +109,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
         {
             _logger.LogInformation("Feed {FeedId} has active lease, confirming as running", feedId);
             await deployService.ConfirmDeployedAsync(feed.Id, deploy.Id, ct);
+            _metrics.RecordReconciliationAction("confirm_running", "runtime_lease_present");
             return;
         }
 
@@ -116,6 +130,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
 
             await deployService.UpdateDeployAsync(deploy, ct);
             await feedDataService.UpdateFeedAsync(feed, ct);
+            _metrics.RecordReconciliationAction("mark_failed", "deploy_timeout");
         }
         else if (pendingDuration > retryInterval)
         {
@@ -125,6 +140,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
                 pendingDuration.TotalSeconds);
 
             await deployService.PublishDeployRequestAsync(feed.Id, ct);
+            _metrics.RecordReconciliationAction("republish", "deploy_retry_interval");
         }
     }
 
@@ -172,6 +188,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
                 feedId);
 
             await deployService.ExecuteDeploymentAsync(feed.Id, ct);
+            _metrics.RecordReconciliationAction("redeploy", "runtime_lease_missing");
             return;
         }
 
@@ -184,6 +201,7 @@ public sealed class FeedDeploymentReconciler : BackgroundService
                 feedId);
 
             await deployService.PublishDeployRequestAsync(feed.Id, ct);
+            _metrics.RecordReconciliationAction("republish", "delivery_lease_missing");
         }
     }
 }

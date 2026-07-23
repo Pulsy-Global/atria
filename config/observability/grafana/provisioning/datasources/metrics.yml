@@ -1,0 +1,24 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Atria Observability
+    orgId: 1
+  - name: Atria Business Metrics
+    orgId: 1
+
+datasources:
+  - name: Atria Observability
+    uid: atria-observability
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+
+  - name: Atria Business Metrics
+    uid: atria-business-metrics
+    type: prometheus
+    access: proxy
+    url: http://victoria-metrics:8428
+    isDefault: false
+    editable: false

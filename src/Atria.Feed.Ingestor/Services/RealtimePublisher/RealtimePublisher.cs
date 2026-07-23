@@ -5,10 +5,12 @@ using Atria.Contracts.Subjects.Blockchain;
 using Atria.Feed.Ingestor.ChainClients;
 using Atria.Feed.Ingestor.ChainClients.Interfaces;
 using Atria.Feed.Ingestor.Config.Options;
+using Atria.Feed.Ingestor.Observability;
 using Atria.Pipeline.Stores;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Channels;
 
@@ -26,6 +28,7 @@ public class RealtimePublisher : BackgroundService
     private readonly IngestorOptions _ingestorOptions;
     private readonly BlockProcessor _blockProcessor;
     private readonly ServiceStateManager _stateManager;
+    private readonly IngestorMetricsRecorder _metrics;
 
     public RealtimePublisher(
         ILogger<RealtimePublisher> logger,
@@ -36,7 +39,8 @@ public class RealtimePublisher : BackgroundService
         IOptions<IngestorNetworkOptions> networksOptions,
         ChainStateStore stateStore,
         BlockProcessor blockProcessor,
-        ServiceStateManager stateManager)
+        ServiceStateManager stateManager,
+        IngestorMetricsRecorder metrics)
     {
         _logger = logger;
         _serviceBus = serviceBus;
@@ -46,6 +50,7 @@ public class RealtimePublisher : BackgroundService
         _stateStore = stateStore;
         _blockProcessor = blockProcessor;
         _stateManager = stateManager;
+        _metrics = metrics;
         _evmClient = evmClientFactory.CreateClient();
     }
 
@@ -80,6 +85,7 @@ public class RealtimePublisher : BackgroundService
     {
         var state = await _stateManager.LoadCurrentStateAsync(ct);
         var lastProcessed = state.LastProcessedBlock;
+        _metrics.SetLastProcessed(lastProcessed);
 
         _logger.LogInformation(
             "Starting realtime processing for {Chain} from block {Block}",
@@ -116,10 +122,12 @@ public class RealtimePublisher : BackgroundService
             }
             catch (OperationCanceledException) when (!ct.IsCancellationRequested)
             {
+                _metrics.RecordWebSocketEvent("timeout");
                 _logger.LogWarning("WS inactivity timeout for {Chain}, reconnecting...", _chainOptions.Id);
             }
             catch (Exception ex) when (!ct.IsCancellationRequested)
             {
+                _metrics.RecordWebSocketEvent("error");
                 _logger.LogWarning(ex, "WS disconnected for {Chain}, reconnecting...", _chainOptions.Id);
 
                 await Task.Delay(TimeSpan.FromSeconds(_ingestorOptions.WsReconnectDelaySec), ct);
@@ -130,6 +138,7 @@ public class RealtimePublisher : BackgroundService
     private async Task<BigInteger> ProcessPendingBlocksAsync(BigInteger lastProcessed, CancellationToken ct)
     {
         var chainHead = await _evmClient.GetLatestBlockNumberAsync(ct);
+        _metrics.SetChainHead(chainHead);
         IDisposable? reorgScope = null;
 
         try
@@ -152,6 +161,7 @@ public class RealtimePublisher : BackgroundService
                     }
 
                     lastProcessed++;
+                    _metrics.SetLastProcessed(lastProcessed);
                 }
                 else
                 {
@@ -176,6 +186,7 @@ public class RealtimePublisher : BackgroundService
                         }
 
                         lastProcessed = blockNumber;
+                        _metrics.SetLastProcessed(lastProcessed);
                     }
                 }
             }
@@ -244,6 +255,7 @@ public class RealtimePublisher : BackgroundService
         try
         {
             var rewindTo = await RewindToCommonAncestorAsync(lastProcessed, ct);
+            _metrics.RecordReorganization(succeeded: true, lastProcessed - rewindTo);
 
             var reorgEvent = new ReorgEvent(
                 ChainId: _chainOptions.Id,
@@ -259,6 +271,7 @@ public class RealtimePublisher : BackgroundService
         }
         catch (InvalidOperationException ex)
         {
+            _metrics.RecordReorganization(succeeded: false, BigInteger.Zero);
             _logger.LogCritical(
                 ex,
                 "Deep reorg detected for {Chain}, stopping realtime processing",
@@ -297,6 +310,10 @@ public class RealtimePublisher : BackgroundService
         bool isReorg,
         CancellationToken ct)
     {
+        var startedAt = Stopwatch.GetTimestamp();
+        var succeeded = false;
+        _metrics.StoreStarted();
+
         try
         {
             await _blockProcessor.ExecuteWithRetryAsync(
@@ -309,11 +326,16 @@ public class RealtimePublisher : BackgroundService
                 blockNumber,
                 _chainOptions.Id,
                 isReorg);
+            succeeded = true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to process block {BlockNumber} for {Chain}", blockNumber, _chainOptions.Id);
             throw;
+        }
+        finally
+        {
+            _metrics.StoreCompleted(succeeded, isReorg, Stopwatch.GetElapsedTime(startedAt));
         }
     }
 }

@@ -41,6 +41,10 @@ public class DeliveryConfigService
         {
             return await GetConfigById(id, ct);
         }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "TryGetTargetById failed for id={Id}", id);

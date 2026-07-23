@@ -1,0 +1,264 @@
+<div class="metrics-shell h-full min-h-0 overflow-y-auto">
+    <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <h2 class="text-default text-base font-medium sm:text-lg">Feed metrics</h2>
+            <p class="text-secondary mt-1 text-sm">Activity, delivery health, and data volume for this feed.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <button
+                mat-icon-button
+                type="button"
+                aria-label="Refresh metrics"
+                [disabled]="isLoading || isRefreshing"
+                (click)="refresh()">
+                <mat-icon *ngIf="!isLoading && !isRefreshing">refresh</mat-icon>
+                <mat-spinner *ngIf="isLoading || isRefreshing" diameter="20"></mat-spinner>
+            </button>
+
+            <div
+                class="metrics-range bg-hover flex items-center rounded-xl border p-1"
+                role="group"
+                aria-label="Metrics range">
+                <button
+                    *ngFor="let option of rangeOptions; trackBy: trackRange"
+                    type="button"
+                    class="rounded-lg px-3 py-2 text-xs font-semibold transition"
+                    [class.metrics-range-active]="selectedRange === option.value"
+                    [attr.aria-pressed]="selectedRange === option.value"
+                    (click)="setRange(option.value)">
+                    {{ option.label }}
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div
+        *ngIf="metrics && isStale && !isLoading"
+        class="mt-6 flex items-center gap-3 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100"
+        role="status">
+        <mat-icon>schedule</mat-icon>
+        Displayed values are stale. The last successful refresh is more than a minute old.
+    </div>
+
+    <div *ngIf="isLoading" class="metrics-state mt-6">
+        <mat-spinner diameter="30"></mat-spinner>
+        <div>
+            <div class="text-default font-medium">Loading feed activity</div>
+            <div class="text-secondary mt-1 text-sm">Preparing aligned metrics for {{ rangeLabel.toLowerCase() }}.</div>
+        </div>
+    </div>
+
+    <div *ngIf="requestFailed && !isLoading" class="metrics-state metrics-state-error mt-6">
+        <mat-icon>cloud_off</mat-icon>
+        <div class="flex-1">
+            <div class="text-default font-medium">Could not load metrics</div>
+            <div class="text-secondary mt-1 text-sm">
+                The API request failed. Existing feed processing is unaffected.
+            </div>
+        </div>
+        <button mat-stroked-button type="button" (click)="refresh()">Try again</button>
+    </div>
+
+    <div
+        *ngIf="metrics?.status === 'unavailable' && !requestFailed && !isLoading"
+        class="metrics-state metrics-state-error mt-6">
+        <mat-icon>monitor_heart</mat-icon>
+        <div class="flex-1">
+            <div class="text-default font-medium">Metrics are temporarily unavailable</div>
+            <div class="text-secondary mt-1 text-sm">
+                The feed can continue running while the metrics backend recovers.
+            </div>
+        </div>
+        <button mat-stroked-button type="button" (click)="refresh()">Retry</button>
+    </div>
+
+    <div
+        *ngIf="metrics?.status === 'noData' && !isLoading"
+        class="metrics-empty mt-6 flex min-h-[26rem] flex-col items-center justify-center text-center">
+        <mat-icon class="text-secondary !h-10 !w-10 !text-[2.5rem]"> query_stats </mat-icon>
+        <h3 class="text-default mt-3 text-lg font-semibold">No activity in this range</h3>
+    </div>
+
+    <ng-container *ngIf="metrics && metrics.status !== 'unavailable' && metrics.status !== 'noData' && !isLoading">
+        <div
+            *ngIf="metrics.status === 'partial'"
+            class="mt-6 flex items-center gap-3 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100">
+            <mat-icon>warning_amber</mat-icon>
+            Some series could not be loaded. Available values are shown below.
+        </div>
+
+        <section class="metrics-workspace mt-6">
+            <aside class="metrics-insights" aria-label="Feed metrics summary">
+                <div class="metrics-reduction">
+                    <div class="metrics-eyebrow">Data reduction</div>
+                    <div class="metrics-reduction-value">
+                        {{ formatPercent(metrics.summary.dataReductionRate) }}
+                    </div>
+                </div>
+
+                <dl class="metrics-flow-list">
+                    <div class="metrics-flow-row">
+                        <dt class="metrics-card-label">Input processed</dt>
+                        <dd class="metrics-card-value">
+                            {{ formatBytes(metrics.summary.processedBytes) }}
+                        </dd>
+                    </div>
+
+                    <div class="metrics-flow-row">
+                        <dt class="metrics-card-label">Output produced</dt>
+                        <dd class="metrics-card-value">
+                            {{ formatBytes(metrics.summary.producedBytes) }}
+                        </dd>
+                    </div>
+
+                    <div class="metrics-flow-row">
+                        <dt class="metrics-card-label">Successfully delivered</dt>
+                        <dd class="metrics-card-value">
+                            {{ formatBytes(metrics.summary.deliveredBytes) }}
+                        </dd>
+                    </div>
+                </dl>
+
+                <div class="metrics-health">
+                    <div class="metrics-eyebrow">Health</div>
+                    <div class="metrics-health-row">
+                        <span class="inline-flex min-w-0 items-center gap-2">
+                            <mat-icon>error_outline</mat-icon>
+                            <span class="text-secondary">Failures</span>
+                        </span>
+                        <strong>{{ formatCount(combinedFailures()) }}</strong>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="metrics-activity min-w-0">
+                <div class="metrics-activity-heading">
+                    <div>
+                        <h3 class="text-default text-base font-medium">Data volume over time</h3>
+                        <p class="text-secondary mt-1 text-sm">
+                            See how much data your feed processed, produced, and delivered.
+                        </p>
+                    </div>
+
+                    <div class="text-secondary flex flex-wrap gap-3 text-xs">
+                        <span
+                            *ngFor="let line of chartLines; trackBy: trackLine"
+                            class="inline-flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full" [style.backgroundColor]="line.color"></span>
+                            {{ line.label }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="metrics-chart relative mt-5 overflow-hidden">
+                    <svg
+                        class="block w-full"
+                        [attr.viewBox]="'0 0 ' + chartWidth + ' ' + chartHeight"
+                        preserveAspectRatio="none"
+                        role="img"
+                        aria-label="Feed data volume chart. Use left and right arrow keys to inspect intervals."
+                        tabindex="0"
+                        (pointermove)="showChartPoint($event)"
+                        (pointerleave)="clearChartPoint()"
+                        (focus)="focusChart()"
+                        (blur)="clearChartPoint()"
+                        (keydown)="moveChartPoint($event)">
+                        <line x1="0" y1="45" [attr.x2]="chartWidth" y2="45"></line>
+                        <line x1="0" y1="90" [attr.x2]="chartWidth" y2="90"></line>
+                        <line x1="0" y1="135" [attr.x2]="chartWidth" y2="135"></line>
+                        <path
+                            *ngFor="let line of chartLines; trackBy: trackLine"
+                            [attr.d]="line.path"
+                            [attr.stroke]="line.color"></path>
+                        <ng-container *ngIf="chartTooltip">
+                            <line
+                                class="metrics-chart-cursor"
+                                [attr.x1]="chartTooltip.lineX"
+                                y1="0"
+                                [attr.x2]="chartTooltip.lineX"
+                                [attr.y2]="chartHeight"></line>
+                            <ng-container *ngFor="let value of chartTooltip.values">
+                                <circle
+                                    *ngIf="value.y !== null"
+                                    class="metrics-chart-point"
+                                    [attr.cx]="chartTooltip.lineX"
+                                    [attr.cy]="value.y"
+                                    [attr.fill]="value.color"
+                                    r="4"></circle>
+                            </ng-container>
+                        </ng-container>
+                    </svg>
+                    <div
+                        *ngIf="chartTooltip"
+                        class="metrics-chart-tooltip"
+                        [style.left.%]="chartTooltip.leftPercent"
+                        role="status">
+                        <div class="metrics-chart-tooltip-time">
+                            {{ formatChartTimestamp(chartTooltip.timestamp) }}
+                        </div>
+                        <div *ngFor="let value of chartTooltip.values" class="metrics-chart-tooltip-row">
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="h-2 w-2 rounded-full" [style.backgroundColor]="value.color"></span>
+                                {{ value.label }}
+                            </span>
+                            <strong>{{ formatBytes(value.value) }}</strong>
+                        </div>
+                    </div>
+                    <div class="sr-only">
+                        <table>
+                            <caption>
+                                Feed data volume values shown in the chart
+                            </caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Series</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let series of accessibleChartSeries">
+                                    <tr *ngFor="let point of series.points">
+                                        <th scope="row">
+                                            {{ chartSeriesLabel(series.key) }}
+                                        </th>
+                                        <td>
+                                            {{ point.timestamp | date: 'medium' }}
+                                        </td>
+                                        <td>
+                                            {{ formatBytes(point.value) }}
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-secondary flex justify-between px-4 pb-3 text-[11px]">
+                        <span>{{ rangeLabel }}</span>
+                        <span>Now</span>
+                    </div>
+                </div>
+
+                <dl class="metrics-operations">
+                    <div class="metrics-operation">
+                        <dt>
+                            <span class="text-secondary">Blocks processed</span>
+                        </dt>
+                        <dd>
+                            {{ formatCount(metrics.summary.processedBlocks) }}
+                        </dd>
+                    </div>
+                    <div class="metrics-operation">
+                        <dt>
+                            <span class="text-secondary">Outputs produced</span>
+                        </dt>
+                        <dd>
+                            {{ formatCount(metrics.summary.producedOutputs) }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+    </ng-container>
+</div>

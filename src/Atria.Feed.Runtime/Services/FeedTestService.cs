@@ -94,6 +94,7 @@ public sealed class FeedTestService : BackgroundService
                     FunctionCode = request.DeployRequest.FunctionCode,
                     OutputIds = request.DeployRequest.OutputIds,
                     EkvNamespace = request.DeployRequest.EkvNamespace,
+                    ResourceNamespace = request.DeployRequest.ResourceNamespace ?? request.DeployRequest.EkvNamespace,
                 };
 
                 var dataType = feedRuntime.DataType.ToString().ToLowerInvariant();

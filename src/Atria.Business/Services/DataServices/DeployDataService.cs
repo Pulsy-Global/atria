@@ -504,6 +504,7 @@ public class DeployDataService : IDeployDataService
     private async Task SendDeployRequestAsync(Feed feed, Guid deployId, CancellationToken ct)
     {
         var (filterCode, functionCode) = await GetFeedCode(feed, ct);
+        var resourceNamespace = await _resourceNamespaceResolver.ResolveForFeedAsync(feed.Id, ct);
 
         var req = new FeedDeployRequest(
             Id: feed.Id.ToString(),
@@ -516,7 +517,8 @@ public class DeployDataService : IDeployDataService
             Type: string.IsNullOrEmpty(filterCode) ? FeedType.Passthrough : FeedType.Filtered,
             BlockDelay: feed.BlockDelay,
             ErrorHandling: (Contracts.Events.Feed.Enums.ErrorHandlingStrategy)(int)feed.ErrorHandling,
-            EkvNamespace: await _resourceNamespaceResolver.ResolveForFeedAsync(feed.Id, ct));
+            EkvNamespace: resourceNamespace,
+            ResourceNamespace: resourceNamespace);
 
         await _feedEventPublisher.PublishFeedDeployAsync(req, ct);
     }

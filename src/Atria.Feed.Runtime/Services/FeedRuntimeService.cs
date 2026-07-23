@@ -79,6 +79,7 @@ public sealed class FeedRuntimeService : BackgroundService
                         StartBlock = request.StartBlock.HasValue ? new BigInteger(request.StartBlock.Value) : null,
                         ErrorHandling = request.ErrorHandling,
                         EkvNamespace = request.EkvNamespace,
+                        ResourceNamespace = request.ResourceNamespace ?? request.EkvNamespace,
                     };
 
                     var started = await _lifecycle.TryStartWithLeaseAsync(feedRuntime, ct);

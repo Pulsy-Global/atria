@@ -1,0 +1,41 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "links": [{ "title": "Atria Overview", "type": "link", "url": "/d/atria-overview" }],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, outcome) (rate(atria_runtime_block_processing_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{outcome}}" }],
+      "title": "Block processing p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [{ "expr": "sum by (reason) (rate(atria_runtime_block_processing_failures_total[$__rate_interval]))", "legendFormat": "{{reason}}" }],
+      "title": "Terminal failures",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "sum(rate(atria_runtime_block_processing_retries_total[$__rate_interval]))", "legendFormat": "retries" }, { "expr": "sum(rate(atria_runtime_output_publish_failures_total[$__rate_interval]))", "legendFormat": "publish failures" }],
+      "title": "Retries and publish failures",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["atria", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Atria Runtime",
+  "uid": "atria-runtime",
+  "version": 1
+}

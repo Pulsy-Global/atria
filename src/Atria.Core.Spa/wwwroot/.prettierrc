@@ -7,7 +7,7 @@
   "tabWidth": 4,
   "useTabs": false,
   "bracketSpacing": true,
-  "bracketSameLine": false,
+  "bracketSameLine": true,
   "arrowParens": "always",
   "endOfLine": "lf",
   "overrides": [
@@ -15,6 +15,7 @@
       "files": "*.html",
       "options": {
         "parser": "angular",
+        "htmlWhitespaceSensitivity": "ignore",
         "tabWidth": 4
       }
     },

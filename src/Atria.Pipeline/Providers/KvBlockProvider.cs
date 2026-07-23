@@ -43,10 +43,10 @@ public sealed class KvBlockProvider : IBlockProvider
         {
             await _stateStore.WaitForHeadAsync(chainId, cursor + blockDelay, ct);
 
-            var data = await GetBlockAsync<object>(chainId, dataType, cursor, ct);
+            var block = await _blockStore.GetStoredBlockAsync<object>(chainId, dataType, cursor, ct);
             var hash = await _stateStore.GetBlockHashAsync(chainId, cursor, ct);
 
-            yield return new BlockEnvelope(cursor, hash, dataType, data);
+            yield return new BlockEnvelope(cursor, hash, dataType, block?.Data, block?.SizeBytes);
 
             cursor++;
         }

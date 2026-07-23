@@ -1,0 +1,397 @@
+.metrics-shell {
+    --metrics-border: rgba(var(--fuse-border-rgb), 0.45);
+    --metrics-grid: rgba(var(--fuse-border-rgb), 0.22);
+}
+
+.metrics-range button {
+    color: var(--fuse-text-secondary);
+}
+
+.metrics-range .metrics-range-active {
+    background: var(--fuse-bg-card);
+    color: var(--fuse-text-default);
+}
+
+.metrics-state {
+    display: flex;
+    min-height: 8rem;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--metrics-border);
+    border-radius: 1rem;
+    background: var(--fuse-bg-hover);
+    padding: 1.25rem;
+}
+
+.metrics-state-error > mat-icon {
+    color: rgb(244, 63, 94);
+}
+
+.metrics-workspace {
+    display: grid;
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+}
+
+.metrics-insights {
+    min-width: 0;
+    padding: 0.25rem 2.5rem 0.5rem 0.25rem;
+    border-right: 1px solid var(--metrics-border);
+}
+
+.metrics-eyebrow {
+    color: var(--fuse-text-secondary);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.metrics-reduction-value {
+    margin-top: 0.5rem;
+    color: var(--fuse-text-default);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(2.25rem, 3.5vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+}
+
+.metrics-flow-list {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--metrics-border);
+}
+
+.metrics-flow-row {
+    min-width: 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--metrics-grid);
+}
+
+.metrics-card-label {
+    display: flex;
+    align-items: center;
+    color: var(--fuse-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.metrics-card-value {
+    margin-top: 0.5rem;
+    color: var(--fuse-text-default);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.035em;
+}
+
+.metrics-health {
+    margin-top: 1.5rem;
+}
+
+.metrics-health-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.metrics-health-row mat-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--fuse-text-secondary);
+    font-size: 1.125rem;
+}
+
+.metrics-health-row strong {
+    color: var(--fuse-text-default);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+}
+
+.metrics-activity {
+    padding: 0.25rem 0 0.5rem 2.5rem;
+}
+
+.metrics-activity-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.metrics-chart svg {
+    height: clamp(14rem, 36vh, 21rem);
+}
+
+.metrics-chart svg:focus-visible {
+    border-radius: 0.5rem;
+    outline: 2px solid var(--fuse-text-secondary);
+    outline-offset: 2px;
+}
+
+.metrics-chart line {
+    stroke: var(--metrics-grid);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.metrics-chart path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.25;
+    vector-effect: non-scaling-stroke;
+}
+
+.metrics-chart .metrics-chart-cursor {
+    stroke: var(--fuse-text-secondary);
+    stroke-dasharray: 3 3;
+    stroke-width: 1;
+}
+
+.metrics-chart-point {
+    stroke: var(--fuse-bg-card);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.metrics-chart-tooltip {
+    position: absolute;
+    top: 0.75rem;
+    z-index: 2;
+    width: 12.5rem;
+    transform: translateX(-50%);
+    border: 1px solid var(--metrics-border);
+    border-radius: 0.75rem;
+    background: var(--fuse-bg-card);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+    padding: 0.75rem;
+    pointer-events: none;
+}
+
+.metrics-chart-tooltip-time {
+    margin-bottom: 0.55rem;
+    color: var(--fuse-text-secondary);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.metrics-chart-tooltip-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--fuse-text-secondary);
+    font-size: 0.75rem;
+}
+
+.metrics-chart-tooltip-row + .metrics-chart-tooltip-row {
+    margin-top: 0.4rem;
+}
+
+.metrics-chart-tooltip-row strong {
+    color: var(--fuse-text-default);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+}
+
+.metrics-operations {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 1rem;
+    border-top: 1px solid var(--metrics-border);
+}
+
+.metrics-operation {
+    min-width: 0;
+    padding: 1rem 1.25rem;
+}
+
+.metrics-operation:first-child {
+    padding-left: 0;
+}
+
+.metrics-operation + .metrics-operation {
+    border-left: 1px solid var(--metrics-border);
+}
+
+.metrics-operation dt {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+}
+
+.metrics-operation dd {
+    margin-top: 0.4rem;
+    color: var(--fuse-text-default);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+@media (max-width: 1279px) {
+    .metrics-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-insights {
+        display: grid;
+        grid-template-columns: minmax(10rem, 0.85fr) minmax(0, 3fr) minmax(
+                8rem,
+                0.8fr
+            );
+        align-items: center;
+        padding: 0 0 1.5rem;
+        border-right: 0;
+        border-bottom: 1px solid var(--metrics-border);
+    }
+
+    .metrics-reduction {
+        padding-right: 1.5rem;
+    }
+
+    .metrics-reduction-value {
+        font-size: 2rem;
+    }
+
+    .metrics-flow-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 0;
+        border-top: 0;
+    }
+
+    .metrics-flow-row {
+        padding: 0 1rem;
+        border-bottom: 0;
+        border-left: 1px solid var(--metrics-grid);
+    }
+
+    .metrics-card-value {
+        font-size: 1.25rem;
+    }
+
+    .metrics-health {
+        margin-top: 0;
+        padding-left: 1.5rem;
+        border-left: 1px solid var(--metrics-grid);
+    }
+
+    .metrics-activity {
+        padding: 1.5rem 0 0.5rem;
+    }
+}
+
+@media (max-width: 899px) {
+    .metrics-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .metrics-reduction {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .metrics-health {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .metrics-flow-list {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--metrics-grid);
+    }
+
+    .metrics-flow-row:first-child {
+        padding-left: 0;
+        border-left: 0;
+    }
+}
+
+@media (max-width: 599px) {
+    .metrics-insights {
+        grid-template-columns: 1fr;
+        padding-bottom: 1rem;
+    }
+
+    .metrics-reduction,
+    .metrics-health,
+    .metrics-flow-list {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .metrics-reduction {
+        padding-right: 0;
+    }
+
+    .metrics-health {
+        margin-top: 1rem;
+        padding: 1rem 0 0;
+        border-top: 1px solid var(--metrics-grid);
+        border-left: 0;
+    }
+
+    .metrics-flow-list {
+        grid-template-columns: 1fr;
+        margin-top: 1rem;
+        padding-top: 0;
+    }
+
+    .metrics-flow-row,
+    .metrics-flow-row:first-child {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.875rem 0;
+        border-top: 1px solid var(--metrics-grid);
+        border-left: 0;
+    }
+
+    .metrics-flow-row:last-child {
+        border-bottom: 1px solid var(--metrics-grid);
+    }
+
+    .metrics-card-value {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+
+    .metrics-activity-heading {
+        flex-direction: column;
+    }
+
+    .metrics-chart svg {
+        height: 12rem;
+    }
+
+    .metrics-operations {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-operation,
+    .metrics-operation:first-child {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.875rem 0;
+        border-top: 1px solid var(--metrics-grid);
+        border-left: 0;
+    }
+
+    .metrics-operation:first-child {
+        border-top: 0;
+    }
+
+    .metrics-operation dd {
+        margin-top: 0;
+        padding-left: 0;
+        flex-shrink: 0;
+    }
+}

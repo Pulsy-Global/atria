@@ -13,7 +13,9 @@ public sealed record FeedOutputData(
     object? Data,
     bool IsTestExecution = false,
     string? BlockNumber = null,
-    string? DeployId = null);
+    string? DeployId = null,
+    string? ResourceNamespace = null,
+    int? DataSizeBytes = null);
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "targetType")]
 [JsonDerivedType(typeof(FeedWebhookTarget), "webhook")]
@@ -27,6 +29,11 @@ public sealed record FeedWebhookTarget(
     int TimeoutSeconds = 30)
     : FeedDeliveryTarget(Id, TargetType.Webhook);
 
-public sealed record DeliverTestOutputRequest(string FeedId, List<string>? OutputIds, object? Data);
+public sealed record DeliverTestOutputRequest(
+    string FeedId,
+    List<string>? OutputIds,
+    object? Data,
+    string? ResourceNamespace = null,
+    int? DataSizeBytes = null);
 
 public sealed record DeliverTestOutputResponse(bool Success, string? Error = null);

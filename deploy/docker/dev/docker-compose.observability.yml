@@ -1,0 +1,30 @@
+services:
+  otel-collector:
+    ports:
+      - target: 4317
+        published: 4317
+        host_ip: 127.0.0.1
+      - target: 4318
+        published: 4318
+        host_ip: 127.0.0.1
+      - target: 13133
+        published: 13133
+        host_ip: 127.0.0.1
+
+  prometheus:
+    ports:
+      - target: 9090
+        published: 9090
+        host_ip: 127.0.0.1
+
+  victoria-metrics:
+    ports:
+      - target: 8428
+        published: 8428
+        host_ip: 127.0.0.1
+
+  grafana:
+    ports:
+      - target: 3000
+        published: 3000
+        host_ip: 127.0.0.1

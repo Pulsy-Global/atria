@@ -1,0 +1,50 @@
+groups:
+  - name: atria-observability
+    rules:
+      - alert: AtriaCollectorExportFailures
+        expr: sum(rate(otelcol_exporter_send_failed_metric_points[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: OpenTelemetry Collector is failing to export metrics
+
+      - alert: AtriaCollectorTelemetryAbsent
+        expr: absent(otelcol_receiver_accepted_metric_points)
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: No metric traffic is visible at the OpenTelemetry Collector
+
+      - alert: AtriaIngestorChainLagHigh
+        expr: max(atria_ingestor_chain_lag) by (chain) > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Ingestor chain lag is above 100 blocks
+
+      - alert: AtriaRuntimeTerminalFailures
+        expr: sum(rate(atria_runtime_block_processing_failures_total[10m])) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Runtime terminal failures are sustained
+
+      - alert: AtriaDeliveryFailures
+        expr: sum(rate(atria_delivery_message_handling_total{outcome="failure"}[10m])) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Delivery message failures are sustained
+
+      - alert: AtriaVictoriaMetricsDiskPressure
+        expr: vm_free_disk_space_bytes < 5 * 1024 * 1024 * 1024
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: VictoriaMetrics has less than 5 GiB of free disk space

@@ -3,9 +3,12 @@ using Atria.Common.Net;
 using Atria.Core.Business.Facades;
 using Atria.Core.Business.Managers;
 using Atria.Core.Business.Managers.Interfaces;
+using Atria.Core.Business.Models.Options;
+using Atria.Core.Business.Services.Metrics;
 using Atria.Core.Business.Services.Probe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Atria.Core.Business.Extensions;
 
@@ -20,6 +23,7 @@ public static class ServiceExtensions
         services.AddTransient<ConfigFacade>();
         services.AddTransient<TagFacade>();
         services.AddTransient<KvFacade>();
+        services.AddTransient<FeedMetricsFacade>();
 
         services.AddTransient<IFeedManager, FeedManager>();
         services.AddTransient<IDeployManager, DeployManager>();
@@ -29,6 +33,12 @@ public static class ServiceExtensions
         services.AddTransient<IKvManager, KvManager>();
 
         services.AddEkvServices(configuration);
+
+        services.Configure<FeedMetricsOptions>(configuration.GetSection(FeedMetricsOptions.SectionName));
+        services.AddMemoryCache();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddHttpClient<IFeedBusinessMetricsStore, VictoriaMetricsFeedBusinessMetricsStore>();
+        services.AddTransient<IFeedMetricsQueryService, FeedMetricsQueryService>();
 
         AddSsrfGuard(services, configuration);
         AddWebhookProbe(services);

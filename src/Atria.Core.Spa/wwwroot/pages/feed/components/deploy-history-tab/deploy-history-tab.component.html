@@ -1,58 +1,46 @@
-<div class="p-3 sm:p-6 h-full min-h-0 flex flex-col overflow-hidden">
-    
-    <div *ngIf="deployHistory.length > 0" 
-         class="mb-6 sm:mb-8 flex-shrink-0">
-        
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+<div class="flex h-full min-h-0 flex-col overflow-hidden">
+    <div *ngIf="deployHistory.length > 0" class="mb-6 flex-shrink-0 sm:mb-8">
+        <div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div class="text-center md:text-left">
-                <h3 class="text-base sm:text-lg font-medium mb-1">Deploy History</h3>
-                <p class="text-secondary text-sm">
-                    View deployment history and track versions
-                </p>
+                <h3 class="mb-1 text-base font-medium sm:text-lg">Deploy History</h3>
+                <p class="text-secondary text-sm">View deployment history and track versions</p>
             </div>
-            
-            <div class="flex justify-center md:justify-end flex-shrink-0">
+
+            <div class="flex flex-shrink-0 justify-center md:justify-end">
                 <ng-container *ngTemplateOutlet="compactStatisticsTemplate"></ng-container>
             </div>
         </div>
     </div>
 
-    <div class="flex-1 flex flex-col min-h-0">
-
-        <div *ngIf="deployHistory.length === 0" class="flex-1 flex items-center justify-center">
+    <div class="flex min-h-0 flex-1 flex-col">
+        <div *ngIf="deployHistory.length === 0" class="flex flex-1 items-center justify-center">
             <ng-container *ngTemplateOutlet="emptyStateTemplate"></ng-container>
         </div>
 
-        <div *ngIf="deployHistory.length > 0" class="flex-1 flex flex-col min-h-0">
-
-            <div class="hidden md:flex flex-1 min-h-0 flex-col">
+        <div *ngIf="deployHistory.length > 0" class="flex min-h-0 flex-1 flex-col">
+            <div class="hidden min-h-0 flex-1 flex-col md:flex">
                 <ng-container *ngTemplateOutlet="desktopHistoryListTemplate"></ng-container>
             </div>
 
-            <div class="flex md:hidden flex-1 min-h-0 flex-col">
+            <div class="flex min-h-0 flex-1 flex-col md:hidden">
                 <ng-container *ngTemplateOutlet="mobileHistoryListTemplate"></ng-container>
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <ng-template #emptyStateTemplate>
-    <div class="text-center py-8">
-        <mat-icon class="text-4xl sm:text-5xl w-8 sm:w-10 h-8 sm:h-10 text-secondary mb-3">inbox</mat-icon>
-        <h4 class="text-base font-medium mb-1">No Deployments Yet</h4>
-        <p class="text-secondary text-sm">
-            Deploy your first feed configuration to see the history here.
-        </p>
+    <div class="py-8 text-center">
+        <mat-icon class="text-secondary mb-3 h-8 w-8 text-4xl sm:h-10 sm:w-10 sm:text-5xl"> inbox </mat-icon>
+        <h4 class="mb-1 text-base font-medium">No Deployments Yet</h4>
+        <p class="text-secondary text-sm">Deploy your first feed configuration to see the history here.</p>
     </div>
 </ng-template>
 
 <ng-template #desktopHistoryListTemplate>
-    <div class="min-h-0 max-h-[60vh] overflow-y-auto overscroll-contain border rounded-lg">
-        <div class="sticky top-0 z-10 bg-hover border-b px-4 py-3">
-            <div class="grid grid-cols-12 gap-4 text-sm font-medium text-default text-center">
+    <div class="max-h-[60vh] min-h-0 overflow-y-auto overscroll-contain rounded-lg border">
+        <div class="bg-hover sticky top-0 z-10 border-b px-4 py-3">
+            <div class="text-default grid grid-cols-12 gap-4 text-center text-sm font-medium">
                 <div class="col-span-2 text-left">Status</div>
                 <div class="col-span-1">Version</div>
                 <div class="col-span-4 text-left">Details</div>
@@ -60,13 +48,10 @@
                 <div class="col-span-3">Updated At</div>
             </div>
         </div>
-        
+
         <div class="divide-y">
-            <div 
-                *ngFor="let item of deployHistory; let i = index" 
-                class="px-4 py-3 hover:bg-hover transition-colors">
-                
-                <div class="grid grid-cols-12 gap-4 items-center text-center">
+            <div *ngFor="let item of deployHistory; let i = index" class="px-4 py-3 transition-colors hover:bg-hover">
+                <div class="grid grid-cols-12 items-center gap-4 text-center">
                     <div class="col-span-2 text-left">
                         <span
                             class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
@@ -77,29 +62,33 @@
                             {{ getStatusLabel(item.status) }}
                         </span>
                     </div>
-                    
+
                     <div class="col-span-1">
-                        <div class="font-medium text-default">{{ item.version }}</div>
+                        <div class="text-default font-medium">
+                            {{ item.version }}
+                        </div>
                     </div>
 
                     <div class="col-span-4 min-w-0 text-left">
-                        <div class="truncate text-sm font-medium text-default">
+                        <div class="text-default truncate text-sm font-medium">
                             {{ getDeployDetailsTitle(item) }}
                         </div>
-                        <div *ngIf="getDeployDetailsMessage(item) as detailsMessage" class="truncate text-xs text-secondary">
+                        <div
+                            *ngIf="getDeployDetailsMessage(item) as detailsMessage"
+                            class="text-secondary truncate text-xs">
                             {{ detailsMessage }}
                         </div>
                     </div>
 
                     <div class="col-span-2">
-                        <div class="text-sm text-secondary">
-                            {{ item.createdAt | cultureAgnosticDate:'medium' }}
-                        </div> 
+                        <div class="text-secondary text-sm">
+                            {{ item.createdAt | cultureAgnosticDate: 'medium' }}
+                        </div>
                     </div>
-                    
+
                     <div class="col-span-3">
-                        <div class="text-sm text-secondary">
-                            {{ item.updatedAt | cultureAgnosticDate:'medium' }}
+                        <div class="text-secondary text-sm">
+                            {{ item.updatedAt | cultureAgnosticDate: 'medium' }}
                         </div>
                     </div>
                 </div>
@@ -109,38 +98,33 @@
 </ng-template>
 
 <ng-template #mobileHistoryListTemplate>
-    <div class="min-h-0 max-h-[60vh] overflow-y-auto overscroll-contain space-y-3">
-        <div 
-            *ngFor="let item of deployHistory; let i = index" 
-            class="border rounded-lg p-4 bg-card shadow-sm">
-
-            <div class="flex items-start justify-between mb-3">
+    <div class="max-h-[60vh] min-h-0 space-y-3 overflow-y-auto overscroll-contain">
+        <div *ngFor="let item of deployHistory; let i = index" class="bg-card rounded-lg border p-4 shadow-sm">
+            <div class="mb-3 flex items-start justify-between">
                 <div class="flex items-center">
-                    <div 
-                        class="w-8 h-8 rounded-full border-2 flex items-center justify-center mr-3"
+                    <div
+                        class="mr-3 flex h-8 w-8 items-center justify-center rounded-full border-2"
                         [ngClass]="getStatusBadgeClasses(item.status)">
                         <mat-icon class="text-sm" [ngClass]="getStatusIconClasses(item.status)">
                             {{ getStatusIcon(item.status) }}
                         </mat-icon>
                     </div>
                     <div>
-                        <h4 class="font-medium text-default">{{ item.version }}</h4>
-                        <div class="text-sm text-secondary">
-                            {{ item.createdAt | cultureAgnosticDate:'short' }}
+                        <h4 class="text-default font-medium">
+                            {{ item.version }}
+                        </h4>
+                        <div class="text-secondary text-sm">
+                            {{ item.createdAt | cultureAgnosticDate: 'short' }}
                         </div>
                     </div>
                 </div>
-                
-                <mat-chip 
-                    class="text-xs"
-                    [ngClass]="getStatusBadgeClasses(item.status)">
+
+                <mat-chip class="text-xs" [ngClass]="getStatusBadgeClasses(item.status)">
                     {{ getStatusLabel(item.status) }}
                 </mat-chip>
             </div>
 
-            <div class="text-xs text-secondary">
-                Updated: {{ item.updatedAt | cultureAgnosticDate:'medium' }}
-            </div>
+            <div class="text-secondary text-xs">Updated: {{ item.updatedAt | cultureAgnosticDate: 'medium' }}</div>
 
             <div
                 *ngIf="getDeployErrorDisplayInfo(item) as errorInfo"
@@ -155,27 +139,30 @@
 </ng-template>
 
 <ng-template #compactStatisticsTemplate>
-    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
-        <div class="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-md border border-green-200 dark:bg-green-500/10 dark:border-green-400/30">
-            <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 dark:bg-green-400/80"></div>
-            <span class="font-medium text-green-700 whitespace-nowrap dark:text-green-300">
-                {{ (deployHistory | filter:'status':DeployStatus.Deployed).length }}
+    <div class="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
+        <div
+            class="flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2 py-1 dark:border-green-400/30 dark:bg-green-500/10">
+            <div class="h-2 w-2 flex-shrink-0 rounded-full bg-green-500 dark:bg-green-400/80"></div>
+            <span class="whitespace-nowrap font-medium text-green-700 dark:text-green-300">
+                {{ (deployHistory | filter: 'status' : DeployStatus.Deployed).length }}
             </span>
-            <span class="text-green-600 text-xs whitespace-nowrap mt-0.5 dark:text-green-300/85">Active</span>
+            <span class="mt-0.5 whitespace-nowrap text-xs text-green-600 dark:text-green-300/85"> Active </span>
         </div>
-        <div class="flex items-center gap-1 px-2 py-1 bg-red-50 rounded-md border border-red-200 dark:bg-red-500/10 dark:border-red-400/30">
-            <div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 dark:bg-red-400/80"></div>
-            <span class="font-medium text-red-700 whitespace-nowrap dark:text-red-300">
-                {{ (deployHistory | filter:'status':DeployStatus.Failed).length }}
+        <div
+            class="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-2 py-1 dark:border-red-400/30 dark:bg-red-500/10">
+            <div class="h-2 w-2 flex-shrink-0 rounded-full bg-red-500 dark:bg-red-400/80"></div>
+            <span class="whitespace-nowrap font-medium text-red-700 dark:text-red-300">
+                {{ (deployHistory | filter: 'status' : DeployStatus.Failed).length }}
             </span>
-            <span class="text-red-600 text-xs whitespace-nowrap mt-0.5 dark:text-red-300/85">Failed</span>
+            <span class="mt-0.5 whitespace-nowrap text-xs text-red-600 dark:text-red-300/85"> Failed </span>
         </div>
-        <div class="flex items-center gap-1 px-2 py-1 bg-yellow-50 rounded-md border border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-400/30">
-            <div class="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0 dark:bg-yellow-400/80"></div>
-            <span class="font-medium text-yellow-700 whitespace-nowrap dark:text-yellow-300">
-                {{ (deployHistory | filter:'status':DeployStatus.Pending).length }}
+        <div
+            class="flex items-center gap-1 rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 dark:border-yellow-400/30 dark:bg-yellow-500/10">
+            <div class="h-2 w-2 flex-shrink-0 rounded-full bg-yellow-500 dark:bg-yellow-400/80"></div>
+            <span class="whitespace-nowrap font-medium text-yellow-700 dark:text-yellow-300">
+                {{ (deployHistory | filter: 'status' : DeployStatus.Pending).length }}
             </span>
-            <span class="text-yellow-600 text-xs whitespace-nowrap mt-0.5 dark:text-yellow-300/85">Pending</span>
+            <span class="mt-0.5 whitespace-nowrap text-xs text-yellow-600 dark:text-yellow-300/85"> Pending </span>
         </div>
     </div>
 </ng-template>

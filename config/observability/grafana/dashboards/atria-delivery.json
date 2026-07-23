@@ -1,0 +1,41 @@
+{
+  "annotations": { "list": [] },
+  "editable": false,
+  "links": [{ "title": "Atria Overview", "type": "link", "url": "/d/atria-overview" }],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le, target_type, mode, outcome) (rate(atria_delivery_target_duration_seconds_bucket[$__rate_interval])))", "legendFormat": "{{target_type}} {{mode}} {{outcome}}" }],
+      "title": "Target delivery p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [{ "expr": "sum by (outcome) (rate(atria_delivery_message_handling_total[$__rate_interval]))", "legendFormat": "{{outcome}}" }],
+      "title": "Message outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "atria-observability" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [{ "expr": "sum(atria_delivery_consumers_active)", "legendFormat": "active consumers" }, { "expr": "sum(rate(atria_delivery_message_retries_total[$__rate_interval]))", "legendFormat": "retries/s" }],
+      "title": "Consumers and retries",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 41,
+  "tags": ["atria", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Atria Delivery",
+  "uid": "atria-delivery",
+  "version": 1
+}

@@ -1,12 +1,18 @@
+using Atria.Common.Helpers.Json;
 using Atria.Common.Messaging.ServiceBus;
+using Atria.Common.Observability.Models;
 using Atria.Contracts.Events.Feed;
 using Atria.Contracts.Events.Feed.Enums;
 using Atria.Contracts.Subjects.Feed;
 using Atria.Feed.Runtime.Engine;
+using Atria.Feed.Runtime.Engine.Exceptions;
 using Atria.Feed.Runtime.Engine.Models;
+using Atria.Feed.Runtime.Observability;
 using Atria.Pipeline.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Numerics;
+using System.Text.Json;
 
 namespace Atria.Feed.Runtime.Processing;
 
@@ -21,6 +27,7 @@ public sealed class FeedBlockProcessor
     private readonly IFeedPublisher _feedPublisher;
     private readonly IServiceBus _serviceBus;
     private readonly FeedManager _feedManager;
+    private readonly RuntimeMetricsRecorder _metrics;
     private readonly ILogger<FeedBlockProcessor> _logger;
 
     public FeedBlockProcessor(
@@ -29,6 +36,7 @@ public sealed class FeedBlockProcessor
         IFeedPublisher feedPublisher,
         IServiceBus serviceBus,
         FeedManager feedManager,
+        RuntimeMetricsRecorder metrics,
         ILogger<FeedBlockProcessor> logger)
     {
         _blockProvider = blockProvider;
@@ -36,6 +44,7 @@ public sealed class FeedBlockProcessor
         _feedPublisher = feedPublisher;
         _serviceBus = serviceBus;
         _feedManager = feedManager;
+        _metrics = metrics;
         _logger = logger;
     }
 
@@ -45,6 +54,7 @@ public sealed class FeedBlockProcessor
         var chainId = feed.FeedRuntime.ChainId;
         var dataType = feed.FeedRuntime.DataType.ToString().ToLowerInvariant();
         var blockDelay = feed.FeedRuntime.BlockDelay;
+        var metricScope = BusinessMetricScope.Create(feed.FeedRuntime.ResourceNamespace, feedId);
 
         var cursor = await _cursorStore.GetAsync(feedId, ct);
 
@@ -92,6 +102,7 @@ public sealed class FeedBlockProcessor
 
                 if (consecutiveBlockErrors >= MaxBlockErrors)
                 {
+                    _metrics.RecordMissingDataFailure(metricScope);
                     _logger.LogError(
                         "Feed {FeedId}: Max consecutive block errors reached ({MaxErrors}), pausing",
                         feedId,
@@ -114,7 +125,12 @@ public sealed class FeedBlockProcessor
 
             consecutiveBlockErrors = 0;
 
-            var success = await ProcessBlockWithRetriesAsync(feed, block.Data, block.BlockNumber, ct);
+            var success = await ProcessBlockWithRetriesAsync(
+                feed,
+                block.Data,
+                block.DataSizeBytes,
+                block.BlockNumber,
+                ct);
 
             if (!success)
             {
@@ -156,17 +172,21 @@ public sealed class FeedBlockProcessor
     private async Task<bool> ProcessBlockWithRetriesAsync(
         FeedRuntimeContext feed,
         object blockData,
+        int? inputSizeBytes,
         BigInteger blockNumber,
         CancellationToken ct)
     {
         var feedId = feed.FeedRuntime.Id;
         var retryCount = 0;
+        var startedAt = Stopwatch.GetTimestamp();
+        var scope = BusinessMetricScope.Create(feed.FeedRuntime.ResourceNamespace, feedId);
 
         while (retryCount < MaxRetries)
         {
             try
             {
-                await ProcessBlockDataAsync(feed, blockData, blockNumber, ct);
+                await ProcessBlockDataAsync(feed, blockData, blockNumber, scope, ct);
+                _metrics.RecordBlockCompleted(scope, inputSizeBytes, Stopwatch.GetElapsedTime(startedAt));
                 return true;
             }
             catch (OperationCanceledException)
@@ -176,6 +196,7 @@ public sealed class FeedBlockProcessor
             catch (Exception ex) when (retryCount < MaxRetries - 1)
             {
                 retryCount++;
+                _metrics.RecordRetry();
                 var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
                 _logger.LogWarning(
                     ex,
@@ -189,6 +210,7 @@ public sealed class FeedBlockProcessor
             }
             catch (Exception ex)
             {
+                _metrics.RecordTerminalFailure(scope, ex, Stopwatch.GetElapsedTime(startedAt));
                 if (feed.FeedRuntime.ErrorHandling == ErrorHandlingStrategy.ContinueOnError)
                 {
                     _logger.LogError(
@@ -219,6 +241,7 @@ public sealed class FeedBlockProcessor
         FeedRuntimeContext feed,
         object blockData,
         BigInteger blockNumber,
+        BusinessMetricScope? scope,
         CancellationToken ct)
     {
         var feedId = feed.FeedRuntime.Id;
@@ -226,23 +249,38 @@ public sealed class FeedBlockProcessor
         _logger.LogDebug("Feed {FeedId} processing block {BlockNumber}", feedId, blockNumber);
 
         var dataToSend = await _feedManager.ExecuteAsync(feedId, blockData, ct: ct);
-
-        if (ct.IsCancellationRequested)
-        {
-            return;
-        }
+        ct.ThrowIfCancellationRequested();
 
         if (dataToSend != null)
         {
+            var outputSizeBytes = JsonSerializer.SerializeToUtf8Bytes(
+                dataToSend,
+                AtriaJsonSerializerOptions.Create(JsonSerializerOptions.Default)).Length;
             var output = new FeedOutputData(
                 feedId,
                 feed.FeedRuntime.OutputIds,
                 dataToSend,
                 IsTestExecution: false,
                 BlockNumber: blockNumber.ToString(),
-                DeployId: feed.FeedRuntime.DeployId);
+                DeployId: feed.FeedRuntime.DeployId,
+                ResourceNamespace: feed.FeedRuntime.ResourceNamespace,
+                DataSizeBytes: outputSizeBytes);
 
-            await _feedPublisher.PublishResultAsync(feedId, output, ct);
+            try
+            {
+                await _feedPublisher.PublishResultAsync(feedId, output, ct);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _metrics.RecordOutputPublishFailure();
+                throw new OutputPublishException(ex);
+            }
+
+            _metrics.RecordOutputPublished(scope, outputSizeBytes);
             _logger.LogTrace("Output published for feed {FeedId}", feedId);
         }
     }
@@ -259,6 +297,10 @@ public sealed class FeedBlockProcessor
             var pauseEvent = new FeedPausedEvent(feedId, source, reason, deployId);
             await _serviceBus.PublishAsync(FeedSubjects.System.FeedPaused, pauseEvent, ct);
             _logger.LogInformation("Published pause event for feed {FeedId} (source: {Source})", feedId, source);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

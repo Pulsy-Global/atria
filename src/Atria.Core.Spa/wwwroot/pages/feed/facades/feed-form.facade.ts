@@ -1,21 +1,5 @@
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, takeUntil, timer, forkJoin } from 'rxjs';
-import { ERROR_HANDLING_CONFIG } from '../../../shared/config/handling.config';
-import { DATA_TYPE_CONFIG } from '../../../shared/config/data-type.config';
-import { STRING_EMPTY } from '../../../shared/core/constants/common.constants';
-import { FeedValidators } from '../feed.validators';
-import { generateFeedName } from '../feed.config';
-import { TabType } from '../feed.types';
-import { FeedService } from '../feed.service';
-import { NotificationService } from '../../../shared/services/notification/notification.service';
-import type { EnumOption } from '../../../shared/modals/filter/filter-modal.types';
-import {
-    AtriaDataType,
-    CreateFeed,
-    ErrorHandlingStrategy,
-    FeedStatus,
-    UpdateFeed
-} from '../../../api/api.client';
+import { forkJoin, Subject, takeUntil, timer } from 'rxjs';
 import type {
     Deploy,
     Environment,
@@ -23,8 +7,24 @@ import type {
     FeedErrorInfo,
     Network,
     Output,
-    Tag
+    Tag,
 } from '../../../api/api.client';
+import {
+    AtriaDataType,
+    CreateFeed,
+    ErrorHandlingStrategy,
+    FeedStatus,
+    UpdateFeed,
+} from '../../../api/api.client';
+import { DATA_TYPE_CONFIG } from '../../../shared/config/data-type.config';
+import { ERROR_HANDLING_CONFIG } from '../../../shared/config/handling.config';
+import { STRING_EMPTY } from '../../../shared/core/constants/common.constants';
+import type { EnumOption } from '../../../shared/modals/filter/filter-modal.types';
+import { NotificationService } from '../../../shared/services/notification/notification.service';
+import { generateFeedName } from '../feed.config';
+import { FeedService } from '../feed.service';
+import { TabType } from '../feed.types';
+import { FeedValidators } from '../feed.validators';
 
 type TabAdder = (tabType: TabType, setActive?: boolean) => void;
 
@@ -66,7 +66,10 @@ export class FeedFormFacade {
         this._unsubscribeAll = unsubscribe$;
     }
 
-    setCallbacks(onFormDirty: () => void, isTestFormDisabled: () => boolean): void {
+    setCallbacks(
+        onFormDirty: () => void,
+        isTestFormDisabled: () => boolean
+    ): void {
         this._onFormDirty = onFormDirty;
         this._isTestFormDisabled = isTestFormDisabled;
     }
@@ -98,13 +101,17 @@ export class FeedFormFacade {
     }
 
     updateDataTypeOptionsForEnvironment(environmentId: string): void {
-        const selectedEnvironment = this.environments.find(e => e.id === environmentId);
+        const selectedEnvironment = this.environments.find(
+            (e) => e.id === environmentId
+        );
 
-        this.dataTypeOptions = DATA_TYPE_CONFIG.getDataTypes(selectedEnvironment?.availableDatasets);
+        this.dataTypeOptions = DATA_TYPE_CONFIG.getDataTypes(
+            selectedEnvironment?.availableDatasets
+        );
 
         const currentDataset = this.feedForm.get('dataset')?.value;
         const isCurrentDatasetAvailable = this.dataTypeOptions.some(
-            opt => opt.value === currentDataset
+            (opt) => opt.value === currentDataset
         );
 
         if (!isCurrentDatasetAvailable && this.dataTypeOptions.length > 0) {
@@ -116,7 +123,7 @@ export class FeedFormFacade {
 
     onRegenerateName(): void {
         this.feedForm.patchValue({
-            name: generateFeedName()
+            name: generateFeedName(),
         });
     }
 
@@ -162,7 +169,7 @@ export class FeedFormFacade {
                     'Failed to Create Tag',
                     error.title || 'Failed to create tag'
                 );
-            }
+            },
         });
     }
 
@@ -230,64 +237,67 @@ export class FeedFormFacade {
             this.selectedTagIds = [];
         };
 
-        feedData
-            ? updateData()
-            : resetData();
+        feedData ? updateData() : resetData();
     }
 
     initializeForm(feedData?: Feed | null): void {
         this.dataTypeOptions = DATA_TYPE_CONFIG.getDataTypes();
         const initialBlockDelay = feedData?.blockDelay ?? 0;
-        const initialBlockDelayMode = initialBlockDelay > 0 ? 'custom' : 'realtime';
+        const initialBlockDelayMode =
+            initialBlockDelay > 0 ? 'custom' : 'realtime';
 
         this.feedForm = this._formBuilder.group({
-            name: [feedData?.name || generateFeedName(), [
-                Validators.required
-            ]],
-            version: [feedData?.version || '1.0.0', [
-                Validators.required,
-                FeedValidators.version()
-            ]],
+            name: [feedData?.name || generateFeedName(), [Validators.required]],
+            version: [
+                feedData?.version || '1.0.0',
+                [Validators.required, FeedValidators.version()],
+            ],
             description: [feedData?.description || STRING_EMPTY],
-            network: [STRING_EMPTY, [
-                Validators.required
-            ]],
-            environment: [feedData?.networkId || STRING_EMPTY, [
-                Validators.required
-            ]],
-            dataset: [feedData?.dataType || AtriaDataType.BlockWithTransactions, [
-                Validators.required
-            ]],
-            errorHandlingStrategy: [feedData?.errorHandling ||
-                                    ErrorHandlingStrategy.ContinueOnError, [
-                Validators.required
-            ]],
-            streamEnd: [feedData?.endBlock
-                ? 'endAtSpecificBlock'
-                : 'endContinuouslyUntilStopped'],
-            streamStart: [feedData?.startBlock
-                ? 'startAtSpecificBlock'
-                : 'startAtLatestBlock'],
-            specificBlockNumber: [feedData?.startBlock || STRING_EMPTY, [
-                FeedValidators.blockNumber()
-            ]],
-            endBlockNumber: [feedData?.endBlock || STRING_EMPTY, [
-                FeedValidators.blockNumber()
-            ]],
+            network: [STRING_EMPTY, [Validators.required]],
+            environment: [
+                feedData?.networkId || STRING_EMPTY,
+                [Validators.required],
+            ],
+            dataset: [
+                feedData?.dataType || AtriaDataType.BlockWithTransactions,
+                [Validators.required],
+            ],
+            errorHandlingStrategy: [
+                feedData?.errorHandling ||
+                    ErrorHandlingStrategy.ContinueOnError,
+                [Validators.required],
+            ],
+            streamEnd: [
+                feedData?.endBlock
+                    ? 'endAtSpecificBlock'
+                    : 'endContinuouslyUntilStopped',
+            ],
+            streamStart: [
+                feedData?.startBlock
+                    ? 'startAtSpecificBlock'
+                    : 'startAtLatestBlock',
+            ],
+            specificBlockNumber: [
+                feedData?.startBlock || STRING_EMPTY,
+                [FeedValidators.blockNumber()],
+            ],
+            endBlockNumber: [
+                feedData?.endBlock || STRING_EMPTY,
+                [FeedValidators.blockNumber()],
+            ],
             blockDelayMode: [initialBlockDelayMode],
-            blockDelay: [initialBlockDelay, [
-                Validators.required,
-                Validators.min(0),
-                Validators.max(100)
-            ]]
+            blockDelay: [
+                initialBlockDelay,
+                [Validators.required, Validators.min(0), Validators.max(100)],
+            ],
         });
 
         this.testForm = this._formBuilder.group({
-            testBlockNumber: [STRING_EMPTY, [
-                Validators.required,
-                FeedValidators.blockNumber()
-            ]],
-            executeOutputs: [false]
+            testBlockNumber: [
+                STRING_EMPTY,
+                [Validators.required, FeedValidators.blockNumber()],
+            ],
+            executeOutputs: [false],
         });
 
         if (feedData?.networkId) {
@@ -317,18 +327,26 @@ export class FeedFormFacade {
                     if (!this.isEditMode() && networks.length > 0) {
                         const firstNetwork = networks[0];
 
-                        this.feedForm.patchValue({
-                            network: firstNetwork.title,
-                        }, { emitEvent: false });
+                        this.feedForm.patchValue(
+                            {
+                                network: firstNetwork.title,
+                            },
+                            { emitEvent: false }
+                        );
 
                         this._updateEnvironments(firstNetwork.title);
 
                         if (this.environments.length > 0) {
                             const firstEnvironment = this.environments[0];
-                            this.feedForm.patchValue({
-                                environment: firstEnvironment.id,
-                            }, { emitEvent: false });
-                            this.updateDataTypeOptionsForEnvironment(firstEnvironment.id);
+                            this.feedForm.patchValue(
+                                {
+                                    environment: firstEnvironment.id,
+                                },
+                                { emitEvent: false }
+                            );
+                            this.updateDataTypeOptionsForEnvironment(
+                                firstEnvironment.id
+                            );
                         }
 
                         this._updateDeployFeedModel();
@@ -396,16 +414,18 @@ export class FeedFormFacade {
                 this._checkFormChanges();
             });
 
-        this.feedForm.get('blockDelayMode')?.valueChanges
-            .pipe(takeUntil(this._unsubscribeAll))
+        this.feedForm
+            .get('blockDelayMode')
+            ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
             .subscribe((mode: string) => {
                 if (mode === 'realtime') {
                     this.feedForm.get('blockDelay')?.setValue(0);
                 }
             });
 
-        this.feedForm.get('blockDelay')?.valueChanges
-            .pipe(takeUntil(this._unsubscribeAll))
+        this.feedForm
+            .get('blockDelay')
+            ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
             .subscribe((value: number | string | null | undefined) => {
                 if (value === null || value === undefined || value === '') {
                     return;
@@ -433,8 +453,7 @@ export class FeedFormFacade {
 
     handleTabClosed(tabType: TabType): void {
         const tabCloseActions = {
-            [TabType.Settings]: () => {
-            },
+            [TabType.Settings]: () => {},
             [TabType.Filter]: () => {
                 this.filterCode = STRING_EMPTY;
                 this.onFilterCodeChanged(STRING_EMPTY);
@@ -447,11 +466,10 @@ export class FeedFormFacade {
                 this.feedOutputs = [];
                 this.onOutputConfigChange([]);
             },
-            [TabType.DeployHistory]: () => {
-            }
+            [TabType.DeployHistory]: () => {},
         };
 
-        tabCloseActions[tabType]();
+        tabCloseActions[tabType as keyof typeof tabCloseActions]?.();
     }
 
     loadFeedData(feedId: string): void {
@@ -464,7 +482,7 @@ export class FeedFormFacade {
         forkJoin([
             this._feedService.getFeed(feedId),
             this._feedService.getFeedOutputs(feedId),
-            this._feedService.getDeployHistory(feedId)
+            this._feedService.getDeployHistory(feedId),
         ]).subscribe({
             next: () => {
                 timer(300)
@@ -480,7 +498,7 @@ export class FeedFormFacade {
                 );
 
                 this.isLoading = false;
-            }
+            },
         });
     }
 
@@ -490,23 +508,25 @@ export class FeedFormFacade {
     }
 
     private _updateEnvironments(networkTitle: string): void {
-        const selectedNetwork = this.networks
-            .find(network => network.title === networkTitle);
+        const selectedNetwork = this.networks.find(
+            (network) => network.title === networkTitle
+        );
 
         this.environments = selectedNetwork?.environments || [];
     }
 
     private _setNetworkAndEnvironmentFromNetworkId(networkId: string): void {
-        const network = this.networks.find(net =>
-            net.environments?.some(env => env.id === networkId)
+        const network = this.networks.find((net) =>
+            net.environments?.some((env) => env.id === networkId)
         );
 
         if (!network) {
             return;
         }
 
-        const environment = network.environments
-            ?.find(env => env.id === networkId);
+        const environment = network.environments?.find(
+            (env) => env.id === networkId
+        );
 
         this.feedForm.patchValue({
             network: network.title,
@@ -525,8 +545,8 @@ export class FeedFormFacade {
             form: this.feedForm.getRawValue(),
             filterCode: this.filterCode,
             functionCode: this.functionCode,
-            outputs: [...this.feedOutputs.map(o => o.id)],
-            tags: [...this.selectedTagIds]
+            outputs: [...this.feedOutputs.map((o) => o.id)],
+            tags: [...this.selectedTagIds],
         };
     }
 
@@ -541,23 +561,33 @@ export class FeedFormFacade {
             form: this.feedForm.getRawValue(),
             filterCode: this.filterCode,
             functionCode: this.functionCode,
-            outputs: [...this.feedOutputs.map(o => o.id)],
-            tags: [...this.selectedTagIds]
+            outputs: [...this.feedOutputs.map((o) => o.id)],
+            tags: [...this.selectedTagIds],
         };
 
-        const filterChanged = this.initialFormValue.filterCode !== currentValue.filterCode;
-        const functionChanged = this.initialFormValue.functionCode !== currentValue.functionCode;
+        const filterChanged =
+            this.initialFormValue.filterCode !== currentValue.filterCode;
+        const functionChanged =
+            this.initialFormValue.functionCode !== currentValue.functionCode;
 
-        const formChanged = JSON.stringify(this.initialFormValue.form) !==
-                            JSON.stringify(currentValue.form);
+        const formChanged =
+            JSON.stringify(this.initialFormValue.form) !==
+            JSON.stringify(currentValue.form);
 
-        const outputsChanged = JSON.stringify(this.initialFormValue.outputs.sort()) !==
-                               JSON.stringify(currentValue.outputs.sort());
+        const outputsChanged =
+            JSON.stringify(this.initialFormValue.outputs.sort()) !==
+            JSON.stringify(currentValue.outputs.sort());
 
-        const tagsChanged = JSON.stringify(this.initialFormValue.tags.sort()) !==
-                            JSON.stringify(currentValue.tags.sort());
+        const tagsChanged =
+            JSON.stringify(this.initialFormValue.tags.sort()) !==
+            JSON.stringify(currentValue.tags.sort());
 
-        this.hasFormChanges = formChanged || filterChanged || functionChanged || outputsChanged || tagsChanged;
+        this.hasFormChanges =
+            formChanged ||
+            filterChanged ||
+            functionChanged ||
+            outputsChanged ||
+            tagsChanged;
 
         if (this.hasFormChanges) {
             this._onFormDirty?.();
@@ -572,14 +602,16 @@ export class FeedFormFacade {
             : new CreateFeed();
 
         const blockNumbers = {
-            startBlock: formValue.streamStart === 'startAtSpecificBlock' &&
-                        formValue.specificBlockNumber
-                ? parseInt(formValue.specificBlockNumber)
-                : undefined,
-            endBlock: formValue.streamEnd === 'endAtSpecificBlock' &&
-                      formValue.endBlockNumber
-                ? parseInt(formValue.endBlockNumber)
-                : undefined
+            startBlock:
+                formValue.streamStart === 'startAtSpecificBlock' &&
+                formValue.specificBlockNumber
+                    ? parseInt(formValue.specificBlockNumber)
+                    : undefined,
+            endBlock:
+                formValue.streamEnd === 'endAtSpecificBlock' &&
+                formValue.endBlockNumber
+                    ? parseInt(formValue.endBlockNumber)
+                    : undefined,
         };
 
         Object.assign(this.currentDeployFeed, {
@@ -591,10 +623,13 @@ export class FeedFormFacade {
             errorHandling: formValue.errorHandlingStrategy,
             filterCode: this.filterCode || undefined,
             functionCode: this.functionCode || undefined,
-            outputIds: this.feedOutputs.map(output => output.id!),
+            outputIds: this.feedOutputs.map((output) => output.id!),
             tagIds: this.selectedTagIds,
-            blockDelay: formValue.blockDelayMode === 'realtime' ? 0 : (formValue.blockDelay || 0),
-            ...blockNumbers
+            blockDelay:
+                formValue.blockDelayMode === 'realtime'
+                    ? 0
+                    : formValue.blockDelay || 0,
+            ...blockNumbers,
         });
     }
 
