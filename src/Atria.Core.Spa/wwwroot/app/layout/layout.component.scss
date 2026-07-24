@@ -35,8 +35,9 @@ layout {
     }
 
     .layout-content-card {
-        transition: margin 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
-                    border-radius 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition:
+            margin 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+            border-radius 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
 
         &.panel-open {
             margin: 0.5rem;
@@ -56,9 +57,10 @@ layout {
         height: 100vh;
         position: sticky;
         top: 0;
-        transition: width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
-                    min-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
-                    max-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition:
+            width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+            min-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
+            max-width 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .layout-side-panel--open:not(.layout-side-panel--mobile) {
@@ -67,15 +69,31 @@ layout {
         max-width: var(--side-panel-width);
     }
 
-    .layout-side-panel--open.layout-side-panel--mobile {
-        position: fixed;
-        inset: 0;
-        z-index: 999;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        overflow: visible;
+    .layout-side-panel.layout-side-panel--mobile {
         background-color: rgba(var(--fuse-bg-default-rgb), 1);
+        height: 100dvh;
+        inset: 0;
+        max-height: 100dvh;
+        min-height: 100dvh;
+        overflow: visible;
+        pointer-events: none;
+        position: fixed;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        transform: translate3d(100%, 0, 0);
+        transition:
+            transform 320ms cubic-bezier(0.25, 0.8, 0.25, 1),
+            visibility 0s linear 320ms;
+        visibility: hidden;
+        width: 100% !important;
+        z-index: 999;
+    }
+
+    .layout-side-panel--open.layout-side-panel--mobile {
+        pointer-events: auto;
+        transform: translate3d(0, 0, 0);
+        transition-delay: 0s;
+        visibility: visible;
     }
 
     .layout-side-panel__inner {

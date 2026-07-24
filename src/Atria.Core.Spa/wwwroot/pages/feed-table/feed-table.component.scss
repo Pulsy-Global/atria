@@ -1,4 +1,7 @@
 feed-table {
+    container-name: feed-table;
+    container-type: inline-size;
+
     .mat-mdc-table {
         --col-name: 18%;
         --col-version: 8%;
@@ -52,6 +55,16 @@ feed-table {
             font-size: 0.75rem;
             line-height: 0.875rem;
         }
+    }
+}
+
+@container feed-table (max-width: 63.999rem) {
+    .feed-table-desktop-layout {
+        display: none !important;
+    }
+
+    .feed-table-mobile-layout {
+        display: flex !important;
     }
 }
 
