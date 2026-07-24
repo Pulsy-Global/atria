@@ -1,4 +1,5 @@
 using Atria.Business.Services.DataServices.Interfaces;
+using Atria.Common.Exceptions;
 using Atria.Core.Data.Entities.Enums;
 using Atria.Core.Data.Entities.Feeds;
 using Atria.Orchestrator.Config.Options;
@@ -187,8 +188,32 @@ public sealed class FeedDeploymentReconciler : BackgroundService
                 "Feed {FeedId} has no active runtime lease (expired or missing), redeploying",
                 feedId);
 
-            await deployService.ExecuteDeploymentAsync(feed.Id, ct);
-            _metrics.RecordReconciliationAction("redeploy", "runtime_lease_missing");
+            try
+            {
+                await deployService.ExecuteDeploymentAsync(feed.Id, ct);
+
+                _metrics.RecordReconciliationAction("redeploy", "runtime_lease_missing");
+            }
+            catch (CursorBehindTailException ex)
+            {
+                var markedFailed = await deployService.FailCurrentDeploymentAsync(
+                    feed.Id,
+                    feed.CurrentDeployId,
+                    DeployErrorCode.BlockDataUnavailable,
+                    nameof(CursorBehindTailException),
+                    ex.Message,
+                    ct);
+
+                if (markedFailed)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Feed {FeedId} cannot be recovered because its cursor is behind the retained chain tail; marked as failed",
+                        feedId);
+                    _metrics.RecordReconciliationAction("mark_failed", "cursor_behind_tail");
+                }
+            }
+
             return;
         }
 

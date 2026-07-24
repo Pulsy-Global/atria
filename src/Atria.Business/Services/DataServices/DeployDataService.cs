@@ -72,7 +72,11 @@ public class DeployDataService : IDeployDataService
 
         if (feedCursor.HasValue && feedCursor < tail)
         {
-            _logger.LogError("Feed cursor (block {}) is behind chain tail (block {}).", feedCursor, tail);
+            _logger.LogError(
+                "Feed cursor (block {FeedCursor}) is behind chain tail (block {ChainTail}).",
+                feedCursor,
+                tail);
+
             throw new CursorBehindTailException(feedCursor.Value, tail.Value);
         }
 
@@ -330,6 +334,51 @@ public class DeployDataService : IDeployDataService
 
         feed.Status = FeedStatus.Running;
         uow.FeedRepository.Update(feed);
+
+        await uow.SaveChangesAsync(ct);
+
+        return true;
+    }
+
+    public async Task<bool> FailCurrentDeploymentAsync(
+        Guid feedId,
+        Guid? expectedDeployId,
+        DeployErrorCode errorCode,
+        string source,
+        string? message,
+        CancellationToken ct)
+    {
+        using var uow = _unitOfWorkFactory.BuildContext();
+
+        var feed = await uow.FeedRepository.GetAsync(feedId, ct);
+
+        if (feed == null)
+        {
+            throw new InvalidOperationException($"Feed with ID {feedId} not found");
+        }
+
+        if (feed.Status != FeedStatus.Running || feed.CurrentDeployId != expectedDeployId)
+        {
+            _logger.LogInformation(
+                "Ignoring stale deployment failure for feed {FeedId}: expected deploy {ExpectedDeployId}, current deploy {CurrentDeployId}, status {FeedStatus}",
+                feedId,
+                expectedDeployId,
+                feed.CurrentDeployId,
+                feed.Status);
+
+            return false;
+        }
+
+        feed.Status = FeedStatus.Error;
+        uow.FeedRepository.Update(feed);
+
+        await MarkCurrentDeployFailedAsync(
+            uow,
+            feed,
+            errorCode,
+            source,
+            message,
+            ct);
 
         await uow.SaveChangesAsync(ct);
 
