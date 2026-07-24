@@ -389,6 +389,10 @@
         border-top: 0;
     }
 
+    .metrics-operation + .metrics-operation {
+        border-left: 0;
+    }
+
     .metrics-operation dd {
         margin-top: 0;
         padding-left: 0;

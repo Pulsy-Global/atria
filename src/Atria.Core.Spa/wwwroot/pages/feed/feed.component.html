@@ -8,22 +8,30 @@
         [actionInputs]="{ feedId: form.feedId }"
         (back)="onBack()"></feed-header>
 
-    <div class="flex min-h-0 flex-1 flex-col px-6 pb-4">
+    <div class="flex min-h-0 flex-1 flex-col px-4 pb-4 sm:px-6">
         <div
-            *ngIf="form.getHeaderStatusClass() === 'is-error' && getFeedErrorDisplayInfo(form.feedErrorInfo) as error"
+            *ngIf="
+                form.getHeaderStatusClass() === 'is-error' &&
+                getFeedErrorDisplayInfo(form.feedErrorInfo) as error
+            "
             class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-rose-900 shadow-[0_12px_30px_rgba(15,23,42,0.05)] dark:border-rose-400/35 dark:bg-rose-500/10 dark:text-rose-100">
             <div class="flex items-start gap-3">
-                <mat-icon class="mt-0.5 shrink-0 text-rose-600 dark:text-rose-300"> error_outline </mat-icon>
+                <mat-icon
+                    class="mt-0.5 shrink-0 text-rose-600 dark:text-rose-300">
+                    error_outline
+                </mat-icon>
                 <div class="min-w-0">
                     <div class="text-sm font-semibold">{{ error.title }}</div>
-                    <div class="mt-1 text-sm text-rose-800 dark:text-rose-100/90">
+                    <div
+                        class="mt-1 text-sm text-rose-800 dark:text-rose-100/90">
                         {{ error.message }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-6 flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
+        <div
+            class="mt-4 flex min-h-0 flex-1 flex-col gap-4 sm:mt-6 lg:flex-row">
             <feed-workspace-nav
                 [items]="tabs.workspaceNavItems"
                 [selectedType]="tabs.tabs[tabs.selectedTabIndex]?.type ?? null"
@@ -40,11 +48,15 @@
 
                 <div
                     class="bg-card flex min-h-[80vh] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl p-4 shadow-[0_16px_40px_rgba(15,23,42,0.06)] sm:p-6 lg:rounded-t-none">
-                    <div class="h-full min-h-0 w-full min-w-0 flex-1" *ngIf="tabs.tabs.length > 0">
+                    <div
+                        class="h-full min-h-0 w-full min-w-0 flex-1"
+                        *ngIf="tabs.tabs.length > 0">
                         <div
                             class="flex h-full min-h-0 w-full min-w-0 flex-col items-stretch"
                             [ngSwitch]="tabs.tabs[tabs.selectedTabIndex]?.type">
-                            <div *ngSwitchCase="TabType.Settings" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.Settings"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <feed-settings
                                     class="min-h-0 w-full min-w-0 flex-1"
                                     [feedForm]="form.feedForm"
@@ -52,60 +64,96 @@
                                     [networks]="form.networks"
                                     [environments]="form.environments"
                                     [dataTypeOptions]="form.dataTypeOptions"
-                                    [errorHandlingOptions]="form.errorHandlingOptions"
+                                    [errorHandlingOptions]="
+                                        form.errorHandlingOptions
+                                    "
                                     [tags]="form.tags"
                                     [selectedTagIds]="form.selectedTagIds"
                                     (regenerateName)="form.onRegenerateName()"
-                                    (networkChange)="form.onNetworkChange($event)"
+                                    (networkChange)="
+                                        form.onNetworkChange($event)
+                                    "
                                     (tagsChanged)="form.onTagsChanged($event)"
-                                    (createTag)="form.onCreateTag($event)"></feed-settings>
+                                    (createTag)="
+                                        form.onCreateTag($event)
+                                    "></feed-settings>
                             </div>
 
-                            <div *ngSwitchCase="TabType.Filter" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.Filter"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <code-editor-tab
                                     class="min-h-0 w-full min-w-0 flex-1"
                                     title="Filter"
                                     [description]="filterDescription"
                                     [templates]="filterTemplates"
                                     [initialCode]="form.filterCode"
-                                    [dataType]="form.feedForm.get('dataset')?.value"
-                                    (codeChanged)="form.onFilterCodeChanged($event)"></code-editor-tab>
+                                    [dataType]="
+                                        form.feedForm.get('dataset')?.value
+                                    "
+                                    (codeChanged)="
+                                        form.onFilterCodeChanged($event)
+                                    "></code-editor-tab>
                             </div>
 
-                            <div *ngSwitchCase="TabType.Function" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.Function"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <code-editor-tab
                                     class="min-h-0 w-full min-w-0 flex-1"
                                     title="Function"
                                     [description]="functionDescription"
                                     [templates]="functionTemplates"
                                     [initialCode]="form.functionCode"
-                                    [dataType]="form.feedForm.get('dataset')?.value"
-                                    (codeChanged)="form.onFunctionCodeChanged($event)"></code-editor-tab>
+                                    [dataType]="
+                                        form.feedForm.get('dataset')?.value
+                                    "
+                                    (codeChanged)="
+                                        form.onFunctionCodeChanged($event)
+                                    "></code-editor-tab>
                             </div>
 
-                            <div *ngSwitchCase="TabType.Output" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.Output"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <output-tab
                                     class="min-h-0 w-full min-w-0 flex-1"
                                     [availableOutputs]="form.outputs"
                                     [selectedOutputs]="form.feedOutputs"
-                                    [initialOutputs]="form.initialFormValue.outputs"
-                                    (configurationChange)="form.onOutputConfigChange($event)"></output-tab>
+                                    [initialOutputs]="
+                                        form.initialFormValue.outputs
+                                    "
+                                    (configurationChange)="
+                                        form.onOutputConfigChange($event)
+                                    "></output-tab>
                             </div>
 
-                            <div *ngSwitchCase="TabType.Result" class="flex h-full min-h-0 w-full flex-col">
-                                <result-tab class="min-h-0 w-full min-w-0 flex-1" [feedId]="form.feedId"></result-tab>
+                            <div
+                                *ngSwitchCase="TabType.Result"
+                                class="flex h-full min-h-0 w-full flex-col">
+                                <result-tab
+                                    class="min-h-0 w-full min-w-0 flex-1"
+                                    [feedId]="form.feedId"></result-tab>
                             </div>
 
-                            <div *ngSwitchCase="TabType.DeployHistory" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.DeployHistory"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <deploy-history-tab
                                     class="min-h-0 w-full min-w-0 flex-1"
-                                    [deployHistory]="form.deployHistory"></deploy-history-tab>
+                                    [deployHistory]="
+                                        form.deployHistory
+                                    "></deploy-history-tab>
                             </div>
 
-                            <div *ngSwitchCase="TabType.Metrics" class="flex h-full min-h-0 w-full flex-col">
+                            <div
+                                *ngSwitchCase="TabType.Metrics"
+                                class="flex h-full min-h-0 w-full flex-col">
                                 <app-metrics-tab
                                     class="min-h-0 w-full min-w-0 flex-1"
-                                    [metricsResourceId]="form.feedId"></app-metrics-tab>
+                                    [metricsResourceId]="
+                                        form.feedId
+                                    "></app-metrics-tab>
                             </div>
                         </div>
                     </div>
@@ -113,7 +161,10 @@
                     <div
                         class="flex h-full min-h-0 min-w-0 flex-1 items-center justify-center"
                         *ngIf="tabs.tabs.length === 0">
-                        <ng-container *ngTemplateOutlet="emptyStateTemplate"></ng-container>
+                        <ng-container
+                            *ngTemplateOutlet="
+                                emptyStateTemplate
+                            "></ng-container>
                     </div>
                 </div>
             </div>
@@ -144,7 +195,11 @@
 <ng-template #emptyStateTemplate>
     <div class="flex flex-col items-center justify-center text-center">
         <mat-icon class="text-secondary mb-4 text-4xl">code</mat-icon>
-        <h3 class="text-default mb-2 text-lg font-medium">Open a file to start</h3>
-        <p class="text-secondary text-sm">Select a file from the workspace to configure this feed.</p>
+        <h3 class="text-default mb-2 text-lg font-medium">
+            Open a file to start
+        </h3>
+        <p class="text-secondary text-sm">
+            Select a file from the workspace to configure this feed.
+        </p>
     </div>
 </ng-template>

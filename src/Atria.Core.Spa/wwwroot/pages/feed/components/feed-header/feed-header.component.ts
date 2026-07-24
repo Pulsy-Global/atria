@@ -28,6 +28,7 @@ export class FeedHeaderComponent {
     @Input() statusLabel: string = '';
     @Input() statusClass: string = '';
     @Input() showBackButton: boolean = true;
+    @Input() stackActionOnMobile: boolean = false;
     @Input() actionInputs: Record<string, unknown> = {};
     @Output() back = new EventEmitter<void>();
 }
