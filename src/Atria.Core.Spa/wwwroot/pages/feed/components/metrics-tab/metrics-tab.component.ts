@@ -268,9 +268,11 @@ export class MetricsTabComponent implements OnChanges, OnDestroy {
     }
 
     formatPercent(value: number | null | undefined): string {
-        return value === null || value === undefined
-            ? '—'
-            : `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
+        if (value === null || value === undefined) {
+            return this.metrics?.status === 'noData' ? '0%' : '—';
+        }
+
+        return `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
     }
 
     trackRange(_: number, option: FeedMetricsRangeOption): string {
