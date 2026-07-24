@@ -1,32 +1,35 @@
 <fuse-loading-bar></fuse-loading-bar>
 
-<div class="layout-root flex w-full flex-auto"
-     [class.panel-active]="sidePanelService.isOpen() && !isScreenSmall">
-    @if (isScreenSmall) {
+<div
+    class="layout-root flex w-full flex-auto"
+    [class.panel-active]="sidePanelService.isOpen() && !isScreenSmall">
+    @if (isScreenSmall && hasNavigationItems) {
         <fuse-vertical-navigation
-            class="dark bg-default"
+            class="bg-default dark"
             [mode]="'over'"
             [name]="'mainNavigation'"
             [navigation]="navigation.items"
             [opened]="false">
-
             <ng-container fuseVerticalNavigationContentHeader>
                 <div class="flex h-20 items-center px-8 pt-6">
-                    <div class="flex items-center relative">
+                    <div class="relative flex items-center">
                         <img
-                            class="w-12 logo-border"
+                            class="logo-border w-12"
                             src="images/logo/logo.svg"
-                            alt="Logo image"/>
+                            alt="Logo image" />
                         <img
-                            class="w-5 ml-1.5 relative -left-4 top-5 logo-border"
+                            class="logo-border relative -left-4 top-5 ml-1.5 w-5"
                             src="images/logo/pulsy-logo.svg"
-                            alt="Pulsy logo"/>
+                            alt="Pulsy logo" />
                     </div>
-                    <div class="flex flex-col -ml-4 mt-3.5">
+                    <div class="-ml-4 mt-3.5 flex flex-col">
                         <div class="flex items-center gap-1.5">
-                            <span class="font-semibold text-xl text-default leading-tight">Atria</span>
-                            <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider
-                                         bg-primary-500 text-on-primary rounded leading-none">
+                            <span
+                                class="text-default text-xl font-semibold leading-tight">
+                                Atria
+                            </span>
+                            <span
+                                class="rounded bg-primary-500 px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wider text-on-primary">
                                 beta
                             </span>
                         </div>
@@ -34,8 +37,7 @@
                             href="https://pulsy.app"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="font-normal italic text-sm text-secondary
-                                   hover:text-default no-underline ml-2.5 transition-colors">
+                            class="text-secondary ml-2.5 text-sm font-normal italic no-underline transition-colors hover:text-default">
                             Powered by Pulsy
                         </a>
                     </div>
@@ -45,66 +47,80 @@
                     <ng-container #mobileWidgetsContainer></ng-container>
                 </div>
             </ng-container>
-
         </fuse-vertical-navigation>
     }
 
-    <div class="layout-content-card flex w-full flex-auto flex-col items-center
-                bg-default shadow-2xl sm:rounded-xl min-w-0"
-         [class.panel-open]="sidePanelService.isOpen() && !isScreenSmall">
-
-        <div class="relative z-49 flex h-16 w-full flex-0 items-center px-4
-                    sm:h-20 sm:px-6">
+    <div
+        class="layout-content-card bg-default flex w-full min-w-0 flex-auto flex-col items-center shadow-2xl sm:rounded-xl"
+        [class.panel-open]="sidePanelService.isOpen() && !isScreenSmall">
+        <div
+            class="relative z-49 flex h-16 w-full flex-0 items-center px-4 sm:h-20 sm:px-6">
             @if (!isScreenSmall) {
                 <div class="flex items-center lg:mr-8">
-                    <div class="flex items-center relative">
+                    <div class="relative flex items-center">
                         <div class="hidden lg:flex">
                             <img
-                                class="w-12 logo-border"
+                                class="logo-border w-12"
                                 src="images/logo/logo.svg"
-                                alt="Logo image"/>
+                                alt="Logo image" />
                         </div>
                         <div class="flex lg:hidden">
                             <img
-                                class="w-8 logo-border"
+                                class="logo-border w-8"
                                 src="images/logo/logo.svg"
-                                alt="Logo image"/>
+                                alt="Logo image" />
                         </div>
                         <img
-                            class="w-5 ml-1.5 relative -left-4 top-3.5 lg:top-5 logo-border"
+                            class="logo-border relative -left-4 top-3.5 ml-1.5 w-5 lg:top-5"
                             src="images/logo/pulsy-logo.svg"
-                            alt="Pulsy logo"/>
+                            alt="Pulsy logo" />
                     </div>
-                    <div class="hidden lg:flex flex-col -ml-4 mt-3.5">
+                    <div class="-ml-4 mt-3.5 hidden flex-col lg:flex">
                         <div class="flex items-center gap-1.5">
-                            <span class="font-semibold text-xl text-default leading-tight">Atria</span>
-                            <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider
-                                         bg-primary-500 text-on-primary rounded leading-none">
+                            <span
+                                class="text-default text-xl font-semibold leading-tight">
+                                Atria
+                            </span>
+                            <span
+                                class="rounded bg-primary-500 px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wider text-on-primary">
                                 beta
                             </span>
                         </div>
-                        <a href="https://pulsy.app"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           class="font-normal italic text-sm text-secondary
-                                  hover:text-default no-underline ml-2.5 transition-colors">
-                           Powered by Pulsy
+                        <a
+                            href="https://pulsy.app"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-secondary ml-2.5 text-sm font-normal italic no-underline transition-colors hover:text-default">
+                            Powered by Pulsy
                         </a>
                     </div>
                 </div>
                 <fuse-horizontal-navigation
                     class="mr-2"
                     [name]="'mainNavigation'"
-                    [navigation]="navigation.items">
-                </fuse-horizontal-navigation>
+                    [navigation]="
+                        navigation.items
+                    "></fuse-horizontal-navigation>
             }
             @if (isScreenSmall) {
-                <button
-                    class="mr-2"
-                    mat-icon-button
-                    (click)="toggleNavigation('mainNavigation')">
-                    <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
-                </button>
+                @if (hasNavigationItems) {
+                    <button
+                        class="mr-2"
+                        mat-icon-button
+                        aria-label="Open navigation"
+                        (click)="toggleNavigation('mainNavigation')">
+                        <mat-icon
+                            [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
+                    </button>
+                } @else {
+                    <div
+                        class="mr-2 flex h-10 w-10 items-center justify-center">
+                        <img
+                            class="logo-border w-8"
+                            src="images/logo/logo.svg"
+                            alt="Atria" />
+                    </div>
+                }
             }
             <div class="ml-auto flex items-center gap-2 pl-2">
                 <ng-container #headerWidgetsContainer></ng-container>
@@ -116,14 +132,14 @@
                 <router-outlet></router-outlet>
             }
         </div>
-
     </div>
 
     <!-- Side panel slot -->
-    <div class="layout-side-panel"
-         [class.layout-side-panel--open]="sidePanelService.isOpen()"
-         [class.layout-side-panel--mobile]="isScreenSmall"
-         [style.--side-panel-width.px]="sidePanelService.config()?.width ?? 380">
+    <div
+        class="layout-side-panel"
+        [class.layout-side-panel--open]="sidePanelService.isOpen()"
+        [class.layout-side-panel--mobile]="isScreenSmall"
+        [style.--side-panel-width.px]="sidePanelService.config()?.width ?? 380">
         <div class="layout-side-panel__inner">
             <ng-container #sidePanelContainer></ng-container>
         </div>
@@ -132,9 +148,7 @@
 
 <div
     data-notification-container
-    class="fixed top-5 right-5 z-[9999] max-w-sm
-           pointer-events-none flex flex-col gap-3">
-</div>
+    class="pointer-events-none fixed right-5 top-5 z-[9999] flex max-w-sm flex-col gap-3"></div>
 
 <div class="hidden">
     <fuse-alert
@@ -143,8 +157,7 @@
         [appearance]="'border'"
         [dismissible]="true"
         [showIcon]="true"
-        class="pointer-events-auto transform transition-transform
-               duration-300 ease-in-out translate-x-full opacity-100">
+        class="pointer-events-auto translate-x-full transform opacity-100 transition-transform duration-300 ease-in-out">
         <span fuseAlertTitle>Success</span>
         Success message
     </fuse-alert>
@@ -155,8 +168,7 @@
         [appearance]="'border'"
         [dismissible]="true"
         [showIcon]="true"
-        class="pointer-events-auto transform transition-transform
-               duration-300 ease-in-out translate-x-full opacity-100">
+        class="pointer-events-auto translate-x-full transform opacity-100 transition-transform duration-300 ease-in-out">
         <span fuseAlertTitle>Error</span>
         Error message
     </fuse-alert>
@@ -167,8 +179,7 @@
         [appearance]="'border'"
         [dismissible]="true"
         [showIcon]="true"
-        class="pointer-events-auto transform transition-transform
-               duration-300 ease-in-out translate-x-full opacity-100">
+        class="pointer-events-auto translate-x-full transform opacity-100 transition-transform duration-300 ease-in-out">
         <span fuseAlertTitle>Warning</span>
         Warning message
     </fuse-alert>
@@ -179,8 +190,7 @@
         [appearance]="'border'"
         [dismissible]="true"
         [showIcon]="true"
-        class="pointer-events-auto transform transition-transform
-               duration-300 ease-in-out translate-x-full opacity-100">
+        class="pointer-events-auto translate-x-full transform opacity-100 transition-transform duration-300 ease-in-out">
         <span fuseAlertTitle>Info</span>
         Info message
     </fuse-alert>

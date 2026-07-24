@@ -1,39 +1,49 @@
 import { DOCUMENT } from '@angular/common';
 import {
+    AfterViewInit,
+    ChangeDetectorRef,
     Component,
+    ComponentRef,
     Inject,
     OnDestroy,
     OnInit,
     Renderer2,
-    ViewEncapsulation,
-    ViewContainerRef,
     ViewChild,
-    AfterViewInit,
-    ChangeDetectorRef,
+    ViewContainerRef,
+    ViewEncapsulation,
     effect,
     signal,
-    ComponentRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterOutlet } from '@angular/router';
+import { FuseAlertComponent } from 'fuse/components/alert';
 import { FuseLoadingBarComponent } from 'fuse/components/loading-bar';
 import {
     FuseHorizontalNavigationComponent,
     FuseNavigationService,
     FuseVerticalNavigationComponent,
 } from 'fuse/components/navigation';
-import { FuseAlertComponent } from 'fuse/components/alert';
 import { FuseConfig, FuseConfigService } from 'fuse/services/config';
 import { FuseMediaWatcherService } from 'fuse/services/media-watcher';
 import { FusePlatformService } from 'fuse/services/platform';
 import { FUSE_VERSION } from 'fuse/version';
+import {
+    Subject,
+    combineLatest,
+    distinctUntilChanged,
+    map,
+    takeUntil,
+} from 'rxjs';
+import {
+    HeaderWidget,
+    HeaderWidgetInstance,
+    ScreenBreakpoint,
+} from 'shared/core/header/header-widget.interface';
+import { HeaderWidgetService } from 'shared/core/header/header-widget.service';
 import { NavigationService } from 'shared/core/navigation/navigation.service';
 import { Navigation } from 'shared/core/navigation/navigation.types';
-import { HeaderWidget, HeaderWidgetInstance, ScreenBreakpoint } from 'shared/core/header/header-widget.interface';
-import { HeaderWidgetService } from 'shared/core/header/header-widget.service';
 import { SidePanelService } from 'shared/core/side-panel/side-panel.service';
-import { Subject, combineLatest, takeUntil, distinctUntilChanged, map } from 'rxjs';
 
 const SIDE_PANEL_SCROLL_LOCK_CLASS = 'layout-side-panel-scroll-locked';
 
@@ -66,6 +76,7 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
 
     config: FuseConfig;
     navigation: Navigation;
+    hasNavigationItems: boolean = false;
 
     isScreenSmall: boolean = false;
     isScreenMobile: boolean = false;
@@ -86,19 +97,24 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
         private _fuseNavigationService: FuseNavigationService,
         private _headerWidgetService: HeaderWidgetService,
         private _changeDetectorRef: ChangeDetectorRef,
-        readonly sidePanelService: SidePanelService,
+        readonly sidePanelService: SidePanelService
     ) {
         effect(() => {
             const config = this.sidePanelService.config();
             const ready = this._viewReady();
-            if (config && ready && this.sidePanelContainer && !this._sidePanelRef) {
-                this._sidePanelRef = this.sidePanelContainer.createComponent(config.component);
+            if (
+                config &&
+                ready &&
+                this.sidePanelContainer &&
+                !this._sidePanelRef
+            ) {
+                this._sidePanelRef = this.sidePanelContainer.createComponent(
+                    config.component
+                );
             }
 
             this._syncSidePanelScrollLock();
         });
-
-
     }
 
     ngOnInit(): void {
@@ -106,6 +122,7 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((navigation: Navigation) => {
                 this.navigation = navigation;
+                this.hasNavigationItems = navigation.items.length > 0;
             });
 
         this._fuseMediaWatcherService.onMediaChange$
@@ -138,20 +155,18 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit(): void {
         this._viewReady.set(true);
 
-        const breakpointChanges$ = this._fuseMediaWatcherService
-            .onMediaChange$.pipe(
-                map(({ matchingAliases }) =>
-                    matchingAliases.sort().join(',')),
+        const breakpointChanges$ =
+            this._fuseMediaWatcherService.onMediaChange$.pipe(
+                map(({ matchingAliases }) => matchingAliases.sort().join(',')),
                 distinctUntilChanged()
-        );
+            );
 
         combineLatest([breakpointChanges$, this._headerWidgetService.widgets$])
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(([_, widgets]) => {
                 this._renderHeaderWidgets(widgets);
 
-                this._changeDetectorRef
-                    .detectChanges();
+                this._changeDetectorRef.detectChanges();
             });
     }
 
@@ -163,8 +178,10 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     toggleNavigation(name: string): void {
-        const navigation = this._fuseNavigationService
-            .getComponent<FuseVerticalNavigationComponent>(name);
+        const navigation =
+            this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>(
+                name
+            );
 
         if (navigation) {
             navigation.toggle();
@@ -176,14 +193,17 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this._destroyWidgetInstances();
 
-        const { headerWidgets, mobileWidgets } = this._splitWidgetsByScreenSize(widgets);
+        const { headerWidgets, mobileWidgets } =
+            this._splitWidgetsByScreenSize(widgets);
 
-        const sortedHeaderWidgets = [...headerWidgets]
-            .sort((a, b) => a.order - b.order);
+        const sortedHeaderWidgets = [...headerWidgets].sort(
+            (a, b) => a.order - b.order
+        );
 
-        sortedHeaderWidgets.forEach(widget => {
-            const componentRef = this.headerWidgetsContainer
-                .createComponent(widget.component);
+        sortedHeaderWidgets.forEach((widget) => {
+            const componentRef = this.headerWidgetsContainer.createComponent(
+                widget.component
+            );
 
             if (widget.data) {
                 Object.assign(componentRef.instance, widget.data);
@@ -192,17 +212,20 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             this._widgetInstances.push({
                 id: widget.id,
                 componentRef,
-                order: widget.order
+                order: widget.order,
             });
         });
 
         if (this.isScreenMobile && this.mobileWidgetsContainer) {
-            const sortedMobileWidgets = [...mobileWidgets]
-                .sort((a, b) => a.order - b.order);
+            const sortedMobileWidgets = [...mobileWidgets].sort(
+                (a, b) => a.order - b.order
+            );
 
-            sortedMobileWidgets.forEach(widget => {
-                const componentRef = this.mobileWidgetsContainer
-                    .createComponent(widget.component);
+            sortedMobileWidgets.forEach((widget) => {
+                const componentRef =
+                    this.mobileWidgetsContainer.createComponent(
+                        widget.component
+                    );
 
                 if (widget.data) {
                     Object.assign(componentRef.instance, widget.data);
@@ -211,14 +234,20 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
                 this._mobileWidgetInstances.push({
                     id: widget.id,
                     componentRef,
-                    order: widget.order
+                    order: widget.order,
                 });
             });
         }
     }
 
     private _updateCurrentBreakpoints(matchingAliases: string[]): void {
-        const validBreakpoints: ScreenBreakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];
+        const validBreakpoints: ScreenBreakpoint[] = [
+            'xs',
+            'sm',
+            'md',
+            'lg',
+            'xl',
+        ];
 
         const isValidBreakpoint = (alias: string): alias is ScreenBreakpoint =>
             validBreakpoints.includes(alias as ScreenBreakpoint);
@@ -227,28 +256,30 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     private _shouldHideWidget(widget: HeaderWidget): boolean {
-        if (this._currentBreakpoints.length === 0)
-            return false;
+        if (this._currentBreakpoints.length === 0) return false;
 
-        const currentBreakpoint = this._currentBreakpoints
-            [this._currentBreakpoints.length - 1];
+        const currentBreakpoint =
+            this._currentBreakpoints[this._currentBreakpoints.length - 1];
 
-        return widget.hideOnBreakpoints?.includes(
-            currentBreakpoint) ?? false;
+        return widget.hideOnBreakpoints?.includes(currentBreakpoint) ?? false;
     }
 
     private _splitWidgetsByScreenSize(widgets: HeaderWidget[]): {
         headerWidgets: HeaderWidget[];
         mobileWidgets: HeaderWidget[];
     } {
-        const headerWidgets = widgets.filter(widget => !this._shouldHideWidget(widget));
-        const mobileWidgets = widgets.filter(widget => this._shouldHideWidget(widget));
+        const headerWidgets = widgets.filter(
+            (widget) => !this._shouldHideWidget(widget)
+        );
+        const mobileWidgets = widgets.filter((widget) =>
+            this._shouldHideWidget(widget)
+        );
 
         return { headerWidgets, mobileWidgets };
     }
 
     private _destroyWidgetInstances(): void {
-        this._widgetInstances.forEach(instance => {
+        this._widgetInstances.forEach((instance) => {
             instance.componentRef.destroy();
         });
 
@@ -258,7 +289,7 @@ export class LayoutComponent implements OnInit, OnDestroy, AfterViewInit {
             this.headerWidgetsContainer.clear();
         }
 
-        this._mobileWidgetInstances.forEach(instance => {
+        this._mobileWidgetInstances.forEach((instance) => {
             instance.componentRef.destroy();
         });
 

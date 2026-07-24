@@ -1,35 +1,57 @@
-<div class="bg-card mx-6 mt-3 rounded-2xl p-6">
-    <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:gap-4">
-        <div class="flex min-w-0 items-center gap-3">
-            <button *ngIf="showBackButton" mat-icon-button (click)="back.emit()" class="shrink-0">
+<div class="bg-card mx-4 mt-3 rounded-2xl p-4 sm:mx-6 sm:p-6">
+    <div
+        class="grid items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]"
+        [ngClass]="{
+            'grid-cols-1': stackActionOnMobile,
+            'grid-cols-[minmax(0,1fr)_auto]': !stackActionOnMobile,
+        }">
+        <div class="flex min-w-0 items-start gap-3 sm:items-center">
+            <button
+                *ngIf="showBackButton"
+                mat-icon-button
+                (click)="back.emit()"
+                class="shrink-0">
                 <mat-icon>arrow_back</mat-icon>
             </button>
             <ng-content select="[feed-header-leading]"></ng-content>
-            <div class="min-w-0">
-                <div class="flex flex-wrap items-center gap-3">
-                    <h1 class="text-default text-2xl font-semibold">
+            <div class="min-w-0 flex-1">
+                <div
+                    class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+                    <h1
+                        class="text-default min-w-0 text-xl font-semibold leading-tight sm:text-2xl">
                         {{ title || 'Untitled Feed' }}
                     </h1>
                     <span
-                        class="inline-flex items-center rounded-full border px-3 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.05em]"
+                        class="inline-flex shrink-0 items-center rounded-full border px-3 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.05em]"
                         [ngClass]="{
                             'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/50 dark:bg-emerald-500/20 dark:text-emerald-300':
                                 statusClass === 'is-good',
                             'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/50 dark:bg-rose-500/20 dark:text-rose-300':
                                 statusClass === 'is-error',
                             'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/50 dark:bg-amber-500/20 dark:text-amber-300':
-                                statusClass !== 'is-good' && statusClass !== 'is-error',
+                                statusClass !== 'is-good' &&
+                                statusClass !== 'is-error',
                         }">
                         {{ statusLabel }}
                     </span>
                 </div>
-                <p *ngIf="description" class="text-secondary text-sm">
+                <p
+                    *ngIf="description"
+                    class="text-secondary mt-1 break-words text-sm leading-relaxed">
                     {{ description }}
                 </p>
             </div>
         </div>
-        <div *ngIf="actionComponent" class="flex shrink-0 items-center justify-end">
-            <ng-container *ngComponentOutlet="actionComponent; inputs: actionInputs"></ng-container>
+        <div
+            *ngIf="actionComponent"
+            class="flex items-center justify-end"
+            [class.w-full]="stackActionOnMobile"
+            [class.shrink-0]="!stackActionOnMobile">
+            <ng-container
+                *ngComponentOutlet="
+                    actionComponent;
+                    inputs: actionInputs
+                "></ng-container>
         </div>
     </div>
 </div>
