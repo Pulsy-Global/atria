@@ -41,12 +41,12 @@
         Displayed values are stale. The last successful refresh is more than a minute old.
     </div>
 
-    <div *ngIf="isLoading" class="metrics-state mt-6">
-        <mat-spinner diameter="30"></mat-spinner>
-        <div>
-            <div class="text-default font-medium">Loading feed activity</div>
-            <div class="text-secondary mt-1 text-sm">Preparing aligned metrics for {{ rangeLabel.toLowerCase() }}.</div>
-        </div>
+    <div
+        *ngIf="isLoading"
+        class="flex min-h-[26rem] items-center justify-center"
+        role="status"
+        aria-label="Loading feed metrics">
+        <mat-spinner diameter="28" strokeWidth="3"></mat-spinner>
     </div>
 
     <div *ngIf="requestFailed && !isLoading" class="metrics-state metrics-state-error mt-6">
@@ -73,14 +73,7 @@
         <button mat-stroked-button type="button" (click)="refresh()">Retry</button>
     </div>
 
-    <div
-        *ngIf="metrics?.status === 'noData' && !isLoading"
-        class="metrics-empty mt-6 flex min-h-[26rem] flex-col items-center justify-center text-center">
-        <mat-icon class="text-secondary !h-10 !w-10 !text-[2.5rem]"> query_stats </mat-icon>
-        <h3 class="text-default mt-3 text-lg font-semibold">No activity in this range</h3>
-    </div>
-
-    <ng-container *ngIf="metrics && metrics.status !== 'unavailable' && metrics.status !== 'noData' && !isLoading">
+    <ng-container *ngIf="metrics && metrics.status !== 'unavailable' && !isLoading">
         <div
             *ngIf="metrics.status === 'partial'"
             class="mt-6 flex items-center gap-3 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100">
