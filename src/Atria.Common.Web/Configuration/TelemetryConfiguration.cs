@@ -42,11 +42,14 @@ internal static class TelemetryConfiguration
         TelemetryOptions options)
     {
         var component = options.Component!.Value.ToString().ToLowerInvariant();
+        var environment = string.IsNullOrWhiteSpace(options.Environment)
+            ? builder.Environment.EnvironmentName
+            : options.Environment;
 
         return new Dictionary<string, object>
         {
             ["atria.component"] = component,
-            ["deployment.environment.name"] = builder.Environment.EnvironmentName,
+            ["deployment.environment.name"] = environment,
             ["service.namespace"] = "atria",
         };
     }
