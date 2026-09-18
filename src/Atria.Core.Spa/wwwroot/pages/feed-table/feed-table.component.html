@@ -62,24 +62,16 @@
             class="feed-table-desktop-layout relative hidden lg:flex lg:w-full lg:flex-1 lg:flex-col">
             <div class="absolute inset-0 flex flex-col px-6 pb-6 pt-4">
                 <fuse-card class="bg-card flex min-h-0 w-full flex-1 flex-col">
-                    <div class="min-h-0 flex-1 overflow-hidden">
-                        @if (isLoading) {
-                            <ng-container
-                                [ngTemplateOutlet]="
-                                    shimmerContent
-                                "></ng-container>
-                        } @else if (feeds.length > 0) {
-                            <ng-container
-                                [ngTemplateOutlet]="
-                                    desktopTableTemplate
-                                "></ng-container>
-                        } @else {
-                            <ng-container
-                                [ngTemplateOutlet]="
-                                    noContentTemplate
-                                "></ng-container>
-                        }
-                    </div>
+                    <atria-table-shell
+                        [loading]="isLoading"
+                        [empty]="!isLoading && feeds.length === 0"
+                        emptyTitle="No feeds found"
+                        emptyDescription="Create your first feed to get started.">
+                        <ng-container
+                            [ngTemplateOutlet]="
+                                desktopTableTemplate
+                            "></ng-container>
+                    </atria-table-shell>
 
                     <ng-container
                         *ngTemplateOutlet="paginatorContent"></ng-container>
@@ -108,309 +100,279 @@
 </div>
 
 <ng-template #desktopTableTemplate>
-    <div
-        class="h-full overflow-y-auto overflow-x-hidden rounded-lg rounded-tl-2xl rounded-tr-2xl border"
-        fuseScrollbar
-        [fuseScrollbarOptions]="scrollbarTableOptions">
-        <table
-            mat-table
-            matSort
-            [dataSource]="feeds"
-            [trackBy]="trackByFeedId"
-            [matSortDisabled]="isLoading"
-            [matSortActive]="tableState.sort?.active"
-            [matSortDirection]="tableState.sort?.direction"
-            (matSortChange)="onMatSortChange($event)"
-            class="bg-card w-full">
-            <ng-container matColumnDef="name">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="name"
-                    [disabled]="!isSortable('name')"
-                    class="bg-hover rounded-tl-lg !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Name</span>
-                        <button
-                            *ngIf="isFiltrable('name')"
-                            (click)="onFilter('name', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('name'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td
-                    mat-cell
-                    *matCellDef="let feed"
-                    class="max-w-[250px] !px-3 !py-2">
-                    <div class="text-default truncate text-md font-medium">
-                        {{ feed.name }}
-                    </div>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="version">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="version"
-                    [disabled]="!isSortable('version')"
-                    class="bg-hover !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Version</span>
-                        <button
-                            *ngIf="isFiltrable('version')"
-                            (click)="onFilter('version', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('version'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td mat-cell *matCellDef="let feed" class="!px-3 !py-2">
-                    <div class="text-secondary text-md">
-                        {{ feed.version || 'v1.0.0' }}
-                    </div>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="status"
-                    [disabled]="!isSortable('status')"
-                    class="bg-hover !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Status</span>
-                        <button
-                            *ngIf="isFiltrable('status')"
-                            (click)="onFilter('status', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('status'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td mat-cell *matCellDef="let feed" class="!px-3 !py-2">
-                    <div
-                        class="inline-flex items-center gap-1.5 whitespace-nowrap">
-                        <span
-                            class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium"
-                            [ngClass]="getStatusColor(feed.status)"
-                            [matTooltip]="getFeedStatusTooltip(feed)"
-                            [matTooltipDisabled]="!streamData[feed.id]"
-                            [matTooltipClass]="getFeedStatusTooltipClass(feed)">
-                            {{ getStatusText(feed.status) }}
-                            <ng-container *ngIf="streamData[feed.id]">
-                                <span
-                                    class="ml-1.5 whitespace-nowrap opacity-75"
-                                    *ngIf="getFeedLag(feed) > 1">
-                                    -{{ formatFeedLag(feed) }} blocks
-                                </span>
-                                <span
-                                    class="ml-1.5 whitespace-nowrap opacity-75"
-                                    *ngIf="
-                                        getFeedLag(feed) <= 1 &&
-                                        isFeedRunning(feed)
-                                    ">
-                                    in sync
-                                </span>
-                            </ng-container>
-                        </span>
+    <table
+        mat-table
+        matSort
+        [dataSource]="feeds"
+        [trackBy]="trackByFeedId"
+        [matSortDisabled]="isLoading"
+        [matSortActive]="tableState.sort?.active"
+        [matSortDirection]="tableState.sort?.direction"
+        (matSortChange)="onMatSortChange($event)"
+        class="bg-card w-full">
+        <ng-container matColumnDef="name">
+            <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="name"
+                [disabled]="!isSortable('name')">
+                <div class="flex items-center">
+                    <span>Name</span>
+                    <button
+                        *ngIf="isFiltrable('name')"
+                        (click)="onFilter('name', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
                         <mat-icon
-                            *ngIf="getFeedErrorInfo(feed)"
-                            class="text-rose-700 icon-size-4 dark:text-rose-300"
-                            [matTooltip]="getFeedErrorTooltip(feed)"
-                            matTooltipClass="feed-error-tooltip">
-                            info
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('name'),
+                            }">
+                            filter_list
                         </mat-icon>
-                    </div>
-                </td>
-            </ng-container>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed" class="max-w-[250px]">
+                <div class="text-default truncate text-md font-medium">
+                    {{ feed.name }}
+                </div>
+            </td>
+        </ng-container>
 
-            <ng-container matColumnDef="networkId">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="networkId"
-                    [disabled]="!isSortable('networkId')"
-                    class="bg-hover !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Network</span>
-                        <button
-                            *ngIf="isFiltrable('networkId')"
-                            (click)="onFilter('networkId', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('networkId'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td mat-cell *matCellDef="let feed" class="!px-3 !py-2">
-                    <network-display
-                        class="feed-table-network-display"
-                        [networks]="networks"
-                        [networkId]="feed.networkId"
-                        variant="stacked"
-                        size="md"></network-display>
-                </td>
-            </ng-container>
+        <ng-container matColumnDef="version">
+            <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="version"
+                [disabled]="!isSortable('version')">
+                <div class="flex items-center">
+                    <span>Version</span>
+                    <button
+                        *ngIf="isFiltrable('version')"
+                        (click)="onFilter('version', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
+                        <mat-icon
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('version'),
+                            }">
+                            filter_list
+                        </mat-icon>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed">
+                <div class="text-secondary text-md">
+                    {{ feed.version || 'v1.0.0' }}
+                </div>
+            </td>
+        </ng-container>
 
-            <ng-container matColumnDef="dataType">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    mat-sort-header="dataType"
-                    [disabled]="!isSortable('dataType')"
-                    class="bg-hover !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Data Type</span>
-                        <button
-                            *ngIf="isFiltrable('dataType')"
-                            (click)="onFilter('dataType', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('dataType'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td mat-cell *matCellDef="let feed" class="!px-3 !py-2">
+        <ng-container matColumnDef="status">
+            <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="status"
+                [disabled]="!isSortable('status')">
+                <div class="flex items-center">
+                    <span>Status</span>
+                    <button
+                        *ngIf="isFiltrable('status')"
+                        (click)="onFilter('status', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
+                        <mat-icon
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('status'),
+                            }">
+                            filter_list
+                        </mat-icon>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed">
+                <div class="inline-flex items-center gap-1.5 whitespace-nowrap">
                     <span
-                        class="inline-flex items-center truncate rounded-full px-3 py-1 text-sm font-medium"
-                        [ngClass]="getDataTypeColor(feed.dataType)">
-                        {{ formatFieldValue('dataType', feed.dataType) }}
-                    </span>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="tagIds">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    class="bg-hover w-40 !px-3 !py-2 !text-sm !font-semibold">
-                    <div class="flex items-center">
-                        <span>Tags</span>
-                        <button
-                            *ngIf="isFiltrable('tagIds')"
-                            (click)="onFilter('tagIds', $event)"
-                            class="compact-filter-btn ml-1"
-                            mat-icon-button
-                            [disabled]="isLoading">
-                            <mat-icon
-                                class="!text-sm"
-                                [ngClass]="{
-                                    'text-primary': isActiveFilter('tagIds'),
-                                }">
-                                filter_list
-                            </mat-icon>
-                        </button>
-                    </div>
-                </th>
-                <td mat-cell *matCellDef="let feed" class="w-40 !px-3 !py-2">
-                    <div class="flex flex-wrap gap-1">
-                        <div
-                            *ngFor="let tagId of getValidTagIds(feed.tagIds)"
-                            class="inline-flex max-w-[180px] items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-gray-800"
-                            [style.background-color]="getTagColor(tagId)"
-                            [matTooltip]="getTagName(tagId)">
-                            <span class="truncate leading-4">
-                                {{ getTagName(tagId) }}
+                        class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-sm font-medium"
+                        [ngClass]="getStatusColor(feed.status)"
+                        [matTooltip]="getFeedStatusTooltip(feed)"
+                        [matTooltipDisabled]="!streamData[feed.id]"
+                        [matTooltipClass]="getFeedStatusTooltipClass(feed)">
+                        {{ getStatusText(feed.status) }}
+                        <ng-container *ngIf="streamData[feed.id]">
+                            <span
+                                class="ml-1.5 whitespace-nowrap opacity-75"
+                                *ngIf="getFeedLag(feed) > 1">
+                                -{{ formatFeedLag(feed) }} blocks
                             </span>
-                        </div>
-                        <span
-                            *ngIf="getValidTagIds(feed.tagIds).length === 0"
-                            class="text-secondary text-sm">
-                            No Tags
+                            <span
+                                class="ml-1.5 whitespace-nowrap opacity-75"
+                                *ngIf="
+                                    getFeedLag(feed) <= 1 && isFeedRunning(feed)
+                                ">
+                                in sync
+                            </span>
+                        </ng-container>
+                    </span>
+                    <mat-icon
+                        *ngIf="getFeedErrorInfo(feed)"
+                        class="text-rose-700 icon-size-4 dark:text-rose-300"
+                        [matTooltip]="getFeedErrorTooltip(feed)"
+                        matTooltipClass="feed-error-tooltip">
+                        info
+                    </mat-icon>
+                </div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="networkId">
+            <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="networkId"
+                [disabled]="!isSortable('networkId')">
+                <div class="flex items-center">
+                    <span>Network</span>
+                    <button
+                        *ngIf="isFiltrable('networkId')"
+                        (click)="onFilter('networkId', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
+                        <mat-icon
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('networkId'),
+                            }">
+                            filter_list
+                        </mat-icon>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed">
+                <network-display
+                    class="feed-table-network-display"
+                    [networks]="networks"
+                    [networkId]="feed.networkId"
+                    variant="stacked"
+                    size="md"></network-display>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dataType">
+            <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header="dataType"
+                [disabled]="!isSortable('dataType')">
+                <div class="flex items-center">
+                    <span>Data Type</span>
+                    <button
+                        *ngIf="isFiltrable('dataType')"
+                        (click)="onFilter('dataType', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
+                        <mat-icon
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('dataType'),
+                            }">
+                            filter_list
+                        </mat-icon>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed">
+                <span
+                    class="inline-flex items-center truncate rounded-full px-3 py-1 text-sm font-medium"
+                    [ngClass]="getDataTypeColor(feed.dataType)">
+                    {{ formatFieldValue('dataType', feed.dataType) }}
+                </span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tagIds">
+            <th mat-header-cell *matHeaderCellDef>
+                <div class="flex items-center">
+                    <span>Tags</span>
+                    <button
+                        *ngIf="isFiltrable('tagIds')"
+                        (click)="onFilter('tagIds', $event)"
+                        class="compact-filter-btn ml-1"
+                        mat-icon-button
+                        [disabled]="isLoading">
+                        <mat-icon
+                            class="!text-sm"
+                            [ngClass]="{
+                                'text-primary': isActiveFilter('tagIds'),
+                            }">
+                            filter_list
+                        </mat-icon>
+                    </button>
+                </div>
+            </th>
+            <td mat-cell *matCellDef="let feed">
+                <div class="flex flex-wrap gap-1">
+                    <div
+                        *ngFor="let tagId of getValidTagIds(feed.tagIds)"
+                        class="inline-flex max-w-[180px] items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-gray-800"
+                        [style.background-color]="getTagColor(tagId)"
+                        [matTooltip]="getTagName(tagId)">
+                        <span class="truncate leading-4">
+                            {{ getTagName(tagId) }}
                         </span>
                     </div>
-                </td>
-            </ng-container>
+                    <span
+                        *ngIf="getValidTagIds(feed.tagIds).length === 0"
+                        class="text-secondary text-sm">
+                        No Tags
+                    </span>
+                </div>
+            </td>
+        </ng-container>
 
-            <ng-container matColumnDef="controls">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    class="bg-hover rounded-tr-lg !px-3 !py-2"></th>
-                <td mat-cell *matCellDef="let feed" class="!px-3 !py-2">
-                    <div class="flex items-center justify-center space-x-1">
-                        <mat-slide-toggle
-                            [checked]="isFeedRunning(feed)"
-                            (change)="onToggleStatus(feed, $event)"
-                            [disabled]="!isFeedActive(feed)"
-                            [matTooltip]="
-                                isFeedRunning(feed)
-                                    ? 'Pause Feed'
-                                    : 'Resume Feed'
-                            "
-                            color="primary"
-                            class="compact-toggle"></mat-slide-toggle>
-                        <button
-                            mat-icon-button
-                            [matTooltip]="'Edit'"
-                            (click)="onEditFeed(feed)"
-                            class="ultra-compact-action-btn">
-                            <mat-icon
-                                [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
-                        </button>
-                        <button
-                            mat-icon-button
-                            [matTooltip]="'Delete'"
-                            (click)="onDeleteFeed(feed)"
-                            class="ultra-compact-action-btn">
-                            <mat-icon
-                                [svgIcon]="'heroicons_mini:trash'"></mat-icon>
-                        </button>
-                    </div>
-                </td>
-            </ng-container>
+        <ng-container matColumnDef="controls">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let feed">
+                <div class="flex items-center justify-center space-x-1">
+                    <mat-slide-toggle
+                        [checked]="isFeedRunning(feed)"
+                        (change)="onToggleStatus(feed, $event)"
+                        [disabled]="!isFeedActive(feed)"
+                        [matTooltip]="
+                            isFeedRunning(feed) ? 'Pause Feed' : 'Resume Feed'
+                        "
+                        color="primary"
+                        class="compact-toggle"></mat-slide-toggle>
+                    <button
+                        mat-icon-button
+                        [matTooltip]="'Edit'"
+                        (click)="onEditFeed(feed)"
+                        class="ultra-compact-action-btn">
+                        <mat-icon
+                            [svgIcon]="'heroicons_mini:pencil'"></mat-icon>
+                    </button>
+                    <button
+                        mat-icon-button
+                        [matTooltip]="'Delete'"
+                        (click)="onDeleteFeed(feed)"
+                        class="ultra-compact-action-btn">
+                        <mat-icon [svgIcon]="'heroicons_mini:trash'"></mat-icon>
+                    </button>
+                </div>
+            </td>
+        </ng-container>
 
-            <tr
-                mat-header-row
-                *matHeaderRowDef="displayedColumns"
-                class="sticky top-0 z-10 !h-10 rounded-t-lg"></tr>
-            <tr
-                mat-row
-                *matRowDef="let row; columns: displayedColumns"
-                class="!h-12 hover:bg-hover"></tr>
-        </table>
-    </div>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
 </ng-template>
 
 <ng-template #noContentTemplate>

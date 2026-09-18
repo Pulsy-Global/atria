@@ -1,0 +1,36 @@
+<div class="atria-table-shell__frame">
+    <ng-content></ng-content>
+
+    @if (loading) {
+        <div class="atria-table-shell__overlay">
+            <div class="mt-1.5 flex w-full flex-col space-y-2 px-4 pt-4">
+                @for (row of skeleton; track row) {
+                    <div
+                        class="bg-hover h-28 w-full animate-pulse rounded-md xl:h-20"></div>
+                }
+            </div>
+        </div>
+    } @else if (error) {
+        <div class="atria-table-shell__overlay items-center justify-center">
+            <mat-icon
+                class="mb-4 text-warn icon-size-12"
+                [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+            <div class="text-default mb-4 text-lg font-medium">
+                {{ errorTitle }}
+            </div>
+            <button mat-stroked-button (click)="retry.emit()">Retry</button>
+        </div>
+    } @else if (empty) {
+        <div class="atria-table-shell__overlay items-center justify-center">
+            <mat-icon
+                class="text-secondary mb-4 icon-size-12"
+                [svgIcon]="'heroicons_outline:inbox'"></mat-icon>
+            <div class="text-default text-lg font-medium">{{ emptyTitle }}</div>
+            @if (emptyDescription) {
+                <div class="text-secondary mt-2 text-sm">
+                    {{ emptyDescription }}
+                </div>
+            }
+        </div>
+    }
+</div>

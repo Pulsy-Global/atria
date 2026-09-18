@@ -33,6 +33,7 @@ import { TablePaginationService } from '../../shared/table/services/table.pagina
 import { TableODataService } from '../../shared/table/services/table.odata.service';
 import { OUTPUT_TABLE_CONFIG } from './output-table.config';
 import { OUTPUT_TYPE_CONFIG } from '../../shared/output/output-config.config';
+import { TableShellComponent } from '../../shared/table/components/table-shell/table-shell.component';
 
 @Component({
     selector: 'output-table',
@@ -62,7 +63,8 @@ import { OUTPUT_TYPE_CONFIG } from '../../shared/output/output-config.config';
         MatPaginatorModule,
         MatChipsModule,
         SearchBarComponent,
-        FuseCardComponent
+        FuseCardComponent,
+        TableShellComponent
     ]
 })
 export class OutputTableComponent implements OnInit, OnDestroy {
@@ -82,13 +84,6 @@ export class OutputTableComponent implements OnInit, OnDestroy {
     readonly OutputType = OutputType;
     readonly FilterType = FilterType;
 
-    scrollbarTableOptions = {
-        suppressScrollX: true,
-        suppressScrollY: false,
-        scrollYMarginOffset: 80,
-        wheelPropagation: false,
-        swipeEasing: true
-    };
 
     constructor(
         private readonly _activatedRoute: ActivatedRoute,

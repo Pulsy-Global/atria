@@ -310,8 +310,10 @@
         background-color: transparent !important;
     }
 
-    .mat-mdc-raised-button.mat-primary {
+    .mat-mdc-raised-button.mat-primary,
+    .mat-mdc-unelevated-button.mat-primary {
         --mdc-protected-button-label-text-color: #000000 !important;
+        --mdc-filled-button-label-text-color: #000000 !important;
         
         .mat-mdc-button-persistent-ripple::before {
             background-color: #000000;
