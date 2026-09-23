@@ -1,0 +1,66 @@
+<div class="flex h-full w-full flex-col">
+    <div
+        class="kv-scroll min-h-0 w-full flex-1 overflow-y-auto"
+        (scroll)="onScroll($event)">
+        @if (loading) {
+            <div class="flex w-full items-center justify-center py-16">
+                <mat-progress-spinner
+                    [diameter]="36"
+                    mode="indeterminate">
+                </mat-progress-spinner>
+            </div>
+        } @else if (visibleBuckets.length > 0) {
+            <div class="flex w-full flex-col gap-2 pb-4">
+                @for (name of visibleBuckets; track name) {
+                    <button
+                        type="button"
+                        (click)="openBucket(name)"
+                        class="group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition-colors"
+                        [class]="name === selected
+                            ? 'border-primary/40 bg-primary/10'
+                            : 'border-secondary/20 hover:bg-hover'">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+                            <mat-icon
+                                class="icon-size-6 text-primary"
+                                [svgIcon]="'heroicons_outline:folder'">
+                            </mat-icon>
+                        </span>
+
+                        <div class="flex min-w-0 flex-1 flex-col leading-tight">
+                            <span class="text-default truncate text-base font-semibold">
+                                {{ name }}
+                            </span>
+                        </div>
+
+                        <mat-icon
+                            class="icon-size-5 shrink-0 text-secondary"
+                            [svgIcon]="'heroicons_mini:chevron-right'">
+                        </mat-icon>
+                    </button>
+                }
+            </div>
+
+            @if (loadingMore) {
+                <div class="flex w-full items-center justify-center py-4">
+                    <mat-progress-spinner
+                        [diameter]="24"
+                        mode="indeterminate">
+                    </mat-progress-spinner>
+                </div>
+            }
+        } @else {
+            <div class="flex w-full flex-col items-center justify-center py-16">
+                <mat-icon
+                    class="text-secondary mb-4 h-8 w-8 text-4xl"
+                    [svgIcon]="'heroicons_outline:folder'">
+                </mat-icon>
+                <div class="text-default mb-2 text-lg font-medium">
+                    {{ filter ? 'No buckets match your filter' : 'No buckets yet' }}
+                </div>
+                <div class="text-secondary text-sm">
+                    {{ filter ? 'Try a different search term.' : 'Buckets written by your feeds will appear here.' }}
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -13,6 +13,13 @@
             "type": "basic",
             "icon": "heroicons_outline:squares-plus",
             "link": "/outputs"
+        },
+        {
+            "id": "kv",
+            "title": "Key-Value",
+            "type": "basic",
+            "icon": "heroicons_outline:circle-stack",
+            "link": "/storage"
         }
     ]
 }

@@ -1,0 +1,138 @@
+<div
+    class="flex h-[calc(100dvh_-_4rem)] w-full min-h-0 flex-col px-6 py-6 sm:h-[calc(100dvh_-_5rem)] lg:px-8">
+    <div class="flex w-full shrink-0 items-center justify-between gap-4 pb-5">
+        <h1 class="text-default text-2xl font-semibold tracking-tight">
+            Key-Value Store
+        </h1>
+    </div>
+
+    <div class="flex min-h-0 w-full flex-1 gap-6">
+        <!-- Column 1: buckets list -->
+        <div
+            class="min-h-0 flex-col"
+            [ngClass]="selectedBucket
+                ? 'hidden lg:flex lg:w-[300px] lg:shrink-0'
+                : 'flex w-full lg:w-[300px] lg:shrink-0'">
+            <div class="shrink-0 pb-4 pt-2">
+                <div class="flex h-7 w-full items-center justify-between gap-2 pb-3">
+                    <span class="text-secondary text-[11px] font-semibold uppercase tracking-wider">
+                        Buckets
+                    </span>
+                </div>
+
+                <input
+                    type="text"
+                    [value]="bucketFilter"
+                    (input)="onBucketFilterChanged($event)"
+                    placeholder="Filter buckets"
+                    class="text-default w-full rounded-lg border border-secondary/20 bg-card px-3 py-1.5 text-sm outline-none transition-colors focus:border-primary/40">
+            </div>
+
+            <kv-buckets
+                [buckets]="buckets"
+                [loading]="bucketsLoading"
+                [loadingMore]="bucketsLoadingMore"
+                [hasMore]="bucketsHasMore"
+                [filter]="bucketFilter"
+                [selected]="selectedBucket"
+                (bucketSelected)="selectBucket($event)"
+                (loadMore)="onBucketsLoadMore()"
+                class="flex min-h-0 w-full flex-1 flex-col">
+            </kv-buckets>
+        </div>
+
+        <!-- Column 2: keys of the selected bucket (full-width step on mobile) -->
+        <div
+            class="min-h-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
+            [ngClass]="selectedBucket && !focused
+                ? 'flex w-full lg:w-[400px] lg:shrink-0'
+                : 'hidden lg:flex lg:w-[400px] lg:shrink-0'">
+            @if (selectedBucket) {
+                <div class="flex w-full shrink-0 items-center gap-2 pb-3 lg:hidden">
+                    <button
+                        type="button"
+                        (click)="onBack()"
+                        matTooltip="Back to buckets"
+                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-secondary/20 bg-card transition-colors hover:bg-hover">
+                        <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
+                    </button>
+                </div>
+
+                <div class="shrink-0 pb-4 pt-2">
+                    <div class="flex h-7 w-full items-center gap-3 pb-3">
+                        <span class="text-secondary shrink-0 text-[11px] font-semibold uppercase tracking-wider">
+                            Keys
+                        </span>
+                        <span>&#183;</span>
+                        <span class="text-default/70 min-w-0 truncate font-mono text-xs" [matTooltip]="selectedBucket">
+                            {{ selectedBucket }}
+                        </span>
+                    </div>
+
+                    <input
+                        #keySearchInput
+                        type="text"
+                        (keydown.enter)="onKeySearchChanged($event)"
+                        placeholder="Search keys by exact name"
+                        [autocomplete]="'off'"
+                        class="text-default w-full rounded-lg border border-secondary/20 bg-card px-3 py-1.5 text-sm outline-none transition-colors focus:border-primary/40">
+                </div>
+
+                <kv-detail
+                    [bucket]="selectedBucket"
+                    [search]="searchTerm"
+                    (valueSelected)="onValueSelected($event)"
+                    class="flex min-h-0 w-full flex-1 flex-col">
+                </kv-detail>
+            } @else {
+                <div class="flex h-full w-full flex-col items-center justify-center py-16 text-center">
+                    <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
+                        <mat-icon
+                            class="text-secondary icon-size-7"
+                            [svgIcon]="'heroicons_outline:folder'">
+                        </mat-icon>
+                    </span>
+                    <div class="text-default mb-1 text-base font-medium">
+                        Select a bucket
+                    </div>
+                    <div class="text-secondary max-w-[220px] text-sm">
+                        Choose a bucket to browse its keys.
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Column 3: inline value pane (full-width step on mobile) -->
+        <div
+            class="min-h-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
+            [ngClass]="focused ? 'flex w-full flex-1' : 'hidden lg:flex lg:flex-1'">
+            @if (focused) {
+                <kv-value-pane
+                    [bucket]="selectedBucket"
+                    [key]="focused.key"
+                    [value]="focused.value"
+                    [isJson]="focused.isJson"
+                    (close)="clearFocus()"
+                    class="flex min-h-0 w-full flex-1 flex-col">
+                </kv-value-pane>
+            } @else {
+                <div class="flex h-full w-full flex-col items-center justify-center text-center">
+                    <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
+                        <mat-icon
+                            class="text-secondary icon-size-7"
+                            [svgIcon]="isBrowseMode ? 'heroicons_outline:folder' : 'heroicons_outline:rectangle-stack'">
+                        </mat-icon>
+                    </span>
+                    <div class="text-default mb-1 text-base font-medium">
+                        {{ isBrowseMode ? 'Select a bucket to get started' : 'Select a key to preview its value' }}
+                    </div>
+                    <div class="text-secondary max-w-xs text-sm">
+                        {{ isBrowseMode
+                            ? 'Choose a bucket to browse its keys.'
+                            : 'Pick a key to inspect its stored value, metadata, and JSON preview.' }}
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

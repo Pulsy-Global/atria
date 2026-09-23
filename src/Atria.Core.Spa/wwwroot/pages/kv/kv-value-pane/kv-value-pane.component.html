@@ -1,0 +1,128 @@
+<div class="flex h-full w-full flex-col">
+    <div class="flex w-full shrink-0 items-start justify-between gap-4 pb-5 pt-1">
+        <div class="flex min-w-0 items-start gap-3">
+            <button
+                mat-icon-button
+                type="button"
+                (click)="onClose()"
+                matTooltip="Back to keys"
+                class="-ml-2 shrink-0 lg:hidden">
+                <mat-icon class="icon-size-6" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
+            </button>
+
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <mat-icon
+                    class="icon-size-6 text-primary"
+                    [svgIcon]="isJson ? 'heroicons_outline:code-bracket' : 'heroicons_outline:document-text'">
+                </mat-icon>
+            </span>
+
+            <div class="flex min-w-0 flex-col leading-tight">
+                <span class="text-default truncate text-xl font-semibold" [matTooltip]="key">
+                    {{ key }}
+                </span>
+                <span class="text-secondary mt-1 flex flex-wrap items-center gap-x-2 text-sm">
+                    <span class="font-medium">{{ typeLabel }}</span>
+                    <span class="text-secondary/50">•</span>
+                    <span>{{ size }}</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-2">
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="copy()"
+                class="min-w-[92px]">
+                <mat-icon class="mr-2 icon-size-5" [svgIcon]="copied ? 'heroicons_outline:check' : 'heroicons_outline:clipboard-document'"></mat-icon>
+                {{ copied ? 'Copied' : 'Copy' }}
+            </button>
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="download()"
+                class="min-w-[120px]">
+                <mat-icon class="mr-2 icon-size-5" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                Download
+            </button>
+        </div>
+    </div>
+
+    <div class="flex w-full shrink-0 items-center gap-6 border-b border-secondary/20">
+        <button
+            type="button"
+            (click)="activeTab = 'value'"
+            class="-mb-px border-b-2 px-1 pb-3 text-sm font-semibold transition-colors"
+            [class]="activeTab === 'value' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-default'">
+            Value
+        </button>
+        <button
+            type="button"
+            (click)="activeTab = 'metadata'"
+            class="-mb-px border-b-2 px-1 pb-3 text-sm font-semibold transition-colors"
+            [class]="activeTab === 'metadata' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-default'">
+            Metadata
+        </button>
+
+        @if (activeTab === 'value') {
+            <div class="ml-auto">
+                <button
+                    mat-stroked-button
+                    type="button"
+                    [matMenuTriggerFor]="languageMenu"
+                    class="!min-h-8 !bg-card !px-3 text-xs">
+                    {{ viewLabel }}
+                    <mat-icon class="ml-1 icon-size-4" [svgIcon]="'heroicons_mini:chevron-down'"></mat-icon>
+                </button>
+                <mat-menu #languageMenu="matMenu">
+                    <button mat-menu-item type="button" (click)="setView('json')">JSON</button>
+                    <button mat-menu-item type="button" (click)="setView('text')">Plain text</button>
+                    <button mat-menu-item type="button" (click)="setView('hex')">Hex</button>
+                </mat-menu>
+            </div>
+        }
+    </div>
+
+    @if (activeTab === 'value') {
+        <div class="flex min-h-0 w-full flex-1 flex-col pt-4">
+            <div class="min-h-0 flex-1 overflow-hidden rounded-xl border border-secondary/20 bg-card">
+                <ngx-monaco-editor
+                    class="h-full w-full"
+                    [options]="editorOptions"
+                    [(ngModel)]="content">
+                </ngx-monaco-editor>
+            </div>
+
+            <div class="text-secondary mt-3 flex items-center gap-2 text-xs">
+                <mat-icon class="icon-size-4" [svgIcon]="'heroicons_outline:information-circle'"></mat-icon>
+                This is the actual value stored in KV storage.
+            </div>
+        </div>
+    } @else {
+        <div class="kv-scroll min-h-0 w-full flex-1 overflow-y-auto pt-4">
+            <dl class="flex flex-col divide-y divide-secondary/20 rounded-xl border border-secondary/20">
+                <div class="flex items-center justify-between gap-4 px-4 py-3">
+                    <dt class="text-secondary text-sm">Bucket</dt>
+                    <dd class="text-default min-w-0 truncate font-mono text-sm" [matTooltip]="bucket">{{ bucket }}</dd>
+                </div>
+                <div class="flex items-center justify-between gap-4 px-4 py-3">
+                    <dt class="text-secondary text-sm">Key</dt>
+                    <dd class="text-default min-w-0 truncate font-mono text-sm" [matTooltip]="key">{{ key }}</dd>
+                </div>
+                <div class="flex items-center justify-between gap-4 px-4 py-3">
+                    <dt class="text-secondary text-sm">Type</dt>
+                    <dd class="text-default text-sm font-medium">{{ typeLabel }}</dd>
+                </div>
+                <div class="flex items-center justify-between gap-4 px-4 py-3">
+                    <dt class="text-secondary text-sm">Size</dt>
+                    <dd class="text-default text-sm font-medium">{{ size }}</dd>
+                </div>
+                <div class="flex items-center justify-between gap-4 px-4 py-3">
+                    <dt class="text-secondary text-sm">Characters</dt>
+                    <dd class="text-default text-sm font-medium">{{ charCount }}</dd>
+                </div>
+            </dl>
+        </div>
+    }
+</div>

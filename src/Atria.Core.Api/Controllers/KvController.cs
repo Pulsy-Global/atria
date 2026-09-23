@@ -9,6 +9,17 @@ namespace Atria.Core.Api.Controllers;
 public class KvController(KvFacade kvFacade)
     : ApiControllerBase
 {
+    private const int DefaultBucketListLimit = 1000;
+
+    [HttpGet("buckets")]
+    public async Task<ActionResult<BucketListDto>> GetBucketsAsync(
+        [FromQuery] int limit = DefaultBucketListLimit,
+        [FromQuery] string? cursor = null)
+    {
+        var result = await kvFacade.ListBucketsAsync(limit, cursor);
+        return Ok(result);
+    }
+
     [HttpPost("{bucket}")]
     public async Task<ActionResult> AddBucketAsync(
         [FromRoute] string bucket,
@@ -40,8 +51,9 @@ public class KvController(KvFacade kvFacade)
     public async Task<ActionResult<BucketValuesDto>> GetBucketValuesAsync(
         [FromRoute] string bucket,
         [FromQuery] int limit,
-        [FromQuery] string? cursor = null)
-        => await kvFacade.GetBucketValuesAsync(bucket, limit, cursor);
+        [FromQuery] string? cursor = null,
+        [FromQuery] string? prefix = null)
+        => await kvFacade.GetBucketValuesAsync(bucket, limit, cursor, prefix);
 
     [HttpPost("{bucket}/batch")]
     public async Task<ActionResult> AddBucketBatchAsync(
