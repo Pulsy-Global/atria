@@ -6,9 +6,6 @@ using System.Runtime.CompilerServices;
 
 namespace Atria.Common.KV.Tests.Fakes;
 
-// In-memory IEkvNamespace that records per-op call counts and batch contents.
-// The billing behaviour under test is "which ops happen", so the counters are
-// first-class assertions, not instrumentation.
 internal sealed class FakeEkvNamespace : IEkvNamespace
 {
     private readonly SortedDictionary<string, byte[]> _data = new(StringComparer.Ordinal);

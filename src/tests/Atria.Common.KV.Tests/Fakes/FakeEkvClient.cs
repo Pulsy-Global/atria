@@ -20,7 +20,6 @@ internal sealed class FakeEkvClient : IEkvClient
 
     public void Dispose()
     {
-        // Nothing to release: fully in-memory.
     }
 
     public void SeedNamespace(string name, IEkvNamespace ns) => _namespaces[name] = ns;

@@ -8,6 +8,5 @@ public sealed record KvBucketListResult
 
     public bool HasMore { get; init; }
 
-    // Opaque position for fetching the next page; null when the scan finished.
     public string? Cursor { get; init; }
 }

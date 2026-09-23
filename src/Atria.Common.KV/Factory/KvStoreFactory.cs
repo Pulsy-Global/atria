@@ -9,10 +9,6 @@ public class KvStoreFactory : IKvStoreFactory
 {
     private readonly IEkvClient _ekvClient;
 
-    // Consumers (e.g. KvManager) are transient, so CreateAsync runs per request.
-    // Memoizing one store per namespace keeps its registry-initialized flag alive
-    // across requests, and lifts EnsureNamespaceAsync (an admin gRPC call) out of
-    // the per-request path: it runs once per namespace.
     private readonly ConcurrentDictionary<string, Task<IKvStore>> _stores = new(StringComparer.Ordinal);
 
     public KvStoreFactory(IEkvClient ekvClient)

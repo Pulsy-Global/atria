@@ -4,8 +4,6 @@ using Pulsy.EKV.Client.Namespaces;
 
 namespace Atria.Common.KV.Tests.Fakes;
 
-// Starts with EnsureNamespaceAsync failing (simulating a cold admin-call hiccup)
-// so a faulted store cannot stay cached; Recover() makes the namespace usable.
 internal sealed class FakeFailingEkvClient : IEkvClient
 {
     private readonly FakeEkvClient _inner = new();

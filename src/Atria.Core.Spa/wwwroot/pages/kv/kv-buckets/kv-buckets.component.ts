@@ -39,7 +39,6 @@ export class KvBucketsComponent {
             return;
         }
 
-        // Trigger the next page when the user is within ~80px of the bottom.
         if (el.scrollTop + el.clientHeight >= el.scrollHeight - 80) {
             this.loadMore.emit();
         }

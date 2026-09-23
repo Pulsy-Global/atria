@@ -8,6 +8,5 @@ public class BucketListDto
 
     public bool HasMore { get; init; }
 
-    // Opaque cursor for fetching the next page of buckets; null when exhausted.
     public string? Cursor { get; init; }
 }

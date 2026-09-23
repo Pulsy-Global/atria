@@ -1,10 +1,4 @@
-/*
- * Subtle pill scrollbars for the KV column scrollers. Replaces the native
- * (very dark on macOS dark mode) scrollbars on WebKit, and matches the
- * thin style in Firefox. Track stays transparent so only the thumb shows.
- */
 .kv-scroll {
-    /* Firefox */
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
 
@@ -34,12 +28,10 @@
         transition: background-color 150ms ease;
     }
 
-    /* Brighten while hovering the scroller... */
     &:hover::-webkit-scrollbar-thumb {
         background-color: rgba(148, 163, 184, 0.38);
     }
 
-    /* ...and while grabbing (also when the thumb itself is hovered). */
     &::-webkit-scrollbar-thumb:hover,
     &::-webkit-scrollbar-thumb:active {
         background-color: rgba(148, 163, 184, 0.55);

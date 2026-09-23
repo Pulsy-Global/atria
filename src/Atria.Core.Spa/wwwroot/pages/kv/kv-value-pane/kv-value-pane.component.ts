@@ -22,8 +22,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { STRING_EMPTY } from '../../../shared/core/constants/common.constants';
 import { kvByteLength, kvFormatSize, kvHexDump, kvPretty } from '../kv.util';
 
-// How the stored value is rendered in the value pane. The JSON/Text views show
-// the value as-is; Hex shows a byte dump of its UTF-8 encoding.
 type KvViewMode = 'json' | 'text' | 'hex';
 
 @Component({
@@ -98,8 +96,6 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['key'] || changes['value'] || changes['isJson']) {
-            // Default to the most useful view for the value's type; Hex is always
-            // opt-in via the menu.
             this.view = this.isJson ? 'json' : 'text';
             this.activeTab = 'value';
             this.copied = false;
@@ -141,7 +137,6 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
                 setTimeout(() => (this.copied = false), 2000);
             })
             .catch(() => {
-                /* clipboard unavailable: ignore */
             });
     }
 
@@ -164,10 +159,6 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
         this.close.emit();
     }
 
-    // Rebuilds the shown content + editor layout for the active view. Hex is
-    // fixed-column text, so it must not word-wrap and has no use for line
-    // numbers (the dump carries its own offsets); JSON still uses Monaco's
-    // native grammar, Text/Hex fall back to plain text.
     private _applyView(): void {
         this.content = this.view === 'json'
             ? kvPretty(this.value)

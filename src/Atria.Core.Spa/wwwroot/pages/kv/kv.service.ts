@@ -34,8 +34,6 @@ export class KvService {
             );
     }
 
-    // Exact-key lookup. A missing key is not an error here: it resolves to
-    // undefined so the caller can render an "no such key" empty state.
     getBucketValue(bucket: string, key: string): Observable<string | undefined> {
         return this.apiService.apiClient.getBucket(bucket, key).pipe(
             map((value) => value.value),

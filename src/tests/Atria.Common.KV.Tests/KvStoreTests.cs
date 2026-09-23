@@ -4,12 +4,6 @@ using System.Text;
 
 namespace Atria.Common.KV.Tests;
 
-// These tests pin the cost model behind the bucket-list optimization:
-// Cloud Atria bills physical (uncached) storage reads, and random reads over the
-// large "B:" keyspace are the expensive shape. Writes must therefore be blind (no
-// existence probes on data keys, no MultiGet), and the tiny cache-hot "R:" registry
-// prefix — presence only, no per-bucket counts — is what lets us list buckets
-// without ever scanning "B:". "B:" is only walked for a one-time legacy backfill.
 public class KvStoreTests
 {
     private const string RegistrySentinel = "R:";

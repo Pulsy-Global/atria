@@ -54,11 +54,8 @@ export class KvComponent implements OnInit, OnDestroy {
     private _bucketsCursor: string | undefined;
     private readonly _bucketsPageSize = 10;
 
-    // Client-side name filter living in the buckets column header.
     bucketFilter = STRING_EMPTY;
 
-    // Server-side exact-key search for the keys column. Resets whenever the
-    // selected bucket changes.
     searchTerm = STRING_EMPTY;
 
     ngOnInit(): void {
@@ -71,9 +68,6 @@ export class KvComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                // Bucket changed (also covers browser back/forward): drop any
-                // focused value and clear the key-prefix search so the keys
-                // column starts fresh for the new bucket.
                 this.selectedBucket = bucket;
                 this.focused = null;
                 this._resetSearch();
@@ -91,8 +85,6 @@ export class KvComponent implements OnInit, OnDestroy {
         return !this.selectedBucket;
     }
 
-    // The keys column only queries on submit (Enter), not on every keystroke:
-    // the typed text is applied to the exact-key lookup when the event fires.
     onKeySearchChanged(event: Event): void {
         event.preventDefault();
         this.searchTerm = ((event.target as HTMLInputElement | null)?.value ?? STRING_EMPTY).trim();
@@ -147,8 +139,6 @@ export class KvComponent implements OnInit, OnDestroy {
         }
     }
 
-    // Cursor-paged bucket loading: the first page loads on init, each further
-    // page continues from the server-returned cursor (10 buckets at a time).
     private _loadBuckets(append: boolean): void {
         if (append) {
             this.bucketsLoadingMore = true;

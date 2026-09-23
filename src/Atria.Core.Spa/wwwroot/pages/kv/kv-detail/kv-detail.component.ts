@@ -57,9 +57,6 @@ export class KvDetailComponent implements OnChanges, OnDestroy {
     private _nextCursor: string | undefined;
 
     ngOnChanges(changes: SimpleChanges): void {
-        // A new bucket (or the first change) reloads from scratch. A later search
-        // change (driven by the keys column input) resets paging and re-queries
-        // either as an exact-key lookup or a fresh listing.
         if (changes['bucket'] && this.bucket) {
             this._reset();
             this._load(false);
@@ -84,7 +81,6 @@ export class KvDetailComponent implements OnChanges, OnDestroy {
             return;
         }
 
-        // Trigger the next page when the user is within ~80px of the bottom.
         if (el.scrollTop + el.clientHeight >= el.scrollHeight - 80) {
             this._load(true);
         }
@@ -107,8 +103,6 @@ export class KvDetailComponent implements OnChanges, OnDestroy {
     }
 
     private _load(append: boolean): void {
-        // A search term switches the column from paged listing to a single
-        // exact-key lookup; paging only applies to the unfiltered listing.
         if (!append && this.search) {
             this._loadExact();
             return;
@@ -150,8 +144,6 @@ export class KvDetailComponent implements OnChanges, OnDestroy {
             });
     }
 
-    // Single-key fetch by exact name. A miss renders the empty state instead of
-    // an error, matching how a prefix search with no matches behaves.
     private _loadExact(): void {
         this.isLoading = true;
 

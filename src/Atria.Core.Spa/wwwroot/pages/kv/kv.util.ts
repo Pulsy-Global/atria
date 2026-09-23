@@ -1,10 +1,6 @@
-// Shared, dependency-free helpers for the read-only KV view. Kept as plain
-// functions so both the keys list and the value pane can reuse them.
 
 export type KvKind = 'json' | 'text';
 
-// A focused key and its (already loaded) value, passed up from the keys list to
-// the shell so the inline value pane can render it without another request.
 export interface KvSelection {
     key: string;
     value: string;
@@ -46,10 +42,6 @@ export function kvByteLength(value: string): number {
     return encoder.encode(value ?? '').length;
 }
 
-// Classic hex dump of the value's UTF-8 bytes: one line per 16 bytes as
-// "offset  hex  hex  ascii". Bytes are uppercased; the two 8-byte halves are
-// separated by a wider gap, and non-printable ASCII renders as '.'. Kept as a
-// plain string so the read-only Monaco editor (and Copy/Download) can reuse it.
 export function kvHexDump(value: string): string {
     const bytes = encoder.encode(value ?? '');
 
