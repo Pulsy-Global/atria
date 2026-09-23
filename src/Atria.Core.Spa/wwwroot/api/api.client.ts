@@ -1070,6 +1070,80 @@ export class ApiClient {
     }
 
     /**
+     * @param limit (optional)
+     * @return OK
+     */
+    getBuckets(limit: number | undefined, cursor?: string): Observable<BucketList> {
+        let url_ = this.baseUrl + "/kv/buckets?";
+        if (limit === null)
+            throw new globalThis.Error("The parameter 'limit' cannot be null.");
+        else if (limit !== undefined)
+            url_ += "limit=" + encodeURIComponent("" + limit) + "&";
+        if (cursor !== undefined && cursor !== null)
+            url_ += "cursor=" + encodeURIComponent("" + cursor) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetBuckets(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetBuckets(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<BucketList>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<BucketList>;
+        }));
+    }
+
+    protected processGetBuckets(response: HttpResponseBase): Observable<BucketList> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = BucketList.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = DefaultValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let resultdefault: any = null;
+            let resultDatadefault = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            resultdefault = UnexpectedProblemDetails.fromJS(resultDatadefault);
+            return throwException("Error", status, _responseText, _headers, resultdefault);
+            }));
+        }
+    }
+
+    /**
      * @param body (optional)
      * @return OK
      */
@@ -1275,7 +1349,7 @@ export class ApiClient {
      * @param cursor (optional)
      * @return OK
      */
-    getBucketValues(bucket: string, limit: number | undefined, cursor: string | undefined): Observable<BucketValues> {
+    getBucketValues(bucket: string, limit: number | undefined, cursor: string | undefined, prefix: string | undefined): Observable<BucketValues> {
         let url_ = this.baseUrl + "/kv/{bucket}/values?";
         if (bucket === undefined || bucket === null)
             throw new globalThis.Error("The parameter 'bucket' must be defined.");
@@ -1288,6 +1362,10 @@ export class ApiClient {
             throw new globalThis.Error("The parameter 'cursor' cannot be null.");
         else if (cursor !== undefined)
             url_ += "cursor=" + encodeURIComponent("" + cursor) + "&";
+        if (prefix === null)
+            throw new globalThis.Error("The parameter 'prefix' cannot be null.");
+        else if (prefix !== undefined)
+            url_ += "prefix=" + encodeURIComponent("" + prefix) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3516,6 +3594,62 @@ export interface IBucketValues {
     items?: BucketItem[] | undefined;
     cursor?: string | undefined;
     hasMore?: boolean;
+}
+
+export class BucketList implements IBucketList {
+    buckets?: string[] | undefined;
+    total?: number;
+    hasMore?: boolean;
+    cursor?: string | undefined;
+
+    constructor(data?: IBucketList) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["buckets"])) {
+                this.buckets = [] as any;
+                for (let item of _data["buckets"])
+                    this.buckets!.push(item);
+            }
+            this.total = _data["total"];
+            this.hasMore = _data["hasMore"];
+            this.cursor = _data["cursor"];
+        }
+    }
+
+    static fromJS(data: any): BucketList {
+        data = typeof data === 'object' ? data : {};
+        let result = new BucketList();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.buckets)) {
+            data["buckets"] = [];
+            for (let item of this.buckets)
+                data["buckets"].push(item);
+        }
+        data["total"] = this.total;
+        data["hasMore"] = this.hasMore;
+        data["cursor"] = this.cursor;
+        return data;
+    }
+}
+
+export interface IBucketList {
+    buckets?: string[] | undefined;
+    total?: number;
+    hasMore?: boolean;
+    cursor?: string | undefined;
 }
 
 export class Environment implements IEnvironment {

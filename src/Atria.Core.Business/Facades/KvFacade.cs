@@ -17,8 +17,12 @@ public class KvFacade(IKvManager kvManager)
     public async Task<BucketValuesDto> GetBucketValuesAsync(
         string bucket,
         int limit,
-        string? cursor = null)
-        => await kvManager.GetBucketValuesAsync(bucket, limit, cursor);
+        string? cursor = null,
+        string? prefix = null)
+        => await kvManager.GetBucketValuesAsync(bucket, limit, cursor, prefix);
+
+    public async Task<BucketListDto> ListBucketsAsync(int limit, string? cursor = null)
+        => await kvManager.ListBucketsAsync(limit, cursor);
 
     public async Task AddBucketBatchAsync(string bucket, AddBucketBatchDto dto)
         => await kvManager.AddBucketBatchAsync(bucket, dto);
