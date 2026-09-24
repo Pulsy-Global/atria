@@ -1,5 +1,6 @@
 using Atria.Business.Models;
 using Atria.Core.Data.Entities.Deploys;
+using Atria.Core.Data.Entities.Enums;
 using System.Linq.Expressions;
 
 namespace Atria.Business.Services.DataServices.Interfaces;
@@ -21,6 +22,14 @@ public interface IDeployDataService
     Task<Deploy?> GetCurrentDeployAsync(Guid feedId, CancellationToken ct);
 
     Task<bool> ConfirmDeployedAsync(Guid feedId, Guid deployId, CancellationToken ct);
+
+    Task<bool> FailCurrentDeploymentAsync(
+        Guid feedId,
+        Guid? expectedDeployId,
+        DeployErrorCode errorCode,
+        string source,
+        string? message,
+        CancellationToken ct);
 
     Task<TestResult> TestFeedDeployAsync(TestRequest testRequest, CancellationToken ct);
 }

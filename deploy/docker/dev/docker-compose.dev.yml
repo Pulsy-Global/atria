@@ -15,6 +15,7 @@ services:
         published: 4300
     depends_on:
       - postgresql
+      - ekv
     networks:
       - atria-network
 
@@ -64,6 +65,7 @@ services:
     depends_on:
       - postgresql
       - nats
+      - ekv
       - atria-feed-ingestor
     networks:
       - atria-network

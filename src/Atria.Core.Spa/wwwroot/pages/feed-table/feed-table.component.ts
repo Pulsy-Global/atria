@@ -40,6 +40,7 @@ import { DATA_TYPE_CONFIG } from '../../shared/config/data-type.config';
 import { getFeedErrorDisplayInfo, type FeedErrorDisplayInfo } from '../../shared/config/feed-error-display.config';
 import { NetworkDisplayComponent } from '../../shared/components/network-display/network-display.component';
 import { getNetworkOptions } from '../../shared/components/network-display/network-display.helper';
+import { TableShellComponent } from '../../shared/table/components/table-shell/table-shell.component';
 
 @Component({
     selector: 'feed-table',
@@ -71,7 +72,8 @@ import { getNetworkOptions } from '../../shared/components/network-display/netwo
         FuseCardComponent,
         SearchBarComponent,
         AtriaPaginationDirective,
-        NetworkDisplayComponent
+        NetworkDisplayComponent,
+        TableShellComponent
     ]
 })
 export class FeedTableComponent implements OnInit, OnDestroy {
@@ -93,13 +95,6 @@ export class FeedTableComponent implements OnInit, OnDestroy {
     readonly FeedStatus = FeedStatus;
     readonly FilterType = FilterType;
 
-    scrollbarTableOptions = {
-        suppressScrollX: true,
-        suppressScrollY: false,
-        scrollYMarginOffset: 80,
-        wheelPropagation: false,
-        swipeEasing: true
-    };
 
     constructor(
         private readonly _activatedRoute: ActivatedRoute,

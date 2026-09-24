@@ -37,17 +37,27 @@ export class StringFilterModalComponent {
     filterValue = STRING_EMPTY;
     operator = FilterOperator.Contains;
     
-    readonly operators = [
+    operators = [
         { value: FilterOperator.Contains, label: 'Contains' },
         { value: FilterOperator.Equals, label: 'Equals' }
     ];
 
     ngOnInit(): void {
+        const allowed = this.data.columnConfig.stringOperators;
+
+        if (allowed?.length) {
+            this.operators = this.operators.filter(op => allowed.includes(op.value));
+            this.operator = this.operators[0].value;
+        }
+
         if (this.data.currentFilter) {
             const stringValue = this.data.currentFilter.value as StringFilterValue;
 
             this.filterValue = stringValue.value || STRING_EMPTY;
-            this.operator = stringValue.operator || FilterOperator.Contains;
+
+            if (this.operators.some(op => op.value === stringValue.operator)) {
+                this.operator = stringValue.operator;
+            }
         }
     }
 

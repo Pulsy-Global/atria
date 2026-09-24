@@ -1,4 +1,4 @@
-import { FilterType } from './odata.types';
+import { FilterOperator, FilterType } from './odata.types';
 import { FilterElement } from '../modals/filter/filter-modal.types';
 import { Sort } from '@angular/material/sort';
 
@@ -7,6 +7,7 @@ export interface ColumnConfig {
     label: string;
     sortable: boolean;
     filterType: FilterType;
+    stringOperators?: FilterOperator[];
 }
 
 export interface PaginationState {

@@ -17,10 +17,10 @@
 <div class="flex flex-col w-full py-6 mt-4">
     <mat-form-field class="w-full">
         <input matInput
-               class="ml-6"
+               [class.ml-6]="operators.length > 1"
                [(ngModel)]="filterValue"
                placeholder="Enter value">
-        <mat-select matPrefix [(ngModel)]="operator" class="w-22">
+        <mat-select *ngIf="operators.length > 1" matPrefix [(ngModel)]="operator" class="w-22">
             <mat-option *ngFor="let op of operators" [value]="op.value">
                 {{ op.label }}
             </mat-option>

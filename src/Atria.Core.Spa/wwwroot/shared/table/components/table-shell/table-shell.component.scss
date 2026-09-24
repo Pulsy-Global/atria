@@ -1,0 +1,138 @@
+atria-table-shell {
+    --atria-table-header-height: 3.5rem;
+    --atria-table-row-height: 3.25rem;
+
+    .atria-table-shell__frame {
+        position: relative;
+        display: flex;
+        min-height: 0;
+        flex: 1 1 auto;
+        flex-direction: column;
+        overflow: hidden;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 0.5rem;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+
+    .atria-table-shell__overlay {
+        position: absolute;
+        top: var(--atria-table-header-height);
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background-color: var(--fuse-bg-card);
+    }
+
+    .mat-mdc-table {
+        display: flex;
+        height: 100%;
+        min-height: 0;
+        flex: 1 1 auto;
+        flex-direction: column;
+        border-collapse: collapse;
+        table-layout: fixed;
+
+        thead {
+            display: block;
+            flex-shrink: 0;
+        }
+
+        tbody {
+            display: block;
+            min-height: 0;
+            flex: 1 1 auto;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .mat-mdc-header-row,
+        .mat-mdc-row {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border: none !important;
+        }
+
+        .mat-mdc-header-row {
+            height: var(--atria-table-header-height);
+        }
+
+        .mat-mdc-row {
+            position: relative;
+            height: var(--atria-table-row-height);
+            contain: content;
+            transition: background-color 0.05s ease-in-out;
+
+            &::after {
+                content: '';
+                position: absolute;
+                right: 12px;
+                bottom: 0;
+                left: 12px;
+                height: 0.5px;
+                background-color: rgba(var(--fuse-divider-rgb), 0.95);
+            }
+
+            &:hover {
+                background-color: var(--fuse-bg-hover);
+            }
+        }
+
+        .mat-mdc-header-row .mat-mdc-header-cell {
+            border: none !important;
+            background-color: var(--fuse-bg-hover);
+            padding: 0.5rem 0.75rem !important;
+            overflow: hidden;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-overflow: ellipsis;
+
+            &:first-child {
+                padding-left: 1rem !important;
+            }
+
+            &:last-child {
+                padding-right: 1rem !important;
+            }
+        }
+
+        .mat-mdc-row .mat-mdc-cell {
+            border: none !important;
+            padding: 18px 12px !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &:first-child {
+                padding-left: 1rem !important;
+            }
+
+            &:last-child {
+                padding-right: 1rem !important;
+            }
+        }
+    }
+
+    &.is-loading .mat-mdc-table tbody {
+        overflow: hidden;
+    }
+}
+
+.dark atria-table-shell .mat-mdc-table {
+    .mat-mdc-row::after {
+        background-color: rgba(var(--fuse-divider-rgb), 0.15);
+    }
+
+    .mat-mdc-row:hover {
+        background-color: var(--fuse-bg-hover);
+    }
+
+    .mat-mdc-header-row .mat-mdc-header-cell {
+        background-color: var(--fuse-bg-hover);
+    }
+}

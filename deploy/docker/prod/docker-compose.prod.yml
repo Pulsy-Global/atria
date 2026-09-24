@@ -4,6 +4,8 @@ x-atria-service-environment: &atria-service-environment
   Messaging__Url: "nats://nats:4222"
   Messaging__Username: "${NATS_USER:-natsadmin}"
   Messaging__Password: "${NATS_PASS:-natsadmin}"
+  Ekv__Endpoint: "http://ekv:8080"
+  Telemetry__Environment: Production
   Telemetry__OtlpEndpoint: "http://otel-collector:4317"
   BusinessMetrics__QueryBaseUrl: "http://victoria-metrics:8428/prometheus"
 
@@ -23,6 +25,8 @@ services:
       postgresql:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      ekv:
         condition: service_healthy
     networks:
       - atria-network
@@ -73,6 +77,8 @@ services:
       postgresql:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      ekv:
         condition: service_healthy
       atria-feed-ingestor:
         condition: service_started

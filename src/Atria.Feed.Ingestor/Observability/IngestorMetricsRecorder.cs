@@ -107,11 +107,13 @@ public sealed class IngestorMetricsRecorder
 
     public void RecordRpcRetry(string operation, string reason) => RpcRetries.Add(
         1,
+        new KeyValuePair<string, object?>("chain", _chain),
         new KeyValuePair<string, object?>("operation", operation),
         new KeyValuePair<string, object?>("reason", reason));
 
     public void RecordCircuitBreakerEvent(string eventName) => CircuitBreakerEvents.Add(
         1,
+        new KeyValuePair<string, object?>("chain", _chain),
         new KeyValuePair<string, object?>("event", eventName));
 
     private static long ToInt64(BigInteger value)
