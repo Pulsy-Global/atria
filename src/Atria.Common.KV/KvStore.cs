@@ -108,12 +108,11 @@ public class KvStore : IKvStore
         });
     }
 
-    public async Task<KvBucketValuesResult> BucketValuesAsync(string name, string? keyPrefix, int limit, string? cursor)
+    public async Task<KvBucketValuesResult> BucketValuesAsync(string name, int limit, string? cursor)
     {
         var prefix = BucketPrefix + name + ":";
-        var scanPrefix = string.IsNullOrEmpty(keyPrefix) ? prefix : prefix + keyPrefix;
         var result = await _namespace.ScanPrefixAsync(
-            scanPrefix,
+            prefix,
             limit,
             string.IsNullOrEmpty(cursor) ? null : cursor);
 

@@ -51,9 +51,8 @@ public class KvController(KvFacade kvFacade)
     public async Task<ActionResult<BucketValuesDto>> GetBucketValuesAsync(
         [FromRoute] string bucket,
         [FromQuery] int limit,
-        [FromQuery] string? cursor = null,
-        [FromQuery] string? prefix = null)
-        => await kvFacade.GetBucketValuesAsync(bucket, limit, cursor, prefix);
+        [FromQuery] string? cursor = null)
+        => await kvFacade.GetBucketValuesAsync(bucket, limit, cursor);
 
     [HttpPost("{bucket}/batch")]
     public async Task<ActionResult> AddBucketBatchAsync(

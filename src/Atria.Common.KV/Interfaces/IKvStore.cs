@@ -16,7 +16,7 @@ public interface IKvStore
 
     Task BucketRemoveBatchAsync(string name, IReadOnlyList<string> keys);
 
-    Task<KvBucketValuesResult> BucketValuesAsync(string name, string? keyPrefix, int limit, string? cursor);
+    Task<KvBucketValuesResult> BucketValuesAsync(string name, int limit, string? cursor);
 
     Task<KvBucketListResult> ListBucketsAsync(int limit, string? cursor = null);
 }

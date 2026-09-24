@@ -22,11 +22,10 @@ export class KvService {
     getBucketValues(
         bucket: string,
         limit: number,
-        cursor?: string,
-        prefix?: string
+        cursor?: string
     ): Observable<BucketValues> {
         return this.apiService.apiClient
-            .getBucketValues(bucket, limit, cursor, prefix)
+            .getBucketValues(bucket, limit, cursor)
             .pipe(
                 catchError((error): Observable<never> => {
                     return throwError(() => new ProblemDetails(error));

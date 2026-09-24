@@ -1349,7 +1349,7 @@ export class ApiClient {
      * @param cursor (optional)
      * @return OK
      */
-    getBucketValues(bucket: string, limit: number | undefined, cursor: string | undefined, prefix: string | undefined): Observable<BucketValues> {
+    getBucketValues(bucket: string, limit: number | undefined, cursor: string | undefined): Observable<BucketValues> {
         let url_ = this.baseUrl + "/kv/{bucket}/values?";
         if (bucket === undefined || bucket === null)
             throw new globalThis.Error("The parameter 'bucket' must be defined.");
@@ -1362,10 +1362,6 @@ export class ApiClient {
             throw new globalThis.Error("The parameter 'cursor' cannot be null.");
         else if (cursor !== undefined)
             url_ += "cursor=" + encodeURIComponent("" + cursor) + "&";
-        if (prefix === null)
-            throw new globalThis.Error("The parameter 'prefix' cannot be null.");
-        else if (prefix !== undefined)
-            url_ += "prefix=" + encodeURIComponent("" + prefix) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

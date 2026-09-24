@@ -40,11 +40,10 @@ public class KvManager(
     public async Task<BucketValuesDto> GetBucketValuesAsync(
         string bucket,
         int limit,
-        string? cursor = null,
-        string? prefix = null)
+        string? cursor = null)
     {
         var kvStore = await GetKvStoreAsync();
-        var result = await kvStore.BucketValuesAsync(bucket, prefix, limit, cursor);
+        var result = await kvStore.BucketValuesAsync(bucket, limit, cursor);
         return Mapper.Map<BucketValuesDto>(result);
     }
 

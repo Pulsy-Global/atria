@@ -114,11 +114,10 @@ export class KvDetailComponent implements OnChanges, OnDestroy {
             this.isLoading = true;
         }
 
-        const prefix = this.search || undefined;
         const cursor = append ? this._nextCursor : undefined;
 
         this._kvService
-            .getBucketValues(this.bucket, this._pageSize, cursor, prefix)
+            .getBucketValues(this.bucket, this._pageSize, cursor)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (values) => {
