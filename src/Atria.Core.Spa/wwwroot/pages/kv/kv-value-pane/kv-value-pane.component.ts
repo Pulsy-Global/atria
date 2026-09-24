@@ -21,6 +21,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Subject, takeUntil } from 'rxjs';
 import { STRING_EMPTY } from '../../../shared/core/constants/common.constants';
 import { kvByteLength, kvFormatSize, kvHexDump, kvPretty } from '../kv.util';
+import { KV_EDITOR_OPTIONS, KvEditorOptions } from './kv-value-pane.config';
 
 type KvViewMode = 'json' | 'text' | 'hex';
 
@@ -55,24 +56,7 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
     content = STRING_EMPTY;
     copied = false;
 
-    editorOptions = {
-        theme: 'vs-dark',
-        language: 'plaintext',
-        readOnly: true,
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontSize: 14,
-        lineNumbers: 'on',
-        scrollBeyondLastLine: false,
-        wordWrap: 'on',
-        renderLineHighlight: 'none',
-        scrollbar: {
-            useShadows: false,
-            verticalScrollbarSize: 8,
-            horizontalScrollbarSize: 8,
-            alwaysConsumeMouseWheel: false,
-        },
-    };
+    editorOptions: KvEditorOptions = { ...KV_EDITOR_OPTIONS };
 
     ngOnInit(): void {
         this._fuseConfigService.config$
@@ -137,6 +121,7 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
                 setTimeout(() => (this.copied = false), 2000);
             })
             .catch(() => {
+                /* clipboard unavailable: ignore */
             });
     }
 
