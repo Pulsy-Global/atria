@@ -19,7 +19,7 @@
 
             <div class="flex min-w-0 flex-col leading-tight">
                 <span class="text-default truncate text-xl font-semibold" [matTooltip]="key">
-                    {{ key }}
+                    {{ key | truncate: 30 : '...' : true }}
                 </span>
                 <span class="text-secondary mt-1 flex flex-wrap items-center gap-x-2 text-sm">
                     <span class="font-medium">{{ typeLabel }}</span>
@@ -108,7 +108,7 @@
                 </div>
                 <div class="flex items-center justify-between gap-4 px-4 py-3">
                     <dt class="text-secondary text-sm">Key</dt>
-                    <dd class="text-default min-w-0 truncate font-mono text-sm" [matTooltip]="key">{{ key }}</dd>
+                    <dd class="text-default min-w-0 truncate font-mono text-sm" [matTooltip]="key">{{ key | truncate: 30 : '...' : true }}</dd>
                 </div>
                 <div class="flex items-center justify-between gap-4 px-4 py-3">
                     <dt class="text-secondary text-sm">Type</dt>

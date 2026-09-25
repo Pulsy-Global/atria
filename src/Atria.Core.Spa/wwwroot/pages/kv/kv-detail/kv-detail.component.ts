@@ -12,6 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { KvService } from '../kv.service';
 import { NotificationService } from '../../../shared/services/notification/notification.service';
@@ -35,6 +36,7 @@ interface KvRow {
         CommonModule,
         MatIconModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
     ],
 })
 export class KvDetailComponent implements OnChanges, OnDestroy {
