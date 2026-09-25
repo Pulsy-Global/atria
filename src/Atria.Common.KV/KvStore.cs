@@ -11,15 +11,13 @@ public class KvStore : IKvStore
 
     private const string RegistryPrefix = "R:";
 
-    private const int BackfillBatchSize = 1000;
-
     private static readonly byte[] RegistryMarkerValue = [1];
-
-    private static readonly string RegistrySentinelKey = RegistryPrefix;
 
     private readonly IEkvNamespace _namespace;
 
-    private volatile bool _registryEnsured;
+    private readonly object _knownBucketsLock = new();
+
+    private readonly HashSet<string> _knownBuckets = new(StringComparer.Ordinal);
 
     public KvStore(IEkvNamespace ns)
     {
@@ -29,12 +27,20 @@ public class KvStore : IKvStore
     public async Task BucketAddAsync(string name, string key, string value)
     {
         var dataKey = FormatKey(name, key);
+        var registryKey = RegistryKey(name);
+        var register = !IsKnownBucket(name);
 
         await _namespace.BatchAsync(batch =>
         {
             batch.Put(dataKey, ToBytes(value));
-            batch.Put(RegistryKey(name), RegistryMarkerValue);
+
+            if (register)
+            {
+                batch.Put(registryKey, RegistryMarkerValue);
+            }
         });
+
+        RememberBucket(name);
     }
 
     public async Task BucketAddBatchAsync(string name, IReadOnlyDictionary<string, string> items)
@@ -51,6 +57,9 @@ public class KvStore : IKvStore
             throw new ArgumentException("Bucket name must not contain ':'", nameof(name));
         }
 
+        var registryKey = RegistryKey(name);
+        var register = !IsKnownBucket(name);
+
         await _namespace.BatchAsync(batch =>
         {
             foreach (var (item, value) in items)
@@ -58,8 +67,13 @@ public class KvStore : IKvStore
                 batch.Put(FormatKey(name, item), ToBytes(value));
             }
 
-            batch.Put(RegistryKey(name), RegistryMarkerValue);
+            if (register)
+            {
+                batch.Put(registryKey, RegistryMarkerValue);
+            }
         });
+
+        RememberBucket(name);
     }
 
     public async Task<string?> BucketGetAsync(string name, string key)
@@ -134,8 +148,6 @@ public class KvStore : IKvStore
 
     public async Task<KvBucketListResult> ListBucketsAsync(int limit, string? cursor = null)
     {
-        await EnsureRegistryAsync();
-
         var result = await _namespace.ScanPrefixAsync(
             RegistryPrefix,
             limit,
@@ -147,6 +159,8 @@ public class KvStore : IKvStore
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
+        names.ForEach(RememberBucket);
+
         return new KvBucketListResult
         {
             Names = names,
@@ -154,19 +168,6 @@ public class KvStore : IKvStore
             HasMore = result.HasMore,
             Cursor = result.NextCursor,
         };
-    }
-
-    private static string ExtractBucketName(string fullKey)
-    {
-        if (!fullKey.StartsWith(BucketPrefix, StringComparison.Ordinal))
-        {
-            return string.Empty;
-        }
-
-        var remainder = fullKey[BucketPrefix.Length..];
-        var separator = remainder.IndexOf(':');
-
-        return separator < 0 ? remainder : remainder[..separator];
     }
 
     private static string RegistryKey(string name)
@@ -205,51 +206,19 @@ public class KvStore : IKvStore
     private static string? FromBytes(byte[]? bytes)
         => bytes is { Length: > 0 } ? Encoding.UTF8.GetString(bytes) : null;
 
-    private async Task EnsureRegistryAsync()
+    private bool IsKnownBucket(string name)
     {
-        if (_registryEnsured)
+        lock (_knownBucketsLock)
         {
-            return;
+            return _knownBuckets.Contains(name);
         }
+    }
 
-        var sentinel = await _namespace.GetAsync(RegistrySentinelKey);
-        if (sentinel is { Length: > 0 })
+    private void RememberBucket(string name)
+    {
+        lock (_knownBucketsLock)
         {
-            _registryEnsured = true;
-            return;
+            _knownBuckets.Add(name);
         }
-
-        string? cursor = null;
-        bool hasMore;
-
-        do
-        {
-            var scan = await _namespace.ScanPrefixAsync(BucketPrefix, BackfillBatchSize, cursor);
-
-            var markers = scan.Items
-                .Select(e => ExtractBucketName(e.Key))
-                .Where(name => name.Length > 0)
-                .Distinct(StringComparer.Ordinal)
-                .ToList();
-
-            if (markers.Count > 0)
-            {
-                await _namespace.BatchAsync(batch =>
-                {
-                    foreach (var bucket in markers)
-                    {
-                        batch.Put(RegistryPrefix + bucket, RegistryMarkerValue);
-                    }
-                });
-            }
-
-            cursor = scan.NextCursor;
-            hasMore = scan.HasMore;
-        }
-        while (hasMore);
-
-        await _namespace.BatchAsync(batch => batch.Put(RegistrySentinelKey, RegistryMarkerValue));
-
-        _registryEnsured = true;
     }
 }

@@ -6,8 +6,6 @@ namespace Atria.Common.KV.Tests;
 
 public class KvStoreTests
 {
-    private const string RegistrySentinel = "R:";
-
     [Fact]
     public async Task BucketAddAsync_WritesDataAndMarkerInOneBatch_WithoutProbingDataKeys()
     {
@@ -100,42 +98,101 @@ public class KvStoreTests
     public async Task ListBucketsAsync_ScansRegistryAndReturnsNames()
     {
         var ns = new FakeEkvNamespace();
-        SeedSentinel(ns);
         SeedMarker(ns, "a");
         SeedMarker(ns, "b");
         var store = new KvStore(ns);
 
         var result = await store.ListBucketsAsync(10);
 
-        ns.GetCalls.Should().Be(1, "the sentinel presence check is the only read besides the scan");
+        ns.GetCalls.Should().Be(0, "there is nothing to probe, the registry scan is the whole listing");
+        ns.ScanCalls.Should().Be(1, "only the R: page is read");
         result.Names.Should().Equal("a", "b");
         result.Total.Should().Be(2);
     }
 
     [Fact]
-    public async Task ListBucketsAsync_LegacyNamespace_BackfillsMarkersOnce()
+    public async Task ListBucketsAsync_RegistryEmpty_DoesNotScanDataKeysOrCreateMarkers()
     {
         var ns = new FakeEkvNamespace();
         SeedItem(ns, "x", "1");
-        SeedItem(ns, "x", "2");
         SeedItem(ns, "y", "1");
         var store = new KvStore(ns);
 
         var result = await store.ListBucketsAsync(10);
 
-        result.Names.Should().Equal("x", "y");
-        HasMarker(ns, "x").Should().BeTrue();
-        HasMarker(ns, "y").Should().BeTrue();
-        HasSentinel(ns).Should().BeTrue("the sentinel records that the registry was seeded");
+        result.Names.Should().BeEmpty("unregistered buckets stay invisible, there is no backfill");
+        ns.ScanCalls.Should().Be(1, "listing never falls back to scanning B: keys");
+        ns.Batches.Should().BeEmpty("nothing gets backfilled");
+        HasMarker(ns, "x").Should().BeFalse();
+        HasMarker(ns, "y").Should().BeFalse();
+    }
 
+    [Fact]
+    public async Task BucketAddAsync_SameBucketTwice_WritesMarkerOnce()
+    {
+        var ns = new FakeEkvNamespace();
+        var store = new KvStore(ns);
+
+        await store.BucketAddAsync("logs", "k1", "v1");
         ns.Batches.Clear();
-        var getsBefore = ns.GetCalls;
 
-        var second = await store.ListBucketsAsync(10);
+        await store.BucketAddAsync("logs", "k2", "v2");
 
-        second.Names.Should().Equal("x", "y");
-        ns.GetCalls.Should().Be(getsBefore, "the registry check is memoized per store");
-        ns.Batches.Should().BeEmpty("backfill must not repeat");
+        ns.Batches.Should().ContainSingle();
+        ns.Batches[0].Should().HaveCount(1, "the marker is remembered in memory and written once");
+        ReadString(ns, "B:logs:k2").Should().Be("v2");
+        HasMarker(ns, "logs").Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task BucketAddBatchAsync_BucketAlreadyRegistered_SkipsTheMarker()
+    {
+        var ns = new FakeEkvNamespace();
+        var store = new KvStore(ns);
+
+        await store.BucketAddAsync("logs", "k1", "v1");
+        ns.Batches.Clear();
+
+        await store.BucketAddBatchAsync("logs", new Dictionary<string, string>
+        {
+            ["k2"] = "v2",
+            ["k3"] = "v3",
+        });
+
+        ns.Batches.Should().ContainSingle();
+        ns.Batches[0].Should().HaveCount(2, "two items and no marker");
+        ns.Data.Should().ContainKeys("B:logs:k2", "B:logs:k3");
+    }
+
+    [Fact]
+    public async Task BucketAddAsync_AfterListing_SkipsTheMarkerOfAKnownBucket()
+    {
+        var ns = new FakeEkvNamespace();
+        SeedMarker(ns, "logs");
+        var store = new KvStore(ns);
+
+        await store.ListBucketsAsync(10);
+        var batchesBefore = ns.Batches.Count;
+
+        await store.BucketAddAsync("logs", "k1", "v1");
+
+        ns.Batches.Should().HaveCount(batchesBefore + 1);
+        ns.Batches[^1].Should().HaveCount(1, "the listing already proved the marker exists");
+        ReadString(ns, "B:logs:k1").Should().Be("v1");
+    }
+
+    [Fact]
+    public async Task BucketAddAsync_FreshStoreInstance_WritesMarker()
+    {
+        var ns = new FakeEkvNamespace();
+
+        await new KvStore(ns).BucketAddAsync("logs", "k1", "v1");
+        ns.Batches.Clear();
+
+        await new KvStore(ns).BucketAddAsync("logs", "k2", "v2");
+
+        ns.Batches[0].Should().HaveCount(2, "the shortcut is per instance, so lost state costs one idempotent put");
+        HasMarker(ns, "logs").Should().BeTrue();
     }
 
     private static string ReadString(FakeEkvNamespace ns, string key)
@@ -144,15 +201,9 @@ public class KvStoreTests
     private static bool HasMarker(FakeEkvNamespace ns, string bucket)
         => ns.Data.TryGetValue("R:" + bucket, out var value) && value.Length > 0;
 
-    private static bool HasSentinel(FakeEkvNamespace ns)
-        => ns.Data.TryGetValue(RegistrySentinel, out var value) && value.Length > 0;
-
     private static void SeedItem(FakeEkvNamespace ns, string bucket, string key)
         => ns.Seed($"B:{bucket}:{key}", Encoding.UTF8.GetBytes("v"));
 
     private static void SeedMarker(FakeEkvNamespace ns, string bucket)
         => ns.Seed("R:" + bucket, [1]);
-
-    private static void SeedSentinel(FakeEkvNamespace ns)
-        => ns.Seed(RegistrySentinel, [1]);
 }
