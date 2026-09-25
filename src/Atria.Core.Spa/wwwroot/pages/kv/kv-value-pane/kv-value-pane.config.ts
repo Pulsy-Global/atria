@@ -24,7 +24,7 @@ export const KV_EDITOR_OPTIONS: KvEditorOptions = {
     automaticLayout: true,
     minimap: { enabled: false },
     fontSize: 14,
-    lineNumbers: 'on',
+    lineNumbers: 'off',
     scrollBeyondLastLine: false,
     wordWrap: 'on',
     renderLineHighlight: 'none',

@@ -1,15 +1,23 @@
 <div class="flex h-full w-full flex-col">
+    <div class="flex w-full shrink-0 items-center gap-3 pb-4 pt-2 lg:hidden">
+        <button
+            type="button"
+            (click)="onClose()"
+            matTooltip="Back to keys"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-secondary/20 bg-card transition-colors hover:bg-hover">
+            <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
+        </button>
+        <span class="text-secondary shrink-0 text-[11px] font-semibold uppercase tracking-wider">
+            Value
+        </span>
+        <span>&#183;</span>
+        <span class="text-default/70 min-w-0 truncate font-mono text-xs" [matTooltip]="bucket">
+            {{ bucket }}
+        </span>
+    </div>
+
     <div class="flex w-full shrink-0 items-start justify-between gap-4 pb-5 pt-1">
         <div class="flex min-w-0 items-start gap-3">
-            <button
-                mat-icon-button
-                type="button"
-                (click)="onClose()"
-                matTooltip="Back to keys"
-                class="-ml-2 shrink-0 lg:hidden">
-                <mat-icon class="icon-size-6" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
-            </button>
-
             <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                 <mat-icon
                     class="icon-size-6 text-primary"

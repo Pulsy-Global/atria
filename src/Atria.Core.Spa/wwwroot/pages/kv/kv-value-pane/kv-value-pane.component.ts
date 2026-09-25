@@ -160,7 +160,6 @@ export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {
             ...this.editorOptions,
             language,
             wordWrap: isHex ? 'off' : 'on',
-            lineNumbers: isHex ? 'off' : 'on',
         };
     }
 }

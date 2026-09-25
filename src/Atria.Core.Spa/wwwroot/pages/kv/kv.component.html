@@ -64,18 +64,15 @@
                 [ngClass]="focused
                     ? 'hidden lg:flex lg:w-[400px] lg:shrink-0'
                     : 'flex w-full lg:w-[400px] lg:shrink-0'">
-                <div class="flex w-full shrink-0 items-center gap-2 pb-3 lg:hidden">
-                    <button
-                        type="button"
-                        (click)="onBack()"
-                        matTooltip="Back to buckets"
-                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-secondary/20 bg-card transition-colors hover:bg-hover">
-                        <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
-                    </button>
-                </div>
-
                 <div class="shrink-0 pb-4 pt-2">
-                    <div class="flex h-7 w-full items-center gap-3 pb-3">
+                    <div class="flex w-full items-center gap-3 pb-3 lg:h-7">
+                        <button
+                            type="button"
+                            (click)="onBack()"
+                            matTooltip="Back to buckets"
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-secondary/20 bg-card transition-colors hover:bg-hover lg:hidden">
+                            <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
+                        </button>
                         <span class="text-secondary shrink-0 text-[11px] font-semibold uppercase tracking-wider">
                             Keys
                         </span>
