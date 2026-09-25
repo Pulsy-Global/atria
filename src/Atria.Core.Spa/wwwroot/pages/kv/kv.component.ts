@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { STRING_EMPTY } from 'shared/core/constants/common.constants';
 import { KvService } from './kv.service';
 import { NotificationService } from '../../shared/services/notification/notification.service';
@@ -53,6 +53,8 @@ export class KvComponent implements OnInit, OnDestroy {
     bucketsHasMore = false;
     private _bucketsCursor: string | undefined;
     private readonly _bucketsPageSize = 10;
+    private readonly _searchDebounceMs = 500;
+    private readonly _searchInput$: Subject<void> = new Subject<void>();
 
     bucketFilter = STRING_EMPTY;
 
@@ -73,6 +75,15 @@ export class KvComponent implements OnInit, OnDestroy {
                 this._resetSearch();
             });
 
+        this._searchInput$
+            .pipe(
+                debounceTime(this._searchDebounceMs),
+                takeUntil(this._unsubscribeAll)
+            )
+            .subscribe(() => {
+                this.searchTerm = this._readSearchInput();
+            });
+
         this._loadBuckets(false);
     }
 
@@ -81,13 +92,21 @@ export class KvComponent implements OnInit, OnDestroy {
         this._unsubscribeAll.complete();
     }
 
-    get isBrowseMode(): boolean {
-        return !this.selectedBucket;
+    get isEmptyState(): boolean {
+        return !this.selectedBucket && !this.focused;
     }
 
-    onKeySearchChanged(event: Event): void {
+    onKeySearchInput(): void {
+        this._searchInput$.next();
+    }
+
+    onKeySearchSubmit(event: Event): void {
         event.preventDefault();
-        this.searchTerm = ((event.target as HTMLInputElement | null)?.value ?? STRING_EMPTY).trim();
+        this.searchTerm = this._readSearchInput();
+    }
+
+    private _readSearchInput(): string {
+        return this._keySearchInput?.nativeElement?.value?.trim() ?? STRING_EMPTY;
     }
 
     onBucketFilterChanged(event: Event): void {

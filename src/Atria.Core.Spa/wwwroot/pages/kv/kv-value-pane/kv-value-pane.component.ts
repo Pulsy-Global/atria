@@ -21,6 +21,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Subject, takeUntil } from 'rxjs';
 import { STRING_EMPTY } from '../../../shared/core/constants/common.constants';
 import { kvByteLength, kvFormatSize, kvHexDump, kvPretty } from '../kv.util';
+import { TruncatePipe } from '../truncate.pipe';
 import { KV_EDITOR_OPTIONS, KvEditorOptions } from './kv-value-pane.config';
 
 type KvViewMode = 'json' | 'text' | 'hex';
@@ -38,6 +39,7 @@ type KvViewMode = 'json' | 'text' | 'hex';
         MatMenuModule,
         MatTooltipModule,
         MonacoEditorModule,
+        TruncatePipe,
     ],
 })
 export class KvValuePaneComponent implements OnInit, OnChanges, OnDestroy {

@@ -40,12 +40,30 @@
             </kv-buckets>
         </div>
 
-        <div
-            class="min-h-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
-            [ngClass]="selectedBucket && !focused
-                ? 'flex w-full lg:w-[400px] lg:shrink-0'
-                : 'hidden lg:flex lg:w-[400px] lg:shrink-0'">
-            @if (selectedBucket) {
+        @if (isEmptyState) {
+            <div
+                class="min-h-0 hidden flex-col lg:flex lg:flex-1 lg:border-l lg:border-secondary/20 lg:pl-6">
+                <div class="flex h-full w-full flex-col items-center justify-center py-16 text-center">
+                    <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
+                        <mat-icon
+                            class="text-secondary icon-size-7"
+                            [svgIcon]="'heroicons_outline:rectangle-stack'">
+                        </mat-icon>
+                    </span>
+                    <div class="text-default mb-1 text-base font-medium">
+                        Select a bucket to get started
+                    </div>
+                    <div class="text-secondary max-w-sm text-sm">
+                        Choose a bucket to browse its keys and inspect their stored values.
+                    </div>
+                </div>
+            </div>
+        } @else {
+            <div
+                class="min-h-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
+                [ngClass]="focused
+                    ? 'hidden lg:flex lg:w-[400px] lg:shrink-0'
+                    : 'flex w-full lg:w-[400px] lg:shrink-0'">
                 <div class="flex w-full shrink-0 items-center gap-2 pb-3 lg:hidden">
                     <button
                         type="button"
@@ -70,7 +88,8 @@
                     <input
                         #keySearchInput
                         type="text"
-                        (keydown.enter)="onKeySearchChanged($event)"
+                        (input)="onKeySearchInput()"
+                        (keydown.enter)="onKeySearchSubmit($event)"
                         placeholder="Search keys by exact name"
                         [autocomplete]="'off'"
                         class="text-default w-full rounded-lg border border-secondary/20 bg-card px-3 py-1.5 text-sm outline-none transition-colors focus:border-primary/40">
@@ -82,26 +101,10 @@
                     (valueSelected)="onValueSelected($event)"
                     class="flex min-h-0 w-full flex-1 flex-col">
                 </kv-detail>
-            } @else {
-                <div class="flex h-full w-full flex-col items-center justify-center py-16 text-center">
-                    <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
-                        <mat-icon
-                            class="text-secondary icon-size-7"
-                            [svgIcon]="'heroicons_outline:folder'">
-                        </mat-icon>
-                    </span>
-                    <div class="text-default mb-1 text-base font-medium">
-                        Select a bucket
-                    </div>
-                    <div class="text-secondary max-w-[220px] text-sm">
-                        Choose a bucket to browse its keys.
-                    </div>
-                </div>
-            }
-        </div>
+            </div>
 
         <div
-            class="min-h-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
+            class="min-h-0 min-w-0 flex-col lg:border-l lg:border-secondary/20 lg:pl-6"
             [ngClass]="focused ? 'flex w-full flex-1' : 'hidden lg:flex lg:flex-1'">
             @if (focused) {
                 <kv-value-pane
@@ -117,19 +120,18 @@
                     <span class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-hover">
                         <mat-icon
                             class="text-secondary icon-size-7"
-                            [svgIcon]="isBrowseMode ? 'heroicons_outline:folder' : 'heroicons_outline:rectangle-stack'">
+                            [svgIcon]="'heroicons_outline:rectangle-stack'">
                         </mat-icon>
                     </span>
                     <div class="text-default mb-1 text-base font-medium">
-                        {{ isBrowseMode ? 'Select a bucket to get started' : 'Select a key to preview its value' }}
+                        Select a key to preview its value
                     </div>
                     <div class="text-secondary max-w-xs text-sm">
-                        {{ isBrowseMode
-                            ? 'Choose a bucket to browse its keys.'
-                            : 'Pick a key to inspect its stored value, metadata, and JSON preview.' }}
+                        Pick a key to inspect its stored value, metadata, and JSON preview.
                     </div>
                 </div>
             }
         </div>
+        }
     </div>
 </div>
