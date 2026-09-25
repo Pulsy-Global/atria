@@ -47,6 +47,20 @@ public class KvManager(
         return Mapper.Map<BucketValuesDto>(result);
     }
 
+    public async Task<BucketListDto> ListBucketsAsync(int limit, string? cursor = null)
+    {
+        var kvStore = await GetKvStoreAsync();
+        var result = await kvStore.ListBucketsAsync(limit, cursor);
+
+        return new BucketListDto
+        {
+            Buckets = result.Names,
+            Total = result.Total,
+            HasMore = result.HasMore,
+            Cursor = result.Cursor,
+        };
+    }
+
     public async Task AddBucketBatchAsync(string bucket, AddBucketBatchDto dto)
     {
         var kvStore = await GetKvStoreAsync();

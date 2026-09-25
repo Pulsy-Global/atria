@@ -12,6 +12,8 @@ public interface IKvManager
 
     Task<BucketValuesDto> GetBucketValuesAsync(string bucket, int limit, string? cursor = null);
 
+    Task<BucketListDto> ListBucketsAsync(int limit, string? cursor = null);
+
     Task AddBucketBatchAsync(string bucket, AddBucketBatchDto dto);
 
     Task DeleteBucketBatchAsync(string bucket, BucketBatchKeysDto dto);
