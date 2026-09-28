@@ -25,6 +25,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 })
 export class SearchBarComponent implements OnInit, OnDestroy {
     @Input() searchTerm: string = STRING_EMPTY;
+    @Input() placeholder: string = 'Search';
     @Output() searchBarFilterEvent: EventEmitter<string>;
     @ViewChild('inputField') inputElement!: ElementRef;
 

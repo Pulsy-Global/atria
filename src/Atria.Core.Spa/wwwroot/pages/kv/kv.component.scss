@@ -1,0 +1,39 @@
+.kv-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.32) transparent;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-button {
+        display: none;
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(148, 163, 184, 0.22);
+        border: 3px solid transparent;
+        border-radius: 9999px;
+        background-clip: content-box;
+        transition: background-color 150ms ease;
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(148, 163, 184, 0.38);
+    }
+
+    &::-webkit-scrollbar-thumb:hover,
+    &::-webkit-scrollbar-thumb:active {
+        background-color: rgba(148, 163, 184, 0.55);
+    }
+}

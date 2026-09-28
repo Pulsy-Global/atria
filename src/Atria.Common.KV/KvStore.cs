@@ -9,7 +9,15 @@ public class KvStore : IKvStore
 {
     private const string BucketPrefix = "B:";
 
+    private const string RegistryPrefix = "R:";
+
+    private static readonly byte[] RegistryMarkerValue = [1];
+
     private readonly IEkvNamespace _namespace;
+
+    private readonly object _knownBucketsLock = new();
+
+    private readonly HashSet<string> _knownBuckets = new(StringComparer.Ordinal);
 
     public KvStore(IEkvNamespace ns)
     {
@@ -18,10 +26,21 @@ public class KvStore : IKvStore
 
     public async Task BucketAddAsync(string name, string key, string value)
     {
+        var dataKey = FormatKey(name, key);
+        var registryKey = RegistryKey(name);
+        var register = !IsKnownBucket(name);
+
         await _namespace.BatchAsync(batch =>
         {
-            batch.Put(FormatKey(name, key), ToBytes(value));
+            batch.Put(dataKey, ToBytes(value));
+
+            if (register)
+            {
+                batch.Put(registryKey, RegistryMarkerValue);
+            }
         });
+
+        RememberBucket(name);
     }
 
     public async Task BucketAddBatchAsync(string name, IReadOnlyDictionary<string, string> items)
@@ -31,13 +50,30 @@ public class KvStore : IKvStore
             return;
         }
 
+        ArgumentException.ThrowIfNullOrEmpty(name);
+
+        if (name.Contains(':'))
+        {
+            throw new ArgumentException("Bucket name must not contain ':'", nameof(name));
+        }
+
+        var registryKey = RegistryKey(name);
+        var register = !IsKnownBucket(name);
+
         await _namespace.BatchAsync(batch =>
         {
             foreach (var (item, value) in items)
             {
                 batch.Put(FormatKey(name, item), ToBytes(value));
             }
+
+            if (register)
+            {
+                batch.Put(registryKey, RegistryMarkerValue);
+            }
         });
+
+        RememberBucket(name);
     }
 
     public async Task<string?> BucketGetAsync(string name, string key)
@@ -65,10 +101,9 @@ public class KvStore : IKvStore
 
     public async Task BucketRemoveAsync(string name, string key)
     {
-        await _namespace.BatchAsync(batch =>
-        {
-            batch.Delete(FormatKey(name, key));
-        });
+        var dataKey = FormatKey(name, key);
+
+        await _namespace.BatchAsync(batch => batch.Delete(dataKey));
     }
 
     public async Task BucketRemoveBatchAsync(string name, IReadOnlyList<string> keys)
@@ -111,6 +146,42 @@ public class KvStore : IKvStore
         };
     }
 
+    public async Task<KvBucketListResult> ListBucketsAsync(int limit, string? cursor = null)
+    {
+        var result = await _namespace.ScanPrefixAsync(
+            RegistryPrefix,
+            limit,
+            string.IsNullOrEmpty(cursor) ? null : cursor);
+
+        var names = result.Items
+            .Where(e => e.Key.Length > RegistryPrefix.Length)
+            .Select(e => e.Key[RegistryPrefix.Length..])
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        names.ForEach(RememberBucket);
+
+        return new KvBucketListResult
+        {
+            Names = names,
+            Total = names.Count,
+            HasMore = result.HasMore,
+            Cursor = result.NextCursor,
+        };
+    }
+
+    private static string RegistryKey(string name)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(name);
+
+        if (name.Contains(':'))
+        {
+            throw new ArgumentException("Bucket name must not contain ':'", nameof(name));
+        }
+
+        return RegistryPrefix + name;
+    }
+
     private static string FormatKey(string name, string item)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
@@ -134,4 +205,20 @@ public class KvStore : IKvStore
 
     private static string? FromBytes(byte[]? bytes)
         => bytes is { Length: > 0 } ? Encoding.UTF8.GetString(bytes) : null;
+
+    private bool IsKnownBucket(string name)
+    {
+        lock (_knownBucketsLock)
+        {
+            return _knownBuckets.Contains(name);
+        }
+    }
+
+    private void RememberBucket(string name)
+    {
+        lock (_knownBucketsLock)
+        {
+            _knownBuckets.Add(name);
+        }
+    }
 }

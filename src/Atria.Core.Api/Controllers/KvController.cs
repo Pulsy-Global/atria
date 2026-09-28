@@ -9,6 +9,17 @@ namespace Atria.Core.Api.Controllers;
 public class KvController(KvFacade kvFacade)
     : ApiControllerBase
 {
+    private const int DefaultBucketListLimit = 1000;
+
+    [HttpGet("buckets")]
+    public async Task<ActionResult<BucketListDto>> GetBucketsAsync(
+        [FromQuery] int limit = DefaultBucketListLimit,
+        [FromQuery] string? cursor = null)
+    {
+        var result = await kvFacade.ListBucketsAsync(limit, cursor);
+        return Ok(result);
+    }
+
     [HttpPost("{bucket}")]
     public async Task<ActionResult> AddBucketAsync(
         [FromRoute] string bucket,

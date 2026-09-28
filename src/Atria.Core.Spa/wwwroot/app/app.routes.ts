@@ -36,6 +36,11 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('pages/output-table/output-table.routes'),
             },
+            {
+                path: 'storage',
+                loadChildren: () =>
+                    import('pages/kv/kv.routes'),
+            },
         ],
     },
 ];
